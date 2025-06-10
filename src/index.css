@@ -1,11 +1,10 @@
 /* Custom styles can be added below */
-@import './styles/global.css';
+@import "./styles/global.css";
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-
-body {
+/* body {
   margin: 0;
   padding: 0;
   width: 100vw;
@@ -70,4 +69,21 @@ button:focus-visible {
   button {
     background-color: #f9f9f9;
   }
+} */
+:root {
+	--dark: #161a1b;
+	--dark_overlay: #161a1b56;
+	--light: #4f5561;
+	--dark_red: #260303;
+	--dark_red_overlay: #260303be;
+	--red: #400606;
+	--off_white: #f2f2f2;
+	--white: #ffffff;
+
+	--md_br: 8px;
+	--sm_br: 4px;
+}
+
+hr {
+	color: #c2c2c2;
 }

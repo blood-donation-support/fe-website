@@ -1,4 +1,5 @@
-import Layout from "./components/Layout";
+//import Layout from "./components/Layout";
+import React from "react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { Provider } from "react-redux";
 import { store, persistor } from "./redux/store";
@@ -10,7 +11,8 @@ import { PersistGate } from "redux-persist/integration/react";
 // import ServicePage from "./pages/ServicePage";
 import Login from "./Auth/Login";
 import Register from "./Auth/Register";
-import HomePage from "./pages/HomePage";
+import { PrivateRoute, ScrollToTop } from "@/components";
+import { DonateBloodPage, HomePage } from "@/pages";
 
 export default function App() {
 	return (
@@ -18,6 +20,7 @@ export default function App() {
 			<PersistGate loading={null} persistor={persistor}>
 				<div className="w-full max-w-[100vw] overflow-x-hidden">
 					<BrowserRouter>
+						<ScrollToTop />
 						<Routes>
 							<Route path="/login" element={<Login />} />
 							<Route path="/register" element={<Register />} />
@@ -26,7 +29,14 @@ export default function App() {
 							{/* Route không có layout (ví dụ: trang chủ) */}
 							<Route path="/" element={<HomePage />} />
 
-
+							<Route
+								path="/donateBlood"
+								element={
+								<PrivateRoute requiredRole="Customer">
+									<DonateBloodPage />
+								</PrivateRoute>
+								}
+							/>
 
 							{/* Route có layout dùng Outlet */}
 							{/* <Route element={<Layout />}>
