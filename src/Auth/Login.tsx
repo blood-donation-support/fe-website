@@ -17,6 +17,7 @@ import {
 	createTheme,
 	ThemeProvider,
 } from "@mui/material";
+import { useAuthStore } from "@/store/authStore";
 
 const customTheme = createTheme({
 	palette: {
@@ -91,7 +92,8 @@ const Login: React.FC = () => {
 	const [passwordVisible, setPasswordVisible] = useState<boolean>(false);
 	const [loading, setLoading] = useState<boolean>(false);
 	const navigate = useNavigate();
-
+	const setAuth = useAuthStore((state) => state.setAuth);
+	
 	const validatePhone = (phone: string): boolean => {
 		const phoneRegex = /^(0|\+84)[0-9]{9}$/;
 		return phoneRegex.test(phone.trim());
@@ -122,17 +124,24 @@ const Login: React.FC = () => {
 
 			if (response?.access_token && response?.user) {
 				// Lưu token và user info nếu cần
-				localStorage.setItem("access_token", response.access_token);
-				localStorage.setItem("refresh_token", response.refresh_token);
+				localStorage.setItem("accessToken", response.access_token);
+				localStorage.setItem("refreshToken", response.refresh_token);
 				localStorage.setItem("user", JSON.stringify(response.user));
 
-				console.log(localStorage.setItem("access_token", response.access_token),
-					localStorage.setItem("refresh_token", response.refresh_token),
-					localStorage.setItem("user", JSON.stringify(response.user)))
+				setAuth(
+					response.access_token,
+					response.refresh_token,
+					{
+						id: response.user.id,
+						role: response.user.role,
+						fullname:'' ,
+						email: '',
+					}
+				);
 
 				toast.success("Đăng nhập thành công");
 
-				navigate("/home");
+				navigate("/");
 			} else {
 				throw new Error(response?.errorMessage || "Đăng nhập thất bại");
 			}
@@ -147,7 +156,7 @@ const Login: React.FC = () => {
 	return (
 		<ThemeProvider theme={customTheme}>
 			<div className="min-h-screen flex items-center justify-center px-4 bg-[#F7F9FF]">
-				<ToastContainer
+				{/* <ToastContainer
 					position="top-right"
 					autoClose={3000}
 					hideProgressBar={false}
@@ -159,7 +168,7 @@ const Login: React.FC = () => {
 					pauseOnHover
 					theme="light"
 					toastClassName="rounded-2xl shadow-lg"
-				/>
+				/> */}
 
 				{/* Floating background elements */}
 				<div className="absolute inset-0 overflow-hidden pointer-events-none">

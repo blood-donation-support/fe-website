@@ -6,7 +6,8 @@ import { Bars3Icon, XMarkIcon } from "@heroicons/react/24/outline";
 import { Logo } from "@/components";
 import { useAuthStore } from "@/store/authStore";
 import { toast } from "react-toastify";
-
+import { FaBars, FaBell, FaPhone, FaUser } from "react-icons/fa";
+import { motion } from "framer-motion";
 const navigation = [
 	{ name: "Trang chủ", href: "/" },
 	{ name: "Donate Money", href: "https://www.facebook.com/dustin.tsan.181003" },
@@ -21,18 +22,20 @@ const HeaderComponent=  () => {
 	const [blurActivation, setBlurActivation] = useState(false);
 	const [isActiveName, setIsActiveName] = useState('');
 	const user = useAuthStore((state) => state.user);
+	console.log("user in header", user);
+
   	const logout = useAuthStore((state) => state.logout);
 	const reuseableClass = {
 		for_last: `bg-red-800 text-white hover:bg-white hover:text-dark`,
 		for_second_last: `rounded-rsm border border-white/[.5] hover:bg-white hover:text-dark`,
 	};
 	const handleLogout = async () => {
-	const ok = logout();
-	if (true) {//để ní kia chỉnh lại sau
-		toast.success("Đăng xuất thành công!");
-	} else {
-		toast.error("Đăng xuất thất bại! Vui lòng thử lại.");
-	}
+		const ok = logout();
+		if (true) {//để ní kia chỉnh lại sau
+			toast.success("Đăng xuất thành công!");
+		} else {
+			toast.error("Đăng xuất thất bại! Vui lòng thử lại.");
+		}
 	};
 	useEffect(() => {
 		const onScroll = () => {
@@ -44,58 +47,58 @@ const HeaderComponent=  () => {
 		return () => window.removeEventListener("scroll", onScroll);
 	}, []);
 	return (
-		<header
-			onScroll={() => setBlurActivation(true)}
-			className={`fixed inset-x-0 top-0 z-50 border-b border-white/[.2] ${
-				blurActivation ? "bg-blue-400/[.5] backdrop-blur-md" : ""
-			}`}
-		>
-			<div
-				className="flex items-center justify-between p-6 lg:px-8 w-[min(1250px,100%-15px)] m-auto"
-				aria-label="Global"
+		<motion.header
+			initial={{ opacity: 0, y: -32 }}
+			animate={{ opacity: 1, y: 0 }}
+			transition={{
+				duration: 1.2,
+				ease: [0, 0.05, 0.05, 0.1],
+				delay: 0.08,
+			}}
+			className="w-full px-8 pb-10 pt-5 flex items-center justify-between bg-white/0 transition absolute top-0 left-0 z-20"
 			>
-				<div className="flex lg:flex-1">
-					<a href="/" className="-m-1.5 p-1.5">
-						<span className="sr-only">{compnayName}</span>
-						<img className="w-auto h-10" src={Logo} alt="" />
-					</a>
+			<div className="flex items-center gap-20">
+				<div className="flex items-center gap-2">
+					<img src="src/assets/logo.png" alt="Donate Blood" className="w-8 h-8 rounded-full" />
+					<span className="font-bold text-2xl text-blue-600">Donate Blood</span>
 				</div>
-
-				<div className="flex lg:hidden">
-					<button
-						type="button"
-						className="-m-2.5 inline-flex items-center justify-center rounded-md p-2.5 "
-					>
-						<span className="sr-only">Open main menu</span>
-						<Bars3Icon className="w-6 h-6" aria-hidden="true" />
-					</button>
-				</div>
-
-				<div className="hidden lg:flex lg:gap-x-4 lg:transition">
-					{navigation.map((item) => (
-						<NavLink
-							key={item.name}
-							to={item.href}
-							className={`text-lg font-bold hover:bg-teal-400 lg:transition leading-6 text-white px-3 py-2 rounded-md ${
-								item.secondLast && `${reuseableClass.for_second_last}`
-							} ${item.last && `${reuseableClass.for_last} hover:bg-red-950`} ${
-								isActiveName == item.name ? `bg-dark` : ``
-							}`}
-							>
-							{item.name}
-						</NavLink>
+				<button className="md:hidden p-2 rounded-full hover:bg-gray-200">
+					<FaBars size={20} />
+				</button>
+				<nav className="hidden md:flex items-center gap-3 ml-4">
+					{[{context:"Chúng tôi",nav:"/home"},{context:"Hiến máu",nav:"/home"} ,{context:"Nhận máu",nav:"/home"} ,{context: "Hỗ trợ",nav:"/home"}].map((item) => (
+						<Link to={item.nav}
+						key={item.context}
+						className="px-6 py-2 text-lg bg-white rounded-full border border-gray-200 shadow-sm font-medium text-gray-700 hover:bg-blue-50 transition"
+						>
+						{item.context}
+						</Link>
 					))}
-				</div>
-				{user && (
-					<button
-						onClick={handleLogout}
-						className="ml-20 -mr-20 px-4 py-2 rounded bg-red-800 text-white hover:bg-red-600 font-semibold transition"
-					>
-						Đăng xuất
-					</button>
-				)}
+				</nav>
 			</div>
-		</header>
+			<div className="flex items-center gap-4">
+				<div className="hidden md:block text-2xl text-gray-500 mr-4 bg-white rounded-full px-6 py-3">
+					<span className="inline-block align-middle mr-1">
+						<svg width="14" height="14" fill="none" viewBox="0 0 24 24">
+							<circle cx="12" cy="10" r="6" stroke="#7C8DB0" strokeWidth="2" />
+							<path d="M12 16v4" stroke="#7C8DB0" strokeWidth="2" strokeLinecap="round" />
+						</svg>
+					</span>
+					Nhà văn hóa sinh viên,Q9
+				</div>
+				<div className="flex gap-2">
+					<button className="w-14 h-14 flex items-center justify-center rounded-full bg-black text-white hover:bg-blue-600 transition">
+						<FaPhone size={16} />
+					</button>
+					<button className="w-14 h-14 flex items-center justify-center rounded-full bg-blue-100 text-blue-500 hover:bg-blue-600 hover:text-white transition">
+						<FaBell size={16} />
+					</button>
+					<button className="w-14 h-14 flex items-center justify-center rounded-full bg-blue-100 text-blue-500 hover:bg-blue-600 hover:text-white transition">
+						<FaUser size={16} />
+					</button>
+				</div>
+			</div>
+		</motion.header>
 	);
 };
 

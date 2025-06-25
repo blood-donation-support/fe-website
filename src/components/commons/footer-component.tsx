@@ -45,7 +45,7 @@ const FooterComponent = () => {
 	];
 
 	return (
-		<section className="flex flex-col justify-center items-center w-full mx-auto my-0 px-2.5 pt-[70px] pb-[40px] bg-dark bg-black">
+		<section className="flex flex-col justify-center items-center w-full mx-auto my-0 px-2.5 pt-[70px] pb-[40px] bg-dark bg-blue-500/90 rounded-t-[20px]">
 			<div className="relative w-[min(100%_-_15px,1250px)]  mx-auto my-0 p-2.5 ">
 				<div className="first-section-wrapper grid sm:grid-cols-[1.5fr_1fr_1fr] gap-10">
 					<div className="flex flex-col footer-col first-col">

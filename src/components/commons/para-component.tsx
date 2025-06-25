@@ -5,7 +5,7 @@ interface ParaComponentProps {
 
 const ParaComponent = ({ innerText, size }: ParaComponentProps) => {
   return (
-    <p className={`step-description not-italic font-medium ${size == "large" ? `text-[18px]` : `text-[16px]`} leading-7 text-light`}>
+    <p className={`step-description not-italic font-medium ${size == "large" ? `text-[30px] leading-10` : `text-[16px] leading-7`}  text-light`}>
       {innerText}
     </p>
   );

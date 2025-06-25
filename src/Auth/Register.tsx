@@ -181,7 +181,7 @@ const Register: React.FC = () => {
     return (
         <ThemeProvider theme={customTheme}>
             <div className="min-h-screen flex items-center justify-center px-4 bg-[#F7F9FF]">
-                <ToastContainer
+                {/* <ToastContainer
                     position="top-right"
                     autoClose={3000}
                     hideProgressBar={false}
@@ -193,7 +193,7 @@ const Register: React.FC = () => {
                     pauseOnHover
                     theme="light"
                     toastClassName="rounded-2xl shadow-lg"
-                />
+                /> */}
 
                 {/* Floating background elements */}
                 <div className="absolute inset-0 overflow-hidden pointer-events-none">
