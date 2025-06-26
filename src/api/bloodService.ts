@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API_URL = "https://be-production-84a8.up.railway.app";
+const API_URL = "https://be-t8i8.onrender.com/api";
 
 export interface BloodGroup {
   _id: string;

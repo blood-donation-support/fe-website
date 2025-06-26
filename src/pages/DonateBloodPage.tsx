@@ -95,54 +95,8 @@ const DonateBloodPage = () => {
 	return (
 		<>
 			<section className="w-full h-screen relative">
-			<header
-			
-			className="w-full px-8 pb-10 pt-5 flex items-center justify-between bg-white/100 transition absolute top-0 left-0 z-20 "
-			>
-			{/* Logo và menu */}
-			<div className="flex items-center gap-20">
-				<div className="flex items-center gap-2">
-				<img src="/logo.png" alt="Donate Blood" className="w-8 h-8 rounded-full" />
-				<span className="font-bold text-2xl text-blue-600">Donate Blood</span>
-				</div>
-				<button className="md:hidden p-2 rounded-full hover:bg-gray-200">
-				<FaBars size={20} />
-				</button>
-				<nav className="hidden md:flex items-center gap-3 ml-4">
-				{["Chúng tôi", "Hiến máu", "Nhận máu", "Hỗ trợ"].map((item) => (
-					<Link to='/donateBlood'
-					key={item}
-					className="px-6 py-2 text-lg bg-white rounded-full border border-gray-200 shadow-sm font-medium text-gray-700 hover:bg-blue-50 transition"
-					>
-					{item}
-					</Link>
-				))}
-				</nav>
-			</div>
-			<div className="flex items-center gap-4">
-				<div className="hidden md:block text-2xl text-gray-500 mr-4 bg-neutral-900 rounded-full px-6 py-3">
-				<span className="inline-block align-middle mr-1">
-					<svg width="14" height="14" fill="none" viewBox="0 0 24 24">
-					<circle cx="12" cy="10" r="6" stroke="#7C8DB0" strokeWidth="2" />
-					<path d="M12 16v4" stroke="#7C8DB0" strokeWidth="2" strokeLinecap="round" />
-					</svg>
-				</span>
-				Nhà văn hóa sinh viên,Q9
-				</div>
-				<div className="flex gap-2">
-				<button className="w-14 h-14 flex items-center justify-center rounded-full bg-black text-white hover:bg-blue-600 transition">
-					<FaPhone size={16} />
-				</button>
-				<button className="w-14 h-14 flex items-center justify-center rounded-full bg-blue-100 text-blue-500 hover:bg-blue-600 hover:text-white transition">
-					<FaBell size={16} />
-				</button>
-				<button className="w-14 h-14 flex items-center justify-center rounded-full bg-blue-100 text-blue-500 hover:bg-blue-600 hover:text-white transition">
-					<FaUser size={16} />
-				</button>
-				</div>
-			</div>
-        </header>
-			{/* <HeaderComponent /> */}
+			 
+			<HeaderComponent /> 
 			<HeroComponent {...DonateBloodPageDetails.hero} />
 			<FormComponent
 				fields={fields}
@@ -153,7 +107,7 @@ const DonateBloodPage = () => {
 				setFormData={setFormData}
 				statusForm={statusForm}
 			/>
-			<SideBySideComponent {...DonateBloodPageDetails.why_donate_blood} />
+			{/* <SideBySideComponent {...DonateBloodPageDetails.why_donate_blood} /> */}
 			<FooterComponent />
 			</section>
 		</>
