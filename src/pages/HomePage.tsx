@@ -1,28 +1,147 @@
-import React from "react";
-import { Link } from "react-router-dom";
-
+import BlogCarousel from "@/components/BlogCarousel";
+import SectionMotionWrapper from "@/components/commons/SectionMotionWrapper";
+import HomePageSection from "@/components/HomepageSection";
+import { ServiceSection } from "@/components/ServiceSection";
+import BlogSection from "@/components/BlogSection";
 export default function HomePage() {
+	const demoBlogs = [
+		{
+			image: "/blog1.jpg",
+			title:
+				"30 Best UX Design Blogs to Educate and Inspire You (Updated for 2025)",
+			summary:
+				"Here are 30 of the best UX design blogs (and design related blogs) to follow to expand your knowledge and inspire your design career journey in 2025 and beyond....",
+			logo: "/logo-dl.png",
+			blogUrl: "../assets/blood-donation(6).jpg",
+			author: "Designlab",
+			domain: "designlab.com",
+		},
+		{
+			image: "/blog1.jpg",
+			title:
+				"30 Best UX Design Blogs to Educate and Inspire You (Updated for 2025)",
+			summary:
+				"Here are 30 of the best UX design blogs (and design related blogs) to follow to expand your knowledge and inspire your design career journey in 2025 and beyond....",
+			logo: "/logo-dl.png",
+			blogUrl: "https://designlab.com/blog/top-ux-design-blogs/",
+			author: "Designlab",
+			domain: "designlab.com",
+		},
+		{
+			image: "/blog1.jpg",
+			title:
+				"30 Best UX Design Blogs to Educate and Inspire You (Updated for 2025)",
+			summary:
+				"Here are 30 of the best UX design blogs (and design related blogs) to follow to expand your knowledge and inspire your design career journey in 2025 and beyond....",
+			logo: "/logo-dl.png",
+			blogUrl: "https://designlab.com/blog/top-ux-design-blogs/",
+			author: "Designlab",
+			domain: "designlab.com",
+		},
+		{
+			image: "/blog1.jpg",
+			title:
+				"30 Best UX Design Blogs to Educate and Inspire You (Updated for 2025)",
+			summary:
+				"Here are 30 of the best UX design blogs (and design related blogs) to follow to expand your knowledge and inspire your design career journey in 2025 and beyond....",
+			logo: "/logo-dl.png",
+			blogUrl: "https://designlab.com/blog/top-ux-design-blogs/",
+			author: "Designlab",
+			domain: "designlab.com",
+		},
+		{
+			image: "/blog1.jpg",
+			title:
+				"30 Best UX Design Blogs to Educate and Inspire You (Updated for 2025)",
+			summary:
+				"Here are 30 of the best UX design blogs (and design related blogs) to follow to expand your knowledge and inspire your design career journey in 2025 and beyond....",
+			logo: "/logo-dl.png",
+			blogUrl: "https://designlab.com/blog/top-ux-design-blogs/",
+			author: "Designlab",
+			domain: "designlab.com",
+		},
+		{
+			image: "/blog1.jpg",
+			title:
+				"30 Best UX Design Blogs to Educate and Inspire You (Updated for 2025)",
+			summary:
+				"Here are 30 of the best UX design blogs (and design related blogs) to follow to expand your knowledge and inspire your design career journey in 2025 and beyond....",
+			logo: "/logo-dl.png",
+			blogUrl: "https://designlab.com/blog/top-ux-design-blogs/",
+			author: "Designlab",
+			domain: "designlab.com",
+		},
+		{
+			image: "/blog1.jpg",
+			title:
+				"30 Best UX Design Blogs to Educate and Inspire You (Updated for 2025)",
+			summary:
+				"Here are 30 of the best UX design blogs (and design related blogs) to follow to expand your knowledge and inspire your design career journey in 2025 and beyond....",
+			logo: "/logo-dl.png",
+			blogUrl: "https://designlab.com/blog/top-ux-design-blogs/",
+			author: "Designlab",
+			domain: "designlab.com",
+		},
+		{
+			image: "/blog1.jpg",
+			title:
+				"30 Best UX Design Blogs to Educate and Inspire You (Updated for 2025)",
+			summary:
+				"Here are 30 of the best UX design blogs (and design related blogs) to follow to expand your knowledge and inspire your design career journey in 2025 and beyond....",
+			logo: "/logo-dl.png",
+			blogUrl: "https://designlab.com/blog/top-ux-design-blogs/",
+			author: "Designlab",
+			domain: "designlab.com",
+		},
+		{
+			image: "/blog1.jpg",
+			title:
+				"30 Best UX Design Blogs to Educate and Inspire You (Updated for 2025)",
+			summary:
+				"Here are 30 of the best UX design blogs (and design related blogs) to follow to expand your knowledge and inspire your design career journey in 2025 and beyond....",
+			logo: "/logo-dl.png",
+			blogUrl: "https://designlab.com/blog/top-ux-design-blogs/",
+			author: "Designlab",
+			domain: "designlab.com",
+		},
+		{
+			image: "/blog1.jpg",
+			title:
+				"30 Best UX Design Blogs to Educate and Inspire You (Updated for 2025)",
+			summary:
+				"Here are 30 of the best UX design blogs (and design related blogs) to follow to expand your knowledge and inspire your design career journey in 2025 and beyond....",
+			logo: "/logo-dl.png",
+			blogUrl: "https://designlab.com/blog/top-ux-design-blogs/",
+			author: "Designlab",
+			domain: "designlab.com",
+		},
+		// ...Thêm 5-10 blog mẫu nữa
+	];
 	return (
-		<div>
-			home page
-			<div className="hidden md:flex items-center gap-3 text-sm">
-				<Link
-					to="/login"
-					className="px-5 py-3 rounded-full border text-white shadow-xl 
-  hover:bg-orange-100 hover:text-orange-400 hover:border-orange-300 
-  transition-all duration-200 ease-in-out hover:shadow-2xl hover:z-[999] hover:ring hover:ring-offset-1 hover:ring-orange-300"
+		<>
+			<div className="relative ">
+				<div
+					className="h-screen overflow-y-scroll snap-y snap-mandatory"
+					style={{ scrollBehavior: "smooth" }}
 				>
-					SIGN IN
-				</Link>
-				<Link
-					to="/register"
-					className="px-5 py-3 rounded-full border border-orange-300 bg-orange-100 text-orange-400 shadow-xl 
-  hover:bg-orange-300 hover:text-orange-500 hover:border-orange-800 
-  transition-all duration-200 ease-in-out hover:shadow-2xl hover:z-[999] hover:ring hover:ring-offset-1 hover:ring-orange-300"
-				>
-					SIGN UP
-				</Link>
+					<HomePageSection />
+					{/* Slide 2: Medical Services */}
+					<ServiceSection />
+					{/* section 3 : blog*/}
+					<SectionMotionWrapper className="w-full h-screen flex flex-col items-center justify-center bg-blue-50 snap-start">
+						{(inView) => (
+							<>
+								<h2 className="text-3xl font-bold mb-20">
+									Danh sách Blog UX nổi bật
+								</h2>
+								<BlogCarousel blogs={demoBlogs} />
+							</>
+						)}
+					</SectionMotionWrapper>
+					{/* section 4 */}
+					<BlogSection />
+				</div>
 			</div>
-		</div>
+		</>
 	);
 }
