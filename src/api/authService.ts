@@ -1,7 +1,7 @@
 import axios from "axios";
 import { jwtDecode } from "jwt-decode";
 
-const API_URL = "https://be-production-84a8.up.railway.app";
+const API_URL = "https://be-t8i8.onrender.com/api";
 
 type DecodedToken = {
   user_id: string;
@@ -23,7 +23,7 @@ const authService = {
         password,
       });
 
-      console.log(response.data);
+      console.log("dòng 26 trong authService", response.data);
 
       if (response.data?.result?.access_token) {
   const { access_token, refresh_token } = response.data.result;
@@ -33,8 +33,13 @@ const authService = {
 
   const user = {
     id: decodedUser.user_id,
-    role: decodedUser.role,
+    role: decodedUser.role, 
   };
+  console.log("dòng 38", user);
+     localStorage.setItem("accessToken", access_token);
+        localStorage.setItem("refreshToken", refresh_token);
+        localStorage.setItem("user", JSON.stringify(user));
+
 
   return { access_token, refresh_token, user };
 }

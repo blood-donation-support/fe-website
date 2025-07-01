@@ -26,7 +26,7 @@ const GroupedHeadingComponent = ({
         ${position == "center" ? `text-center` : `text-left`}
         ${
           mode == "light" ? `text-white` : `text-red`
-        } not-italic font-medium text-[16px] sm:text-[20px] leading-normal tracking-[0.2em] uppercase`}
+        } not-italic font-medium text-[2rem] leading-normal tracking-[0.2em] uppercase`}
       >
         {subheadingText}
       </span>
