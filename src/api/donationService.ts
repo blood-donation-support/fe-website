@@ -1,10 +1,10 @@
 import axios from "axios";
 
-const API_URL = "https://be-production-84a8.up.railway.app";
+const API_URL = "https://be-t8i8.onrender.com/api";
 
 export interface DonationRegistrationPayload {
   blood_group_id: string;
-  blood_component_id: string;
+  donation_type: string;
   start_date_donation: string;
 }
 

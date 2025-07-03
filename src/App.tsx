@@ -28,6 +28,9 @@ import StaffWarehouseLayout from "./components/layout/StaffWarehouseLayout";
 import { BloodInventoryDashboard } from "./pages/warehouse-staff/BloodInventoryDashboard";
 import { BloodSeparationListPage } from "./pages/warehouse-staff/BloodSeparationListPage";
 import { BloodSeparationProcessPage } from "./pages/warehouse-staff/BloodSeparationProcessPage";
+import BlogDetailPage from "./pages/BlogDetailPage";
+import BlogAdminPage from "./pages/admin/BlogAdminPage";
+import BlogEditPage from "./pages/admin/BlogEditPage";
 
 function PrivateRoute({
 	role,
@@ -53,7 +56,7 @@ export default function App() {
 				<Route path="/" element={<HomePage />} />
 				<Route path="/login" element={<Login />} />
 				<Route path="/donateBlood" element={<DonateBloodPage />} />
-
+				<Route path="/blogDetail/:id" element={<BlogDetailPage />}/>
 				<Route
 					path="/donateBlood"
 					element={
@@ -80,6 +83,8 @@ export default function App() {
 						path="donation-registers"
 						element={<DonationRegistrationsPage />}
 					/>
+					<Route path="blogs" element={<BlogAdminPage />} /> 
+					<Route path="blogs/:id/edit" element={<BlogEditPage />} />
 				</Route>
 
 				{/* staff routes */}
