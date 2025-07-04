@@ -15,17 +15,22 @@ import { Stepper } from "@/components/ui/stepper";
 
 import {
 	fetchDoctorRequestById,
-	approveDoctorRequest,
+	approveDoctorRequest
+} from "../../api/doctorRequestService";
+import {
 	fetchBloodUnits,
 	fetchBloodGroups,
-	fetchBloodComponents,
+	fetchBloodComponents
+} from "../../api/bloodService";
+import type {
+	DoctorRequest,
 } from "../../api/doctorRequestService";
 import type {
 	BloodUnit,
-	DoctorRequest,
 	BloodGroup,
-	BloodComponent,
-} from "../../api/doctorRequestService";
+	BloodComponent
+} from "../../api/bloodService";
+
 import { BLOOD_COMPONENT_LABELS } from "../../constants/bloodLabels";
 
 export const BloodRequestApprovalPage: React.FC = () => {

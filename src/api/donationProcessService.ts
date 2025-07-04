@@ -1,7 +1,16 @@
-// src/api/donationProcessService.ts
-import apiClient from './apiClient';
 import type { DonationProcess } from '../types/donation';
-import type { ApiResponse } from './donationRegistrationService';
+import {apiClient } from './apiClient';
+import type {ApiResponse } from './apiClient';
+
+export const fetchDonationProcessAll = async (
+): Promise<DonationProcess> => {
+  const res = await apiClient.get<ApiResponse<DonationProcess>>(
+    `/donations/donation-processes?is_separated=false&status=Approved`
+  );
+  console.log("res nè", res);
+  return res.data.result;
+};
+
 
 /**
  * Lấy DonationProcess theo đúng donation_process_id
@@ -31,5 +40,6 @@ export const updateDonationProcess = async (
     `/donations/donation-processes/${id}`,
     payload
   );
+  console.log("check ở process nè", res.data.result);
   return res.data.result;
 };

@@ -4,13 +4,14 @@ import SidebarUpdateCard from "./SidebarUpdateCard";
 
 const adminNavItems = [
   { icon: "fa-chart-pie", label: "Dashboard", path: "/dashboard-admin" },              
-  { icon: "fa-user-tie", label: "Staffs", path: "/dashboard-admin/staffs" },          
-  { icon: "fa-users", label: "Users", path: "/dashboard-admin/users" },                
-  { icon: "fa-tint", label: "Bloods", path: "/dashboard-admin/bloods" },              
-  { icon: "fa-flask", label: "Blood Process", path: "/dashboard-admin/blood-process" }, 
-  { icon: "fa-clipboard-list", label: "Donation Registrations", path: "/dashboard-admin/donation-registers" }, 
-  { icon: "fa-hand-holding-heart", label: "Donation Requests", path: "/dashboard-admin/donation-requests" },  
-  { icon: "fa-file-alt", label: "Reports", path: "/dashboard-admin/reports" },     
+
+  // { icon: "fa-user-tie", label: "Nhân Viên", path: "/dashboard-admin/staffs" },          
+  { icon: "fa-users", label: "Người Dùng", path: "/dashboard-admin/users" },                
+  { icon: "fa-tint", label: "Máu", path: "/dashboard-admin/bloods" },              
+//   { icon: "fa-flask", label: "Quy trình", path: "/dashboard-admin/blood-process" }, 
+  { icon: "fa-clipboard-list", label: "Đơn Đăng Kí Hiến", path: "/dashboard-admin/donation-registers" }, 
+  { icon: "fa-hand-holding-heart", label: "Đơn Xin  Máu", path: "/dashboard-admin/request-list" },  
+//   { icon: "fa-file-alt", label: "Reports", path: "/dashboard-admin/reports" },        
   { icon: "fa-blog", label: "Blogs", path: "/dashboard-admin/blogs" }   
 ];
 

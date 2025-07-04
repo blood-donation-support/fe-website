@@ -3,28 +3,34 @@ import SidebarNavItem from "./SidebarNavItem";
 import SidebarUpdateCard from "./SidebarUpdateCard";
 
 const artistNavItems = [
+		{
+	icon: "fa-chart-pie", 
+	label: "Dashboard Kho Máu",
+	path: "/dashboard-staff-warehouse/blood-storage-dashboard",
+},
 	
 	{
 	icon: "fa-chart-pie", 
 	label: "Blood Storage Summary",
 	path: "/dashboard-staff-warehouse/blood-storage-summary",
 },
-	{
-	icon: "fa-chart-pie", 
-	label: "Blood Storage Dashboard",
-	path: "/dashboard-staff-warehouse/blood-storage-dashboard",
-},
-{
-	icon: "fa-list-alt",  
-	label: "Donation Request List",
-	path: "/dashboard-staff-warehouse/request-list",
-},
 {
 	icon: "fa-tint",  
-	label: "Blood Storage",
+	label: "Quản Lý Kho Máu",
 	path: "/dashboard-staff-warehouse/blood-storage",
 },
 
+{
+	icon: "fa-list-alt",  
+	label: "Đơn Xin Máu",
+	path: "/dashboard-staff-warehouse/request-list",
+},
+
+{
+	icon: "fa-list-alt",  
+	label: "Đơn Phân Tách & Nhập Kho",
+	path: "/dashboard-staff-warehouse/blood-separation-list",
+},
 
 	
 ];

@@ -21,6 +21,8 @@ import {
 } from "@/components/ui/table";
 import type { DonationRegistration } from "../types/donation";
 import { fetchDonationRegistrations } from "../api/donationRegistrationService";
+import statusVN from "@/utils/statusVN";
+import bloodComponentVN from "@/utils/translateBloodComponentVN";
 
 export const DonationRegisterPage: React.FC = () => {
 	const navigate = useNavigate();
@@ -110,6 +112,8 @@ export const DonationRegisterPage: React.FC = () => {
 									<TableHead>CCCD</TableHead>
 									<TableHead>Họ tên</TableHead>
 									<TableHead>Số điện thoại</TableHead>
+									<TableHead>Loại hiến</TableHead>
+
 									<TableHead>Ngày hẹn</TableHead>
 									<TableHead>Trạng thái</TableHead>
 									<TableHead>Thao tác</TableHead>
@@ -124,10 +128,12 @@ export const DonationRegisterPage: React.FC = () => {
 										<TableCell>{r.citizen_id_number}</TableCell>
 										<TableCell>{r.full_name}</TableCell>
 											<TableCell>{r.phone}</TableCell>
+										<TableCell>{bloodComponentVN(r.donation_type || "Không có")}</TableCell>
+
 										<TableCell>
 											{new Date(r.start_date_donation).toLocaleDateString()}
 										</TableCell>
-										<TableCell>{r.status}</TableCell>
+										<TableCell>{statusVN(r.status)}</TableCell>
 										<TableCell>
 											<Button
 												onClick={() =>

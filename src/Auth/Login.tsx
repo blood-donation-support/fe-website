@@ -122,8 +122,8 @@ const Login: React.FC = () => {
 
 			if (response?.access_token && response?.user) {
 				// Lưu token và user info nếu cần
-				localStorage.setItem("access_token", response.access_token);
-				localStorage.setItem("refresh_token", response.refresh_token);
+				localStorage.setItem("accessToken", response.access_token);
+				localStorage.setItem("refreshToken", response.refresh_token);
 				localStorage.setItem("user", JSON.stringify(response.user));
 
 				console.log(localStorage.setItem("access_token", response.access_token),
@@ -132,7 +132,7 @@ const Login: React.FC = () => {
 
 				toast.success("Đăng nhập thành công");
 
-				navigate("/home");
+				navigate("/dashboard-admin");
 			} else {
 				throw new Error(response?.errorMessage || "Đăng nhập thất bại");
 			}

@@ -31,6 +31,7 @@ import { BloodSeparationProcessPage } from "./pages/warehouse-staff/BloodSeparat
 import BlogDetailPage from "./pages/BlogDetailPage";
 import BlogAdminPage from "./pages/admin/BlogAdminPage";
 import BlogEditPage from "./pages/admin/BlogEditPage";
+import UserListPage from "./pages/admin/UserListPage";
 
 function PrivateRoute({
 	role,
@@ -76,7 +77,8 @@ export default function App() {
 					}
 				>
 					{/* <Route index element={<DashboardAdmin />} /> */}
-					<Route path="staffs" element={<StaffListPage />} />
+					{/* <Route path="staffs" element={<StaffListPage />} /> */}
+					<Route path="users" element={<UserListPage />} />
 
 					<Route path="bloods" element={<BloodPage />} />
 					<Route
@@ -85,6 +87,10 @@ export default function App() {
 					/>
 					<Route path="blogs" element={<BlogAdminPage />} /> 
 					<Route path="blogs/:id/edit" element={<BlogEditPage />} />
+					<Route
+						path="/dashboard-admin/request-list"
+						element={<BloodRequestListPage />}
+					/>
 				</Route>
 
 				{/* staff routes */}
@@ -117,15 +123,16 @@ export default function App() {
 						element={<BloodRequestApprovalPage />}
 					/>
 					<Route path="blood-storage" element={<BloodStoragePage />} />
-					{/* <Route path="blood-storage-summary" element={<BloodSummaryTable />} /> */}
-					<Route
+					<Route path="blood-storage-summary" element={<BloodSummaryTable />} />
+					{/* <Route
 						path="blood-storage-dashboard"
 						element={<BloodInventoryDashboard />}
-					/>
+					/> */}
 					<Route
 						path="blood-separation-list"
 						element={<BloodSeparationListPage />}
-					/><Route
+					/>
+					<Route
 						path="blood-separation-process/:id"
 						element={<BloodSeparationProcessPage />}
 					/>

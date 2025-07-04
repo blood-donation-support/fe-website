@@ -1,9 +1,12 @@
 import { useEffect, useState } from "react";
 import "./form-component-styles.scss";
 import { WrapperSection } from "@/components";
-import bloodService, { type BloodGroup } from "@/api/bloodService";
 import DateInputVi from "@/components/datePicker";
 import { donationTypeList } from "@/constants/donationType";
+import type {BloodComponent, BloodGroup } from "@/api/bloodService";
+import {bloodService} from "@/api/bloodService";
+
+import bloodComponentVN from "@/utils/translateBloodComponentVN";
 
 interface Field {
   key: string;
