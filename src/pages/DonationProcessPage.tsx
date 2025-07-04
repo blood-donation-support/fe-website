@@ -48,6 +48,9 @@ export const DonationProcessPage: React.FC = () => {
 	);
 	const [health, setHealth] = useState<HealthCheck | null>(null);
 	const [process, setProcess] = useState<DonationProcess | null>(null);
+	const [donationType, setDonationType] = useState<string | null>(
+		null,
+	);
 
 	// --- Step 2 form state ---
 	const [weight, setWeight] = useState<string>("");
@@ -70,13 +73,13 @@ export const DonationProcessPage: React.FC = () => {
 	);
 	const [donationDone, setDonationDone] = useState(false);
 
-	// Fetch data and control step progression
 	useEffect(() => {
 		if (!id) return;
 		(async () => {
 			// fetch registration list and select
 			const regs = await fetchDonationRegistrations();
 			const reg = regs.find((r) => r._id === id) ?? null;
+			console.log("reg nè", reg);
 			setRegistration(reg);
 
 			if (!reg || reg.status !== "Checked In") {
@@ -88,6 +91,7 @@ export const DonationProcessPage: React.FC = () => {
 			let hc: HealthCheck | null = null;
 			if (reg.health_check_id) {
 				hc = await fetchHealthCheck(reg.health_check_id);
+				console.log("fetch health check", hc);
 				setHealth(hc);
 			}
 
@@ -131,16 +135,23 @@ export const DonationProcessPage: React.FC = () => {
 			}
 		})();
 	}, [id]);
+useEffect(() => {
+  if (registration?.donation_type) {
+    setDonationType(registration.donation_type);
+  }
+}, [registration]);
 
 	// Step handlers
 	const handleCheckIn = async () => {
 		if (!registration) return;
-		await checkInDonationRegistration(id!, "Checked In");
+		await checkInDonationRegistration(id!, "Checked In", donationType ?? undefined);
 		setCurrentStep(2);
 	};
 
 	const handleScreening = async () => {
 		if (!health) return;
+		console.log("tyep ở health", health.donation_type);
+
 		await updateHealthCheck(health._id, {
 			blood_group_id: health.blood_group_id,
 			weight: parseFloat(weight),
@@ -152,6 +163,8 @@ export const DonationProcessPage: React.FC = () => {
 			underlying_health_conditions: conditions,
 			description: health.description,
 			status: screenResult,
+			donation_type: health.donation_type,
+
 		});
 		if (screenResult === "Rejected") {
 			setStatusDonation("Rejected");
@@ -169,6 +182,8 @@ export const DonationProcessPage: React.FC = () => {
 				volume_collected: parseFloat(volumeCollected),
 				description,
 				status: statusDonation,
+
+
 			});
 			setDonationDone(true);
 			setCurrentStep(4);
@@ -188,7 +203,7 @@ export const DonationProcessPage: React.FC = () => {
 					</h2>
 
 					<Stepper
-						steps={["Thông tin yêu cầu", "Chọn máu", "Hoàn tất"]}
+						steps={["Thông tin yêu cầu", "Sàng lọc", "Lấy máu", "Hoàn tất"]}
 						currentStep={currentStep}
 					/>
 
@@ -304,7 +319,7 @@ export const DonationProcessPage: React.FC = () => {
 					)}
 
 					{/* Step 3 */}
-					{currentStep === 3 && !donationDone && (
+					{currentStep === 3  && !donationDone && (
 						<div className="mt-6 grid grid-cols-1 gap-6">
 							<div>
 								<label className="block mb-1">Ngày lấy máu</label>

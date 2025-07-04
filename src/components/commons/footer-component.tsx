@@ -13,7 +13,7 @@ const FooterComponent = () => {
 		},
 		{
 			title: "Yêu cầu máu",
-			link: "/need-blood",
+			link: "/",
 		},
 		{
 			title: "Donate Money",
@@ -21,7 +21,7 @@ const FooterComponent = () => {
 		},
 		{
 			title: "Trợ giúp",
-			link: "/contact",
+			link: "/",
 		}
 	];
 
@@ -45,7 +45,7 @@ const FooterComponent = () => {
 	];
 
 	return (
-		<section className="flex flex-col justify-center items-center w-full mx-auto my-0 px-2.5 pt-[70px] pb-[40px] bg-dark bg-blue-500/90 rounded-t-[20px]">
+		<section className="flex flex-col justify-center items-center w-full mx-auto my-0 px-2.5 pt-[70px] pb-[40px] bg-dark bg-blue-600 rounded-t-[20px]">
 			<div className="relative w-[min(100%_-_15px,1250px)]  mx-auto my-0 p-2.5 ">
 				<div className="first-section-wrapper grid sm:grid-cols-[1.5fr_1fr_1fr] gap-10">
 					<div className="flex flex-col footer-col first-col">
@@ -58,14 +58,14 @@ const FooterComponent = () => {
 						</h3>
 					</div>
 					<div className="footer-col second-col">
-						<h3 className="not-italic font-medium text-[16px] leading-[27px] tracking-[0.05em] uppercase text-[red] mb-3">
+						<h3 className="not-italic font-bold text-[26px] leading-[27px] tracking-[0.05em] uppercase text-white mb-3">
 							Khám phá
 						</h3>
 						<ul className="flex flex-col gap-2">
 							{exploreLinks.map((link, index) => (
 								<li key={index}>
 									<NavLink
-										className="not-italic font-medium text-[18px] leading-[34px] text-[#D9D9D9]"
+										className="not-italic font-medium text-[18px] leading-[34px] text-white"
 										to={link.link}
 									>
 										{link.title}
@@ -75,14 +75,14 @@ const FooterComponent = () => {
 						</ul>
 					</div>
 					<div className="footer-col third-col">
-						<h3 className="not-italic font-medium text-[16px] leading-[27px] tracking-[0.05em] uppercase text-[red] mb-3">
+						<h3 className="not-italic font-bold text-[26px] leading-[27px] tracking-[0.05em] uppercase text-white mb-3">
 							Liên hệ
 						</h3>
 						<ul className="flex flex-col gap-2">
 							{contactLinks.map((link, index) => (
 								<li key={index}>
 									<NavLink
-										className="not-italic font-medium text-[18px] leading-[34px] text-[#D9D9D9]"
+										className="not-italic font-medium text-[18px] leading-[34px] text-white"
 										to={link.link}
 									>
 										{link.title}

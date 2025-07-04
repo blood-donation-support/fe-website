@@ -3,9 +3,8 @@
 		"noUnusedLocals": false,
 		"noUnusedParameters": false,
 		"baseUrl": ".",
-
 		"paths": {
-      "@/*": ["src/*"]
+      	"@/*": ["src/*"]
 		}
 	},
 	"files": [],

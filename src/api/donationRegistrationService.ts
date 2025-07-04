@@ -1,10 +1,8 @@
-import apiClient from './apiClient';
+import {apiClient } from './apiClient';
+import type {ApiResponse } from './apiClient';
 import type { DonationRegistration } from '../types/donation';
 
-export interface ApiResponse<T> {
-  message: string;
-  result: T;
-}
+
 
 export const fetchDonationRegistrations = async (): Promise<DonationRegistration[]> => {
   console.log("call nè");
@@ -14,9 +12,13 @@ export const fetchDonationRegistrations = async (): Promise<DonationRegistration
 return res.data.result;
 };
 
+export const fetchDonationRegistrationById = async (id: string): Promise<DonationRegistration> => {
+  const res = await apiClient.get<ApiResponse<DonationRegistration>>(`/donations/donation-registrations/${id}`);
+  return res.data.result;
+};
 export const updateDonationRegistration = async (
   id: string,
-  payload: Pick<DonationRegistration, 'blood_group_id' | 'blood_component_id' | 'start_date_donation' | 'status'>
+  payload: Pick<DonationRegistration, 'blood_group_id' | 'donation_type' | 'start_date_donation' | 'status'>
 ): Promise<DonationRegistration> => {
   const res = await apiClient.patch<ApiResponse<DonationRegistration>>(
     `/donations/donation-registrations/${id}`, 
@@ -26,11 +28,13 @@ export const updateDonationRegistration = async (
 };
 export const checkInDonationRegistration = async (
   id: string,
-  status: string
+  status: string,
+  donation_type?: string 
 ): Promise<DonationRegistration> => {
   const res = await apiClient.patch<ApiResponse<DonationRegistration>>(
     `/donations/donation-registrations/${id}`,
-    { status }
+      { status, donation_type }
   );
+  console.log("check lại hàm checkin", res.data.result);
   return res.data.result;
 };

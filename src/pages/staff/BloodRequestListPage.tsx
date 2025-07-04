@@ -22,9 +22,13 @@ import {
 
 import { fetchDoctorRequests } from "../../api/doctorRequestService";
 import type { DoctorRequest } from "../../api/doctorRequestService";
+import statusVN from "@/utils/statusVN";
 
 export const BloodRequestListPage: React.FC = () => {
 	const navigate = useNavigate();
+	const userData = localStorage.getItem("user");
+	const user = userData ? JSON.parse(userData) : null;
+	const role = user?.role;
 
 	const [requests, setRequests] = useState<DoctorRequest[]>([]);
 	const [statusFilter, setStatusFilter] = useState<
@@ -119,7 +123,9 @@ export const BloodRequestListPage: React.FC = () => {
 								<TableHead>Ngày yêu cầu</TableHead>
 								<TableHead>Khẩn cấp</TableHead>
 								<TableHead>Trạng thái</TableHead>
-								<TableHead className="text-center">Hành động</TableHead>
+								{/* {role !== "Admin" && ( */}
+									<TableHead className="text-center">Thao tác</TableHead>
+								{/* )} */}
 							</TableRow>
 						</TableHeader>
 						<TableBody>
@@ -138,20 +144,22 @@ export const BloodRequestListPage: React.FC = () => {
 											</span>
 										)}
 									</TableCell>
-									<TableCell>{r.status}</TableCell>
-									<TableCell className="text-center">
-										<Button
-											size="sm"
-											className="bg-[#236afe] hover:bg-[#4338ca] text-white"
-											onClick={() =>
-												navigate(
-													`/dashboard-staff-warehouse/request-list/${r._id}`,
-												)
-											}
-										>
-											Duyệt
-										</Button>
-									</TableCell>
+									<TableCell>{statusVN(r.status)}</TableCell>
+									{/* {role !== "Admin" && ( */}
+										<TableCell className="text-center">
+											<Button
+												size="sm"
+												className="bg-[#236afe] hover:bg-[#4338ca] text-white"
+												onClick={() =>
+													navigate(
+														`/dashboard-staff-warehouse/request-list/${r._id}`,
+													)
+												}
+											>
+												Duyệt
+											</Button>
+										</TableCell>
+									{/* )} */}
 								</TableRow>
 							))}
 						</TableBody>

@@ -1,41 +1,70 @@
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import BlogCard from "./BlogCard";
 import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
-
-type BlogType = {
-  image: string;
-  title: string;
-  summary: string;
-  logo?: string;
-  blogUrl: string;
-  author: string;
-  domain?: string;
-};
+import type { Blog } from "@/api/blogService";
 
 type BlogCarouselProps = {
-  blogs: BlogType[];
+  blogs: Blog[];
+  visibleCount?: number;   // Số blog hiển thị (ưu tiên khi không truyền cardWidthVW)
+  gapVW?: number;          // Khoảng cách giữa các blog (vw)
+  widthVW?: number;        // Tổng width carousel (vw)
+  heightVH?: number;       // Chiều cao carousel (vh)
+  cardWidthVW?: number;    // Độ rộng từng card (vw) (ưu tiên nếu truyền)
+  style?: React.CSSProperties;
+  className?: string;
 };
 
-const CARD_WIDTH = 650; // px
-const VISIBLE_COUNT = 3;
+const BlogCarousel: React.FC<BlogCarouselProps> = ({
+  blogs,
+  visibleCount,
+  gapVW = 3,
+  widthVW = 93,
+  heightVH = 75,
+  cardWidthVW,
+  style,
+  className,
+}) => {
+  // Tính toán số card thực tế sẽ hiển thị (auto nếu có cardWidthVW)
+  const actualVisibleCount = useMemo(() => {
+    if (cardWidthVW) {
+      // trừ gap, lấy phần nguyên
+      return Math.max(
+        1,
+        Math.floor((widthVW + gapVW) / (cardWidthVW + gapVW)) // +gapVW để không bị thiếu ở cuối
+      );
+    }
+    return visibleCount ?? 3;
+  }, [cardWidthVW, widthVW, gapVW, visibleCount]);
 
-const BlogCarousel: React.FC<BlogCarouselProps> = ({ blogs }) => {
+  // Card width thực tế (dùng cardWidthVW nếu có, hoặc chia đều)
+  const cardWidth = useMemo(() => {
+    if (cardWidthVW) return `${cardWidthVW}vw`;
+    // Chia đều cho visibleCount
+    const totalGap = gapVW * (actualVisibleCount - 1);
+    return `calc((${widthVW}vw - ${totalGap}vw) / ${actualVisibleCount})`;
+  }, [cardWidthVW, widthVW, gapVW, actualVisibleCount]);
+
   const [currentIndex, setCurrentIndex] = useState(0);
-  const maxIndex = Math.max(0, blogs.length - VISIBLE_COUNT);
+  const maxIndex = Math.max(0, blogs.length - actualVisibleCount);
 
-  const handlePrev = () => setCurrentIndex((prev) => Math.max(0, prev - 1));
-  const handleNext = () => setCurrentIndex((prev) => Math.min(maxIndex, prev + 1));
+  // Di chuyển đúng 1 card + 1 gap
+  const movePerIndex = useMemo(() => {
+    if (cardWidthVW) return cardWidthVW + gapVW;
+    const totalGap = gapVW * (actualVisibleCount - 1);
+    return (widthVW - totalGap) / actualVisibleCount + gapVW;
+  }, [cardWidthVW, widthVW, gapVW, actualVisibleCount]);
 
-  // Để mượt mà: dùng transform slide, container đủ width
   return (
-    <div className="relative w-full flex flex-col items-center select-none">
+    <div
+      className={`relative flex flex-col items-center select-none w-full ${className || ""}`}
+      style={{ height: `${heightVH}vh`, ...style }}
+    >
       {/* Arrow trái */}
       <button
-        onClick={handlePrev}
+        onClick={() => setCurrentIndex(prev => Math.max(0, prev - 1))}
         disabled={currentIndex === 0}
-        className={`absolute left-6 z-10 w-20 h-16 bg-white shadow p-2 rounded-xl border text-blue-600 hover:bg-blue-50 transition ${
-         currentIndex === 0 ? "opacity-40 cursor-not-allowed" : "hover:scale-105"
-        }`}
+        className={`absolute left-3 z-10 w-14 h-14 bg-white shadow p-2 rounded-xl border text-blue-600 hover:bg-blue-50 transition
+          ${currentIndex === 0 ? "opacity-40 cursor-not-allowed" : "hover:scale-105"}`}
         style={{ top: "50%", transform: "translateY(-50%)" }}
         aria-label="Trước"
       >
@@ -43,19 +72,24 @@ const BlogCarousel: React.FC<BlogCarouselProps> = ({ blogs }) => {
       </button>
 
       {/* Slide wrapper */}
-      <div
-        className="overflow-hidden w-full h-full"
-        style={{ maxWidth: `${CARD_WIDTH * VISIBLE_COUNT + 48}px` }} // +gap cho đẹp
-      >
+      <div className="overflow-hidden h-full p-2" style={{ maxWidth: `${widthVW + 1}vw` }}>
         <div
-          className="flex transition-transform duration-500 ease-in-out gap-8"
+          className="flex transition-transform duration-500 ease-in-out"
           style={{
-            width: blogs.length * (CARD_WIDTH + 32),
-            transform: `translateX(-${currentIndex * (CARD_WIDTH + 32)}px)`,
+            gap: `${gapVW}vw`,
+            width: `calc(${blogs.length} * (${cardWidth}))`,
+            transform: `translateX(-${currentIndex * movePerIndex}vw)`,
           }}
         >
           {blogs.map((blog, idx) => (
-            <div key={idx} style={{ width: CARD_WIDTH, minWidth: CARD_WIDTH ,gap:"18px" }}>
+            <div
+              key={idx}
+              className="flex-shrink-0"
+              style={{
+                width: cardWidth,
+                height: `${heightVH - 7}vh`, // padding nhỏ
+              }}
+            >
               <BlogCard {...blog} />
             </div>
           ))}
@@ -64,11 +98,10 @@ const BlogCarousel: React.FC<BlogCarouselProps> = ({ blogs }) => {
 
       {/* Arrow phải */}
       <button
-        onClick={handleNext}
+        onClick={() => setCurrentIndex(prev => Math.min(maxIndex, prev + 1))}
         disabled={currentIndex >= maxIndex}
-        className={`absolute right-6 z-10 w-20 h-16 bg-white shadow rounded-xl border text-blue-600 hover:bg-blue-50 transition ${
-          currentIndex >= maxIndex ? "opacity-40 cursor-not-allowed" : "hover:scale-105"
-        } flex items-center justify-end pr-4`}
+        className={`absolute right-3 z-10 w-14 h-14 bg-white shadow rounded-xl border text-blue-600 hover:bg-blue-50 transition
+          ${currentIndex >= maxIndex ? "opacity-40 cursor-not-allowed" : "hover:scale-105"}`}
         style={{ top: "50%", transform: "translateY(-50%)" }}
         aria-label="Tiếp theo"
       >
@@ -76,7 +109,7 @@ const BlogCarousel: React.FC<BlogCarouselProps> = ({ blogs }) => {
       </button>
 
       {/* Dots */}
-      <div className="flex gap-2 mt-5">
+      <div className="flex gap-2 mt-4">
         {Array.from({ length: maxIndex + 1 }).map((_, idx) => (
           <button
             key={idx}

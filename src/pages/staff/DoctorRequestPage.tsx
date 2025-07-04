@@ -15,16 +15,18 @@ import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 
 import {
+  createDoctorRequest
+} from "../../api/doctorRequestService";
+import {
   fetchBloodGroups,
   fetchBloodComponents,
   getBloodGroupIdByName,
   getBloodComponentIdByName,
-  createDoctorRequest,
-} from "../../api/doctorRequestService";
+} from "../../api/bloodService";
 import type { DoctorRequestPayload } from "../../api/doctorRequestService";
 
 import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
-import { storage } from "@/firebase";
+import { analytics } from "@/firebase";
 
 export const DoctorRequestPage: React.FC = () => {
   const navigate = useNavigate();
@@ -122,7 +124,7 @@ export const DoctorRequestPage: React.FC = () => {
 
     // Upload lên Firebase
     const storageRef = ref(
-      storage,
+      analytics,
       `doctor-requests/${Date.now()}_${file.name}`
     );
     const uploadTask = uploadBytesResumable(storageRef, file);
@@ -402,10 +404,10 @@ export const DoctorRequestPage: React.FC = () => {
               </div>
               <div className="flex-1 flex flex-col">
                 <label className="block mb-1 font-medium">
-                  URL hoặc Base64
+                  URL hình ảnh
                 </label>
                 <Input
-                  placeholder="Hình ảnh (URL hoặc Base64)"
+                  placeholder="Url hình ảnh"
                   value={form.image}
                   onChange={(e) =>
                     handleChange("image", e.target.value)

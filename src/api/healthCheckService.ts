@@ -1,7 +1,6 @@
-import apiClient from './apiClient';
 import type { HealthCheck } from '../types/donation';
-import type { ApiResponse } from './donationRegistrationService';
-
+import {apiClient } from './apiClient';
+import type {ApiResponse } from './apiClient';
 export const fetchHealthCheck = async (healthCheckId: string): Promise<HealthCheck> => {
   const res = await apiClient.get<ApiResponse<HealthCheck>>(
     `/health-checks/${healthCheckId}`
@@ -24,6 +23,7 @@ export const updateHealthCheck = async (
       | 'underlying_health_conditions'
       | 'description'
       | 'status'
+      | 'donation_type'
     >
   >
 ): Promise<HealthCheck> => {
@@ -31,5 +31,6 @@ export const updateHealthCheck = async (
     `/health-checks/${id}`,
     payload
   );
+  console.log("check update health check");
   return res.data.result;
 };
