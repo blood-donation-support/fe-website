@@ -24,16 +24,14 @@ import { fetchDoctorRequests } from "../../api/doctorRequestService";
 import type { DoctorRequest } from "../../api/doctorRequestService";
 import statusVN from "@/utils/statusVN";
 
-export const BloodRequestListPage: React.FC = () => {
+export const BloodRequestApprovedList: React.FC = () => {
 	const navigate = useNavigate();
 	const userData = localStorage.getItem("user");
 	const user = userData ? JSON.parse(userData) : null;
 	const role = user?.role;
 
 	const [requests, setRequests] = useState<DoctorRequest[]>([]);
-	const [statusFilter, setStatusFilter] = useState<
-		"all" | "Pending" | "Approved" | "Rejected"
-	>("Pending");
+	const [statusFilter, setStatusFilter] = useState("Approved");
 	const [urgencyFilter, setUrgencyFilter] = useState<
 		"all" | "Emergency" | "Normal"
 	>("Emergency");
@@ -88,7 +86,7 @@ export const BloodRequestListPage: React.FC = () => {
 						onChange={(e) => setSearchText(e.target.value)}
 					/>
 
-					<Select value={statusFilter} onValueChange={setStatusFilter}>
+					{/* <Select value={statusFilter} onValueChange={setStatusFilter}>
 						<SelectTrigger className="w-full">
 							<SelectValue placeholder="Lọc theo trạng thái" />
 						</SelectTrigger>
@@ -99,7 +97,7 @@ export const BloodRequestListPage: React.FC = () => {
 							<SelectItem value="Completed">Hoàn tất</SelectItem>
 							<SelectItem value="Rejected">Từ chối</SelectItem>
 						</SelectContent>
-					</Select>
+					</Select> */}
 
 					<Select value={urgencyFilter} onValueChange={setUrgencyFilter}>
 						<SelectTrigger className="w-full">
@@ -163,7 +161,7 @@ export const BloodRequestListPage: React.FC = () => {
 											className="bg-[#236afe] hover:bg-[#4338ca] text-white"
 											onClick={() =>
 												navigate(
-													`/dashboard-staff-warehouse/request-list/${r._id}`,
+													`/dashboard-staff/doctor-healthcheck-request-approved/${r._id}`,
 												)
 											}
 										>

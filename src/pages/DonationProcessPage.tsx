@@ -18,7 +18,7 @@ import {
 	fetchDonationRegistrations,
 	checkInDonationRegistration,
 } from "../api/donationRegistrationService";
-import { fetchHealthCheck, updateHealthCheck } from "../api/healthCheckService";
+import { fetchHealthCheck, updateHealthCheckDonation } from "../api/healthCheckService";
 import {
 	fetchDonationProcess,
 	updateDonationProcess,
@@ -152,7 +152,7 @@ useEffect(() => {
 		if (!health) return;
 		console.log("tyep ở health", health.donation_type);
 
-		await updateHealthCheck(health._id, {
+		await updateHealthCheckDonation(health._id, {
 			blood_group_id: health.blood_group_id,
 			weight: parseFloat(weight),
 			temperature: parseFloat(temperature),
@@ -163,7 +163,7 @@ useEffect(() => {
 			underlying_health_conditions: conditions,
 			description: health.description,
 			status: screenResult,
-			donation_type: health.donation_type,
+			donation_type: health.donation_type ,
 
 		});
 		if (screenResult === "Rejected") {

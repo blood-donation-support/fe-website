@@ -26,6 +26,7 @@ import type { DoctorRequestPayload } from "../../api/doctorRequestService";
 import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 import { analytics } from "@/firebase";
 import { getCCCD } from "@/api/userService";
+import { toast } from "react-toastify";
 
 export const DoctorRequestPage: React.FC = () => {
 	const navigate = useNavigate();
@@ -45,6 +46,7 @@ export const DoctorRequestPage: React.FC = () => {
 			console.error("Không tìm thấy người dùng theo CCCD:", error);
 		}
 	};
+
 	type Form = {
 		patient_code: string;
 		citizen_id_number: string;
@@ -57,6 +59,7 @@ export const DoctorRequestPage: React.FC = () => {
 		image: string;
 		note: string;
 	};
+
 	const initialForm: Form = {
 		patient_code: "",
 		citizen_id_number: "",
@@ -71,7 +74,7 @@ export const DoctorRequestPage: React.FC = () => {
 	};
 
 	const [idType, setIdType] = useState<"patient_code" | "citizen_id_number">(
-		"patient_code",
+		"citizen_id_number", // Changed default to citizen_id_number
 	);
 	const [form, setForm] = useState<Form>(initialForm);
 	const [errors, setErrors] = useState<Partial<Record<keyof Form, string>>>({});
@@ -110,15 +113,23 @@ export const DoctorRequestPage: React.FC = () => {
 
 	const validate = () => {
 		const errs: Partial<Record<keyof Form, string>> = {};
+		
+		// Required fields
 		if (!form.full_name.trim()) errs.full_name = "Bắt buộc";
 		if (!/^\d{10,11}$/.test(form.phone)) errs.phone = "SĐT không hợp lệ";
 		if (!form.bloodGroupName) errs.bloodGroupName = "Chọn nhóm máu";
 		if (form.bloodComponentNames.length === 0)
 			errs.bloodComponentNames = "Chọn thành phần máu";
-		if (idType === "patient_code" && !form.patient_code.trim())
-			errs.patient_code = "Nhập mã bệnh nhân";
-		if (idType === "citizen_id_number" && !form.citizen_id_number.trim())
+		
+		// Always require citizen_id_number since idType is fixed to citizen_id_number
+		if (!form.citizen_id_number.trim()) {
 			errs.citizen_id_number = "Nhập CCCD";
+		}
+		
+		// Validate CCCD format (12 digits)
+		if (form.citizen_id_number.trim() && !/^\d{12}$/.test(form.citizen_id_number.trim())) {
+			errs.citizen_id_number = "CCCD phải có 12 chữ số";
+		}
 
 		setErrors(errs);
 		return Object.keys(errs).length === 0;
@@ -179,20 +190,39 @@ export const DoctorRequestPage: React.FC = () => {
 			phone: form.phone,
 			image: form.image || undefined,
 			note: form.note || undefined,
-			...(idType === "patient_code"
-				? { patient_code: form.patient_code }
-				: { citizen_id_number: form.citizen_id_number }),
+			citizen_id_number: form.citizen_id_number, 
 			request_type: "Red Blood Cells",
 		};
 		console.log("payload nè", payload);
 
 		try {
 			await createDoctorRequest(payload);
-			setSuccessMessage("Tạo đơn xin máu thành công!");
+			// setSuccessMessage("Tạo đơn xin máu thành công!");
+      toast.success("Tạo đơn xin máu thành công!")
 			setForm(initialForm);
-		} catch (err) {
+		} catch (err: any) {
 			console.error(err);
-			alert("Có lỗi khi gửi yêu cầu");
+			
+			// Handle API validation errors
+			if (err.response?.data?.errors) {
+				const apiErrors = err.response.data.errors;
+				const newErrors: Partial<Record<keyof Form, string>> = {};
+				
+				// Map API errors to form errors
+				if (apiErrors.citizen_id_number) {
+					newErrors.citizen_id_number = apiErrors.citizen_id_number.msg;
+				}
+				if (apiErrors.phone) {
+					newErrors.phone = apiErrors.phone.msg;
+				}
+				if (apiErrors.full_name) {
+					newErrors.full_name = apiErrors.full_name.msg;
+				}
+				
+				setErrors(newErrors);
+			} else {
+				alert("Có lỗi khi gửi yêu cầu");
+			}
 		}
 	};
 
@@ -209,89 +239,93 @@ export const DoctorRequestPage: React.FC = () => {
 				)}
 				<Card className="shadow-lg">
 					<CardContent className="p-6 space-y-4">
-						{/* Chọn ID */}
-						<Select value={idType} onValueChange={(v) => setIdType(v as any)}>
-							<SelectTrigger>
-								<SelectValue placeholder="Chọn ID" />
-							</SelectTrigger>
-							<SelectContent>
-								<SelectItem value="patient_code">Mã bệnh nhân</SelectItem>
-								<SelectItem value="citizen_id_number">CCCD</SelectItem>
-							</SelectContent>
-						</Select>
-
-						{/* Input theo ID */}
-						{idType === "patient_code" ? (
+						{/* CCCD Input */}
+						<div>
+							<div className="font-bold">CCCD</div>
 							<Input
-								placeholder="Mã bệnh nhân"
-								value={form.patient_code}
-								onChange={(e) => handleChange("patient_code", e.target.value)}
-								className={errors.patient_code ? "border-red-500" : ""}
-							/>
-						) : (
-							<Input
-								placeholder="CCCD"
+								placeholder="Nhập số CCCD (12 chữ số)"
 								value={form.citizen_id_number}
 								onChange={(e) =>
 									handleChange("citizen_id_number", e.target.value)
 								}
-								onBlur={handleBlurCCCD} 
+								onBlur={handleBlurCCCD}
 								className={errors.citizen_id_number ? "border-red-500" : ""}
 							/>
-						)}
-						{errors[idType] && <p className="text-red-600">{errors[idType]}</p>}
+							{errors.citizen_id_number && (
+								<p className="text-red-600 text-sm mt-1">
+									{errors.citizen_id_number}
+								</p>
+							)}
+						</div>
 
 						{/* Họ tên & SĐT */}
-						<Input
-							placeholder="Họ và tên"
-							value={form.full_name}
-							onChange={(e) => handleChange("full_name", e.target.value)}
-						/>
-						{errors.full_name && (
-							<p className="text-red-600">{errors.full_name}</p>
-						)}
-						<Input
-							placeholder="Số điện thoại"
-							value={form.phone}
-							onChange={(e) => handleChange("phone", e.target.value)}
-						/>
-						{errors.phone && <p className="text-red-600">{errors.phone}</p>}
+						<div>
+							<div className="font-bold">Họ và tên</div>
+							<Input
+								placeholder="Họ và tên"
+								value={form.full_name}
+								onChange={(e) => handleChange("full_name", e.target.value)}
+								className={errors.full_name ? "border-red-500" : ""}
+							/>
+							{errors.full_name && (
+								<p className="text-red-600 text-sm mt-1">{errors.full_name}</p>
+							)}
+						</div>
+
+						<div>
+							<div className="font-bold">Số điện thoại</div>
+							<Input
+								placeholder="Số điện thoại"
+								value={form.phone}
+								onChange={(e) => handleChange("phone", e.target.value)}
+								className={errors.phone ? "border-red-500" : ""}
+							/>
+							{errors.phone && (
+								<p className="text-red-600 text-sm mt-1">{errors.phone}</p>
+							)}
+						</div>
 
 						{/* Ngày nhận yêu cầu */}
-						<Input
-							type="datetime-local"
-							value={form.receive_date_request.slice(0, 16)}
-							onChange={(e) =>
-								handleChange(
-									"receive_date_request",
-									new Date(e.target.value).toISOString(),
-								)
-							}
-						/>
+						<div>
+							<div className="font-bold">Ngày nhận yêu cầu</div>
+							<Input
+								type="datetime-local"
+								value={form.receive_date_request.slice(0, 16)}
+								onChange={(e) =>
+									handleChange(
+										"receive_date_request",
+										new Date(e.target.value).toISOString(),
+									)
+								}
+							/>
+						</div>
 
 						{/* Nhóm máu */}
-						<Select
-							value={form.bloodGroupName}
-							onValueChange={(v) => handleChange("bloodGroupName", v)}
-						>
-							<SelectTrigger>
-								<SelectValue placeholder="Chọn nhóm máu" />
-							</SelectTrigger>
-							<SelectContent>
-								{bloodGroupOptions.map((g) => (
-									<SelectItem key={g} value={g}>
-										{g}
-									</SelectItem>
-								))}
-							</SelectContent>
-						</Select>
-						{errors.bloodGroupName && (
-							<p className="text-red-600">{errors.bloodGroupName}</p>
-						)}
+						<div>
+							<div className="font-bold">Nhóm máu</div>
+							<Select
+								value={form.bloodGroupName}
+								onValueChange={(v) => handleChange("bloodGroupName", v)}
+							>
+								<SelectTrigger className={errors.bloodGroupName ? "border-red-500" : ""}>
+									<SelectValue placeholder="Chọn nhóm máu" />
+								</SelectTrigger>
+								<SelectContent>
+									{bloodGroupOptions.map((g) => (
+										<SelectItem key={g} value={g}>
+											{g}
+										</SelectItem>
+									))}
+								</SelectContent>
+							</Select>
+							{errors.bloodGroupName && (
+								<p className="text-red-600 text-sm mt-1">{errors.bloodGroupName}</p>
+							)}
+						</div>
 
 						{/* Thành phần máu (multi-check, 3 cột) */}
 						<div className="space-y-2">
-							<Label className="font-medium">Thành phần máu</Label>
+							<Label className="font-bold">Thành phần máu</Label>
 							<div className="grid grid-cols-3 gap-4">
 								{bloodComponentOptions.map((name) => (
 									<div key={name} className="flex items-center">
@@ -313,30 +347,35 @@ export const DoctorRequestPage: React.FC = () => {
 								))}
 							</div>
 							{errors.bloodComponentNames && (
-								<p className="text-red-600 text-sm">
+								<p className="text-red-600 text-sm mt-1">
 									{errors.bloodComponentNames}
 								</p>
 							)}
 						</div>
 
 						{/* Khẩn cấp */}
-						<Select
-							value={form.is_emergency ? "true" : "false"}
-							onValueChange={(v) => handleChange("is_emergency", v === "true")}
-						>
-							<SelectTrigger>
-								<SelectValue placeholder="Khẩn cấp" />
-							</SelectTrigger>
-							<SelectContent>
-								<SelectItem value="false">Bình thường</SelectItem>
-								<SelectItem value="true">Khẩn cấp</SelectItem>
-							</SelectContent>
-						</Select>
+						<div>
+							<div className="font-bold">Tình trạng</div>
+							<Select
+								value={form.is_emergency ? "true" : "false"}
+								onValueChange={(v) =>
+									handleChange("is_emergency", v === "true")
+								}
+							>
+								<SelectTrigger>
+									<SelectValue placeholder="Khẩn cấp" />
+								</SelectTrigger>
+								<SelectContent>
+									<SelectItem value="false">Bình thường</SelectItem>
+									<SelectItem value="true">Khẩn cấp</SelectItem>
+								</SelectContent>
+							</Select>
+						</div>
 
 						{/* File picker + URL input */}
 						<div className="flex items-start space-x-6">
 							<div className="flex flex-col">
-								<label className="block mb-1 font-medium">Hình ảnh</label>
+								<label className="block mb-1 font-bold">Hình ảnh</label>
 								<input
 									type="file"
 									accept="image/*"
@@ -360,6 +399,7 @@ export const DoctorRequestPage: React.FC = () => {
 									placeholder="Url hình ảnh"
 									value={form.image}
 									onChange={(e) => handleChange("image", e.target.value)}
+									className={errors.image ? "border-red-500" : ""}
 								/>
 								{errors.image && (
 									<p className="text-red-600 text-sm mt-1">{errors.image}</p>
@@ -368,12 +408,15 @@ export const DoctorRequestPage: React.FC = () => {
 						</div>
 
 						{/* Ghi chú */}
-						<Textarea
-							placeholder="Ghi chú"
-							value={form.note}
-							onChange={(e) => handleChange("note", e.target.value)}
-							className="min-h-[80px]"
-						/>
+						<div>
+							<div className="font-bold">Ghi chú</div>
+							<Textarea
+								placeholder="Ghi chú"
+								value={form.note}
+								onChange={(e) => handleChange("note", e.target.value)}
+								className="min-h-[80px]"
+							/>
+						</div>
 
 						{/* Submit */}
 						<div className="text-center">

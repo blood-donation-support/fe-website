@@ -32,6 +32,8 @@ import BlogDetailPage from "./pages/BlogDetailPage";
 import BlogAdminPage from "./pages/admin/BlogAdminPage";
 import BlogEditPage from "./pages/admin/BlogEditPage";
 import UserListPage from "./pages/admin/UserListPage";
+import { BloodRequestApprovedList } from "./pages/staff/BloodRequestApprovedList";
+import { HealthCheckRequest } from "./pages/staff/HealthCheckRequest";
 
 function PrivateRoute({
 	role,
@@ -57,7 +59,7 @@ export default function App() {
 				<Route path="/" element={<HomePage />} />
 				<Route path="/login" element={<Login />} />
 				<Route path="/donateBlood" element={<DonateBloodPage />} />
-				<Route path="/blogDetail/:id" element={<BlogDetailPage />}/>
+				<Route path="/blogDetail/:id" element={<BlogDetailPage />} />
 				<Route
 					path="/donateBlood"
 					element={
@@ -85,7 +87,7 @@ export default function App() {
 						path="donation-registers"
 						element={<DonationRegistrationsPage />}
 					/>
-					<Route path="blogs" element={<BlogAdminPage />} /> 
+					<Route path="blogs" element={<BlogAdminPage />} />
 					<Route path="blogs/:id/edit" element={<BlogEditPage />} />
 					<Route
 						path="/dashboard-admin/request-list"
@@ -108,7 +110,16 @@ export default function App() {
 
 					{/* page tạo đơn xin máu */}
 					<Route path="doctor-request" element={<DoctorRequestPage />} />
-					
+					{/* page danh sách đơn xin máu đã approved */}
+					<Route
+						path="doctor-request-approved"
+						element={<BloodRequestApprovedList />}
+					/>
+					{/* healthcheck của xin máu */}
+					<Route
+						path="doctor-healthcheck-request-approved/:id"
+						element={<HealthCheckRequest />}
+					/>
 				</Route>
 
 				{/* staff warehouse routes */}
@@ -120,7 +131,6 @@ export default function App() {
 						</PrivateRoute>
 					}
 				>
-
 					{/* page danh sách đơn xin máu */}
 					<Route path="request-list" element={<BloodRequestListPage />} />
 					{/* page chi tiết đơn xin máu */}
@@ -128,8 +138,6 @@ export default function App() {
 						path="request-list/:id"
 						element={<BloodRequestApprovalPage />}
 					/>
-
-
 
 					<Route path="blood-storage" element={<BloodStoragePage />} />
 					<Route path="blood-storage-summary" element={<BloodSummaryTable />} />
