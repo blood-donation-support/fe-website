@@ -5,10 +5,12 @@ import { motion } from "framer-motion";
 import { toast } from "react-toastify";
 import { useAuthStore } from "@/store/authStore";
 import UserDropdown from "../UserDropdown";
+
 type HeaderComponentProps = {
   isHomepage?: boolean;
 };
-const HeaderComponent = ({ isHomepage = false }: HeaderComponentProps) => {
+
+const HeaderComponent = ({ isHomepage }: HeaderComponentProps) => {
   const [offset, setOffset] = useState(0);
   const [blurActivation, setBlurActivation] = useState(false);
   const user = useAuthStore((state) => state.user);
@@ -27,13 +29,20 @@ const HeaderComponent = ({ isHomepage = false }: HeaderComponentProps) => {
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
+
   const headerClass = isHomepage
     ? "absolute bg-white/0 "
     : "fixed bg-white";
-    const locationClass = isHomepage
-    ? "bg-white":"bg-blue-50";
+  const locationClass = isHomepage
+    ? "bg-white"
+    : "bg-blue-50";
+
+  // Chọn kiểu header có motion hay không
+  console.log('isHomepage:', isHomepage);
+  const HeaderTag = isHomepage ? motion.header : "header";
+  console.log('HeaderComponent rendered with user:',HeaderTag)
   return (
-    <motion.header
+    <HeaderTag
       initial={{ opacity: 0, y: -32 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{
@@ -41,19 +50,24 @@ const HeaderComponent = ({ isHomepage = false }: HeaderComponentProps) => {
         ease: [0, 0.05, 0.05, 0.1],
         delay: 0.08,
       }}
-      className={`w-full px-4 pb-4 pt-2 flex items-center justify-between ${headerClass} transition  top-0 left-0 z-30`}
+      className={`w-full px-4 pb-2 pt-2 flex items-center justify-between ${headerClass} transition top-0 left-0 z-30`}
     >
       <div className="flex items-center gap-20">
         <Link to={'/'} className="flex items-center gap-2">
-          <img src="src/assets/logo.png" alt="Donate Blood" className="w-8 h-8 rounded-full" />
+          <img
+            src="src/assets/logo.png"
+            alt="Donate Blood"
+            className="w-8 h-8 rounded-full"
+          />
           <span className="font-bold text-2xl text-blue-600">Donate Blood</span>
         </Link>
         <button className="md:hidden p-2 rounded-full hover:bg-gray-200">
           <FaBars size={20} />
         </button>
         <nav className="hidden md:flex items-center gap-3 ml-4">
-          {[{context:"Chúng tôi",nav:"/"},{context:"Hiến máu",nav:"/donateBlood"} ,{context:"Chính sách",nav:"/"} ,{context: "Hỗ trợ",nav:"/"}].map((item) => (
-            <Link to={item.nav}
+          {[{ context: "Chúng tôi", nav: "/" }, { context: "Hiến máu", nav: "/donateBlood" }, { context: "Chính sách", nav: "/policy" }, { context: "Hỗ trợ", nav: "/support" }].map((item) => (
+            <Link
+              to={item.nav}
               key={item.context}
               className="px-2 py-2 text-sm font-bold rounded-sm bg-white shadow-sm text-gray-700 hover:bg-blue-50 transition"
             >
@@ -71,7 +85,7 @@ const HeaderComponent = ({ isHomepage = false }: HeaderComponentProps) => {
               <path d="M12 16v4" stroke="#7C8DB0" strokeWidth="2" strokeLinecap="round" />
             </svg>
           </span>
-          Nhà văn hóa sinh viên,Q9
+          Nhà văn hóa sinh viên, Q9
         </div>
         <div className="flex gap-2">
           <button className="w-14 h-14 flex items-center justify-center rounded-full bg-red-600 text-white hover:bg-red-900 transition">
@@ -89,10 +103,10 @@ const HeaderComponent = ({ isHomepage = false }: HeaderComponentProps) => {
             >
               Đăng nhập
             </Link>
-           )} 
+          )}
         </div>
       </div>
-    </motion.header>
+    </HeaderTag>
   );
 };
 

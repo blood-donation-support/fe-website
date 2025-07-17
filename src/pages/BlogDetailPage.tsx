@@ -27,7 +27,7 @@ export default function BlogDetailPage() {
   return (
     <>
       <HeaderComponent />
-      <div className="min-h-screen bg-white text-white">
+      <div className="min-h-screen bg-white text-white pt-12">
         {/* Banner */}
         <div className="relative w-full min-h-[380px] md:min-h-[480px] flex items-end">
           <img
@@ -46,15 +46,15 @@ export default function BlogDetailPage() {
               </span>
               <span className="italic">bởi <b>{blog.author || "Unknown"}</b></span>
             </div>
-            <h1 className="text-3xl md:text-5xl font-extrabold leading-tight drop-shadow-[0_2px_16px_rgba(0,0,0,0.7)]">
+            <h1 className="text-5xl md:text-5xl font-extrabold leading-tight drop-shadow-[0_2px_16px_rgba(0,0,0,0.7)]">
               {blog.title}
             </h1>
           </div>
         </div>
 
         {/* Content */}
-        <div className="max-w-3xl w-[80vw] mx-auto px-3 md:px-0 py-10">
-          <div className="prose prose-invert prose-lg max-w-none text-black">
+        <div className="max-w-5xl w-[80vw] mx-auto px-3 md:px-0 py-10">
+          <div className="prose prose-invert prose-2xl max-w-none text-black">
             <ReactMarkdown rehypePlugins={[rehypeRaw]}>
               {blog.content || ""}
             </ReactMarkdown>
@@ -68,12 +68,11 @@ export default function BlogDetailPage() {
           </button>
         </div>
             <div className="w-[80vw] mx-auto px-3 md:px-3 m-6">
-            <h2 className="text-2xl font-bold mb-4 text-black pl-[33vw]">Bài viết liên quan</h2>
+            <h2 className="text-3xl font-bold mb-4 text-black pl-[33vw]">Bài viết liên quan</h2>
                 <BlogCarousel
                     blogs={blogs}
                     visibleCount={2} // 3 blog trên 1 slide
                     gapVW={3}
-                    
                     widthVW={50} // hoặc 100
                     heightVH={70}
                     cardWidthVW={23}

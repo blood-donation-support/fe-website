@@ -69,7 +69,7 @@ const UserDropdown: React.FC<Props> = ({ user, onLogout }) => {
                 Thông tin cá nhân
               </Link>
             </li>
-            <li>
+            {/* <li>
               <Link
                 to="/blood-history"
                 className="block px-2 py-2 hover:bg-blue-50 rounded-md text-gray-700 font-medium"
@@ -77,7 +77,7 @@ const UserDropdown: React.FC<Props> = ({ user, onLogout }) => {
               >
                 Lịch sử nhận máu
               </Link>
-            </li>
+            </li> */}
             <li>
               <Link
                 to="/blood-history"

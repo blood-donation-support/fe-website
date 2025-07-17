@@ -1,11 +1,10 @@
 import { useEffect, useState } from "react";
 import { FooterComponent, FormComponent, HeaderComponent, HeroComponent, SideBySideComponent } from "@/components";
-import donationService from "@/api/donationService";
 import { toast } from "react-toastify";
 import { useAuthStore } from "@/store/authStore";
 import { useDispatch, useSelector } from "react-redux";
 import type { RootState, AppDispatch } from "@/redux/store";
-import { registerDonation, resetDonationStatus } from "@/redux/slices/donationRegistrationSlice";
+import { registerDonationThunk , resetDonationStatus } from "@/redux/slices/donationRegistrationSlice"; // Redux action
 
 const DonateBloodPage = () => {
   const today = new Date();
@@ -18,10 +17,11 @@ const DonateBloodPage = () => {
   const [dateValue, setDateValue] = useState<Date | null>(today);
   const [formData, setFormData] = useState({
     blood_group_id: "",
-	donation_type: "",
+    donation_type: "",
     start_date_donation: today.toISOString()
   });
 
+  // Handle success or error state
   useEffect(() => {
     if (success) {
       setStatusForm("Submited");
@@ -34,6 +34,7 @@ const DonateBloodPage = () => {
     }
   }, [success, error, dispatch]);
 
+  // Update formData when date changes
   useEffect(() => {
     if (dateValue) {
       setFormData((prev) => ({
@@ -43,9 +44,10 @@ const DonateBloodPage = () => {
     }
   }, [dateValue]);
 
+  // Submit form data
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    dispatch(registerDonation({ payload: formData, accessToken }));
+    dispatch(registerDonationThunk({ payload: formData, accessToken })); // Dispatch Redux action
   };
 
   const DonateBloodPageDetails = {
@@ -67,19 +69,19 @@ const DonateBloodPage = () => {
   };
 
   const fields = [
-  {
-    key: "bg",
-    name: "blood_group_id",
-    placeholder: "blood_groups",
-    required: true,
-  },
-  {
-    key: "bt",
-    name: "donation_type",
-    placeholder: "donation_type",
-    required: true,
-  }
-];
+    {
+      key: "bg",
+      name: "blood_group_id",
+      placeholder: "blood_groups",
+      required: true,
+    },
+    {
+      key: "bt",
+      name: "donation_type",
+      placeholder: "donation_type",
+      required: true,
+    }
+  ];
 
   return (
     <>
@@ -87,7 +89,7 @@ const DonateBloodPage = () => {
       <HeroComponent {...DonateBloodPageDetails.hero} />
       <FormComponent
         fields={fields}
-        heading={"Lựa chọn nhóm máu muốn hiến tặng"}
+        heading={"Đăng kí thông tin hiến máu"}
         buttonText={"Lên lịch đăng kí"}
         handleSubmit={handleSubmit}
         formData={formData}

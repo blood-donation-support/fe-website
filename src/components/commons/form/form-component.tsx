@@ -6,7 +6,7 @@ import { donationTypeList } from "@/constants/donationType";
 import type {BloodComponent, BloodGroup } from "@/api/bloodService";
 import {bloodService} from "@/api/bloodService";
 
-import bloodComponentVN from "@/utils/translateBloodComponentVN";
+import { Link } from "react-router-dom";
 
 interface Field {
   key: string;
@@ -58,6 +58,7 @@ function FormComponent<T>({
         {statusForm === "Submited" ? (
           <p className="text-center text-white text-sm sm:text-base mt-12">
             Cảm ơn bạn đã tương tác với DonationBlood. <br />Chúng tôi sẽ thông báo lịch cho bạn sớm nhất có thể.
+            <Link to="/blood-history"><span className="hover:text-blue-900 hover:underline">Xem lịch sử hiến máu của bạn</span></Link>
           </p>
         ) : (
           <form

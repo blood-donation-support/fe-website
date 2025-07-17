@@ -26,7 +26,7 @@ import {
 import type { DoctorRequestPayload } from "../../api/doctorRequestService";
 
 import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
-import { analytics } from "@/firebase";
+// import { analytics } from "@/firebase";
 
 export const DoctorRequestPage: React.FC = () => {
   const navigate = useNavigate();
@@ -123,28 +123,28 @@ export const DoctorRequestPage: React.FC = () => {
     setPreviewUrl(objectUrl);
 
     // Upload lên Firebase
-    const storageRef = ref(
-      analytics,
-      `doctor-requests/${Date.now()}_${file.name}`
-    );
-    const uploadTask = uploadBytesResumable(storageRef, file);
-    uploadTask.on(
-      "state_changed",
-      (snapshot) => {
-        const prog = Math.round(
-          (snapshot.bytesTransferred / snapshot.totalBytes) * 100
-        );
-        setUploadProgress(prog);
-      },
-      (err) => console.error("Upload lỗi:", err),
-      () => {
-        getDownloadURL(uploadTask.snapshot.ref).then((url) => {
-          handleChange("image", url); // Lưu URL chính thức
-          URL.revokeObjectURL(objectUrl); // Dọn preview tạm
-          setUploadProgress(0);
-        });
-      }
-    );
+    // const storageRef = ref(
+    //   // analytics,
+    //   `doctor-requests/${Date.now()}_${file.name}`
+    // );
+    //const uploadTask = uploadBytesResumable(storageRef, file);
+    // uploadTask.on(
+    //   "state_changed",
+    //   (snapshot) => {
+    //     const prog = Math.round(
+    //       (snapshot.bytesTransferred / snapshot.totalBytes) * 100
+    //     );
+    //     setUploadProgress(prog);
+    //   },
+    //   (err) => console.error("Upload lỗi:", err),
+    //   () => {
+    //     getDownloadURL(uploadTask.snapshot.ref).then((url) => {
+    //       handleChange("image", url); // Lưu URL chính thức
+    //       URL.revokeObjectURL(objectUrl); // Dọn preview tạm
+    //       setUploadProgress(0);
+    //     });
+    //   }
+    // );
   };
 
   const handleSubmit = async () => {

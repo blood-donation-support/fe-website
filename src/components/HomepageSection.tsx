@@ -34,10 +34,6 @@ const HomePageSection = () => {
 				<span className="text-xl font-bold text-blue-500">20+</span>
 				<span className="text-sm text-gray-600">bác sĩ chất lượng</span>
 			</div>
-			{/* <div className="flex flex-col items-center">
-				<span className="text-xl font-bold text-blue-500">100%</span>
-				<span className="text-sm text-gray-600">chẩn đoán kỹ thuật số</span>
-			</div> */}
 			</div>
 		</motion.div>
 
