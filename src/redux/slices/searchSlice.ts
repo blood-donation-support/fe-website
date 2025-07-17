@@ -1,57 +1,28 @@
 import { createSlice } from "@reduxjs/toolkit";
+import type { PayloadAction } from "@reduxjs/toolkit";
 
 interface SearchState {
-	customerSearch: string;
-	artistSearch: string;
-	artistSearchReview: string;
-	artistStatusFilter: string;
-	transactionStatusFilter: string;
-	date: string;
+  staffSearch: string;
+  staffStatusFilter: string; // empty string means no filter
 }
 
-// const today = new Date().toISOString().slice(0, 10);
-
 const initialState: SearchState = {
-	customerSearch: "",
-	artistSearch: "",
-	artistSearchReview: "",
-	artistStatusFilter: "",
-	transactionStatusFilter: "",
-	date: "",
+  staffSearch: "",
+  staffStatusFilter: "",
 };
 
 const searchSlice = createSlice({
-	name: "search",
-	initialState,
-	reducers: {
-		setCustomerSearch(state, action: { payload: string }) {
-			state.customerSearch = action.payload;
-		},
-		setArtistSearch(state, action: { payload: string }) {
-			state.artistSearch = action.payload;
-		},
-		setArtistSearchReview(state, action: { payload: string }) {
-			state.artistSearchReview = action.payload;
-		},
-		setArtistStatusFilter(state, action: { payload: string }) {
-			state.artistStatusFilter = action.payload;
-		},
-		setTransactionStatusFilter(state, action: { payload: string }) {
-			state.transactionStatusFilter = action.payload;
-		  },
-		  
-		setDate(state, action: { payload: string }) {
-			state.date = action.payload;
-		},
-	},
+  name: "search",
+  initialState,
+  reducers: {
+    setStaffSearch(state, action: PayloadAction<string>) {
+      state.staffSearch = action.payload;
+    },
+    setStaffStatusFilter(state, action: PayloadAction<string>) {
+      state.staffStatusFilter = action.payload;
+    },
+  },
 });
 
-export const {
-	setCustomerSearch,
-	setArtistSearch,
-	setArtistSearchReview,
-	setArtistStatusFilter,
-	setTransactionStatusFilter,
-	setDate,
-} = searchSlice.actions;
+export const { setStaffSearch, setStaffStatusFilter } = searchSlice.actions;
 export default searchSlice.reducer;

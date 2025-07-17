@@ -174,6 +174,8 @@ export const DoctorRequestPage: React.FC = () => {
       ...(idType === "patient_code"
         ? { patient_code: form.patient_code }
         : { citizen_id_number: form.citizen_id_number }),
+        request_type: "Red Blood Cells"
+
     };
     console.log("payload nè", payload);
 

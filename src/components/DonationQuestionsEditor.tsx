@@ -110,7 +110,7 @@ const DonationQuestionsEditor = () => {
   return (
     <Card className="bg-[#f0f4ff]">
       <CardHeader>
-        <CardTitle className="text-[#236afe] text-xl">
+        <CardTitle className="text-[#236afe] text-xl text-center">
           Câu hỏi trước khi hiến máu
         </CardTitle>
       </CardHeader>
