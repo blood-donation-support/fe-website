@@ -1,10 +1,10 @@
-import {apiClient } from './apiClient';
-import type {ApiResponse } from './apiClient';
+import { apiClient } from './apiClient';
+import type { ApiResponse } from './apiClient';
 
 export interface DoctorRequestPayload {
   blood_group_id: string;
   blood_component_ids: string[];
-  receive_date_request: string; 
+  receive_date_request: string;
   citizen_id_number?: string;
   patient_code?: string;
   is_emergency: boolean;
@@ -12,7 +12,7 @@ export interface DoctorRequestPayload {
   phone: string;
   image?: string;
   note?: string;
-    request_type?: string;
+  request_type?: string;
 
 }
 
@@ -32,6 +32,8 @@ export interface DoctorRequest {
   created_at: string;
   updated_at: string;
   request_type?: string;
+  full_name?: string;
+  blood_group_name?: string;
 }
 
 
@@ -62,7 +64,7 @@ export const fetchDoctorRequestById = async (
   const res = await apiClient.get<ApiResponse<DoctorRequest>>(
     `/requests/request-registrations/${id}`
   );
-    console.log("fetch image nè", res);
+  console.log("fetch image nè", res);
 
   return res.data.result;
 };

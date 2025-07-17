@@ -56,6 +56,7 @@ export const BloodRequestListPage: React.FC = () => {
 			}
 		})();
 	}, []);
+	
 
 	const filtered = requests.filter((r) => {
 		const matchesStatus =
@@ -119,19 +120,26 @@ export const BloodRequestListPage: React.FC = () => {
 					<Table>
 						<TableHeader className="bg-[#f3f4f6]">
 							<TableRow>
-								<TableHead>Mã đơn</TableHead>
+								<TableHead>Họ Tên</TableHead>
+								<TableHead>Nhóm Máu</TableHead>
+								<TableHead>Loại Máu</TableHead>
 								<TableHead>Ngày yêu cầu</TableHead>
-								<TableHead>Khẩn cấp</TableHead>
+
+								<TableHead>Tình Trạng</TableHead>
 								<TableHead>Trạng thái</TableHead>
 								{/* {role !== "Admin" && ( */}
-									<TableHead className="text-center">Thao tác</TableHead>
+								<TableHead className="text-center">Thao tác</TableHead>
 								{/* )} */}
 							</TableRow>
 						</TableHeader>
 						<TableBody>
 							{filtered.map((r) => (
 								<TableRow key={r._id} className="hover:bg-[#f9fafb]">
-									<TableCell>{r._id}</TableCell>
+									{/* <TableCell>{r._id}</TableCell> */}
+									<TableCell>{r.full_name}</TableCell>
+									<TableCell>{r.blood_group_name ? r.blood_group_name : "chưa cập nhật"}</TableCell>
+									<TableCell>{r.request_type ? r.request_type : "chưa cập nhật"}</TableCell>
+
 									<TableCell>
 										{new Date(r.receive_date_request).toLocaleString()}
 									</TableCell>
@@ -146,19 +154,19 @@ export const BloodRequestListPage: React.FC = () => {
 									</TableCell>
 									<TableCell>{statusVN(r.status)}</TableCell>
 									{/* {role !== "Admin" && ( */}
-										<TableCell className="text-center">
-											<Button
-												size="sm"
-												className="bg-[#236afe] hover:bg-[#4338ca] text-white"
-												onClick={() =>
-													navigate(
-														`/dashboard-staff-warehouse/request-list/${r._id}`,
-													)
-												}
-											>
-												Duyệt
-											</Button>
-										</TableCell>
+									<TableCell className="text-center">
+										<Button
+											size="sm"
+											className="bg-[#236afe] hover:bg-[#4338ca] text-white"
+											onClick={() =>
+												navigate(
+													`/dashboard-staff-warehouse/request-list/${r._id}`,
+												)
+											}
+										>
+											Duyệt
+										</Button>
+									</TableCell>
 									{/* )} */}
 								</TableRow>
 							))}
