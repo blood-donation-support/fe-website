@@ -105,7 +105,10 @@ export default function App() {
 				>
 					<Route path="donation" element={<DonationRegisterPage />} />
 					<Route path="donation/:id" element={<DonationProcessPage />} />
+
+					{/* page tạo đơn xin máu */}
 					<Route path="doctor-request" element={<DoctorRequestPage />} />
+					
 				</Route>
 
 				{/* staff warehouse routes */}
@@ -117,11 +120,17 @@ export default function App() {
 						</PrivateRoute>
 					}
 				>
+
+					{/* page danh sách đơn xin máu */}
 					<Route path="request-list" element={<BloodRequestListPage />} />
+					{/* page chi tiết đơn xin máu */}
 					<Route
 						path="request-list/:id"
 						element={<BloodRequestApprovalPage />}
 					/>
+
+
+
 					<Route path="blood-storage" element={<BloodStoragePage />} />
 					<Route path="blood-storage-summary" element={<BloodSummaryTable />} />
 					{/* <Route

@@ -12,6 +12,8 @@ export interface DoctorRequestPayload {
   phone: string;
   image?: string;
   note?: string;
+    request_type?: string;
+
 }
 
 export interface DoctorRequest {
@@ -29,6 +31,7 @@ export interface DoctorRequest {
   image?: string;
   created_at: string;
   updated_at: string;
+  request_type?: string;
 }
 
 

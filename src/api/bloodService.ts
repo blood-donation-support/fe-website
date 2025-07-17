@@ -114,7 +114,7 @@ export interface BloodUnit {
   blood_group_id: string;
   blood_group_name: string;
   citizen_id_number: string;
-  blood_components_name: string[];
+  blood_component_name: string;
   blood_component_id: string;
   volume: number;
   status: string | null;

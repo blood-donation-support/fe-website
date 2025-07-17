@@ -32,6 +32,7 @@ import type {
 } from "../../api/bloodService";
 
 import { BLOOD_COMPONENT_LABELS } from "../../constants/bloodLabels";
+import bloodComponentVN from "@/utils/translateBloodComponentVN";
 
 export const BloodRequestApprovalPage: React.FC = () => {
 	const { id } = useParams<{ id: string }>();
@@ -218,7 +219,7 @@ export const BloodRequestApprovalPage: React.FC = () => {
 									<TableHeader className="bg-[#f3f4f6]">
 										<TableRow>
 											<TableHead className="text-center">Chọn</TableHead>
-											<TableHead>CMND/CCCD</TableHead>
+											{/* <TableHead>CMND/CCCD</TableHead> */}
 											<TableHead>Nhóm máu</TableHead>
 											<TableHead>Thành phần</TableHead>
 											<TableHead>Thể tích</TableHead>
@@ -239,10 +240,10 @@ export const BloodRequestApprovalPage: React.FC = () => {
 														className="w-5 h-5"
 													/>
 												</TableCell>
-												<TableCell>{u.citizen_id_number}</TableCell>
+												{/* <TableCell>{u.citizen_id_number}</TableCell> */}
 												<TableCell>{u.blood_group_name}</TableCell>
 												<TableCell>
-													{u.blood_components_name?.join(", ")}
+													{bloodComponentVN(u.blood_component_name || "123" )}
 												</TableCell>
 												<TableCell>{u.volume} ml</TableCell>
 											</TableRow>
