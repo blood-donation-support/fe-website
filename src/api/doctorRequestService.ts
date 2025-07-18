@@ -62,6 +62,12 @@ export interface RequestProcessBlood {
   updated_at: Date;
   blood_group_name: string;
   blood_component_name: string;
+  blood_unit_id: string;
+}
+export interface RequestProcessBloodPayLoad {
+  blood_unit_id: string;
+  status: string;
+  blood_component_id: string;
 }
 
 
@@ -147,5 +153,26 @@ export const fetchRequestProcessBlood = async (
   );
   console.log("res", res);
 
+  return res.data.result;
+};
+//chọn túi máu phù hợp để xin máu
+export const updateRequestProcessBloodAPI = async (
+  id: string,
+  payload: RequestProcessBloodPayLoad[]
+): Promise<RequestProcessBloodPayLoad[]> => {
+  const res = await apiClient.patch<ApiResponse<RequestProcessBloodPayLoad[]>>(
+    `/requests/request-process-bloods/${id}`, payload
+
+  );
+  return res.data.result;
+};
+//confirm
+export const confirmRequestProcessBloodAPI = async (
+  id: string,
+): Promise<RequestProcessBloodPayLoad[]> => {
+  const res = await apiClient.patch<ApiResponse<RequestProcessBloodPayLoad[]>>(
+    `/requests/request-process-bloods/${id}/confirm`,
+
+  );
   return res.data.result;
 };
