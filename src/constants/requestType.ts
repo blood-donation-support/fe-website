@@ -9,13 +9,13 @@ export enum RequestType {
 }
 
 export const RequestTypeVN: Record<RequestType, string> = {
-  [RequestType.WholeBlood]: "Hiến máu toàn phần",
-  [RequestType.Platelets]: "Hiến tiểu cầu",
-  [RequestType.Plasma]: "Hiến huyết tương",
-  [RequestType.RedBloodCells]: "Hiến hồng cầu kép",
-  [RequestType.PlateletsPlasma]: "Hiến tiểu cầu + huyết tương",
-  [RequestType.PlasmaRedCells]: "Hiến huyết tương + hồng cầu",
-  [RequestType.PlateletsRedCells]: "Hiến tiểu cầu + hồng cầu"
+  [RequestType.WholeBlood]: "máu toàn phần",
+  [RequestType.Platelets]: " tiểu cầu",
+  [RequestType.Plasma]: " huyết tương",
+  [RequestType.RedBloodCells]: " hồng cầu kép",
+  [RequestType.PlateletsPlasma]: " tiểu cầu + huyết tương",
+  [RequestType.PlasmaRedCells]: " huyết tương + hồng cầu",
+  [RequestType.PlateletsRedCells]: " tiểu cầu + hồng cầu"
 };
 
 export const RequestTypeList = Object.entries(RequestTypeVN) as [RequestType, string][];

@@ -42,7 +42,8 @@ import {
 	SelectValue,
 } from "@/components/ui/select";
 import { fetchBloodComponents, fetchBloodGroups } from "@/api/bloodService";
-import { RequestTypeVN } from "@/constants/requestType";
+import { RequestTypeList, RequestTypeVN } from "@/constants/requestType";
+import { toast } from "react-toastify";
 
 // Define the form interface
 interface EditForm {
@@ -110,8 +111,9 @@ export const HealthCheckRequest: React.FC = () => {
 			try {
 				const groups = await fetchBloodGroups();
 				setBloodGroupOptions(groups.map((g) => ({ id: g._id, name: g.name }))); // Lưu trữ toàn bộ objects với code và name
-				const comps = await fetchBloodComponents();
-				setBloodComponentOptions(comps.map((c) => c.name));
+				const comps = await RequestTypeList;
+				console.log("blood comps", comps)
+				setBloodComponentOptions(comps.map((c) => c[0]));
 			} catch (err) {
 				console.error("Lỗi lấy danh mục máu:", err);
 			}
@@ -246,6 +248,7 @@ export const HealthCheckRequest: React.FC = () => {
 			};
 
 			await updateHealthCheck(healthCheck._id, updatePayload);
+			toast.success("Cập nhật khám sức khỏe thành công")
 			navigate("/dashboard-staff/doctor-request-approved");
 		} catch (err) {
 			console.error("Error updating health check:", err);
@@ -418,14 +421,16 @@ export const HealthCheckRequest: React.FC = () => {
 											}
 										>
 											<SelectTrigger>
-												<SelectValue placeholder="Chọn thành phần máu" />
+												<SelectValue placeholder="Chọn thành phần máu"  />
 											</SelectTrigger>
 											<SelectContent>
 												{bloodComponentOptions.map((component) => (
 													<SelectItem key={component} value={component}>
+														
 														{RequestTypeVN[
 															component as keyof typeof RequestTypeVN
-														] || component}
+														] || component  } 
+														
 													</SelectItem>
 												))}
 											</SelectContent>

@@ -15,24 +15,29 @@ import { Stepper } from "@/components/ui/stepper";
 
 import {
 	fetchDoctorRequestById,
-	approveDoctorRequest
+	approveDoctorRequest,
+	fetchRequestProcessDetail,
+	updateRequestProcessDetail,
 } from "../../api/doctorRequestService";
 import {
 	fetchBloodUnits,
 	fetchBloodGroups,
-	fetchBloodComponents
+	fetchBloodComponents,
 } from "../../api/bloodService";
 import type {
 	DoctorRequest,
+	RequestProcessDetail,
+	RequestProcessDetailPayLoad,
 } from "../../api/doctorRequestService";
 import type {
 	BloodUnit,
 	BloodGroup,
-	BloodComponent
+	BloodComponent,
 } from "../../api/bloodService";
 
 import { BLOOD_COMPONENT_LABELS } from "../../constants/bloodLabels";
 import bloodComponentVN from "@/utils/translateBloodComponentVN";
+import { Input } from "@/components/ui/input";
 
 export const BloodRequestApprovalPage: React.FC = () => {
 	const { id } = useParams<{ id: string }>();
@@ -45,7 +50,11 @@ export const BloodRequestApprovalPage: React.FC = () => {
 	const [loading, setLoading] = useState(false);
 	const [units, setUnits] = useState<BloodUnit[]>([]);
 	const [loadingUnits, setLoadingUnits] = useState(false);
-
+	const [requestProcessDetail, setRequestProcessDetail] = useState<
+		RequestProcessDetail[] | null
+	>(null);
+	const [requestProcessId, setRequestProcessId] = useState<string>();
+	const [editForm, setEditForm] = useState<RequestProcessDetailPayLoad[]>();
 	const bloodCompatibility: Record<string, string[]> = {
 		"O-": ["O-"],
 		"O+": ["O+", "O-"],
@@ -63,6 +72,14 @@ export const BloodRequestApprovalPage: React.FC = () => {
 			const req = await fetchDoctorRequestById(id);
 			console.log(req);
 			setRequest(req);
+
+			const requestProcessDetail = await fetchRequestProcessDetail(
+				req.request_process_id,
+			);
+			setRequestProcessDetail(requestProcessDetail);
+			setRequestProcessId(req.request_process_id);
+			console.log("RequestProcessDetail", requestProcessDetail);
+			console.log("Request", requestProcessDetail[0].blood_component_name);
 
 			// map group ID → name
 			const allGroups: BloodGroup[] = await fetchBloodGroups();
@@ -98,7 +115,7 @@ export const BloodRequestApprovalPage: React.FC = () => {
 
 	// Load units when moving to step 2
 	useEffect(() => {
-		if (step === 2 && request) {
+		if (step === 3 && request) {
 			setLoadingUnits(true);
 			(async () => {
 				try {
@@ -126,13 +143,73 @@ export const BloodRequestApprovalPage: React.FC = () => {
 				status: "Approved",
 				assigned_blood_group: selectedGroup,
 			});
-			setStep(3);
+			setStep(4);
 		} catch (err) {
 			console.error(err);
 			alert("Có lỗi khi duyệt đơn");
 		} finally {
 			setLoading(false);
 		}
+	};
+	const handleUpdateRequestProcessDetail = async () => {
+		if (!requestProcessId) {
+			console.error("ID is undefined");
+			alert("Không tìm thấy ID yêu cầu.");
+			return;
+		}
+		console.log("update", id);
+
+		try {
+			setStep(3);
+			await updateRequestProcessDetail(requestProcessId, editForm || []);
+			console.log("update", editForm);
+		} catch (err) {
+			console.error(err);
+			alert("Có lỗi khi duyệt đơn");
+		} finally {
+			setLoading(false);
+		}
+	};
+
+	const handleOnChange = (index: number, value: number) => {
+		// Cập nhật UI
+		setRequestProcessDetail((prev) => {
+			if (!prev) return prev;
+			const updated = [...prev];
+			updated[index] = {
+				...updated[index],
+				volume_required: value,
+			};
+			return updated;
+		});
+
+		// Cập nhật dữ liệu sẽ gửi lên API
+		setEditForm((prev) => {
+			const current = prev ? [...prev] : [];
+
+			// Tìm item hiện có theo request_process_detail_id
+			const id = requestProcessDetail?.[index]?.blood_component_id;
+			if (!id) return current;
+
+			const existingIndex = current.findIndex(
+				(i) => i.blood_component_id === id,
+			);
+
+			if (existingIndex !== -1) {
+				current[existingIndex] = {
+					...current[existingIndex],
+					volume_required: value,
+				};
+			} else {
+				current.push({
+					blood_component_id: id,
+					volume_required: value,
+					status: "Pending",
+				});
+			}
+
+			return current;
+		});
 	};
 
 	if (!request) {
@@ -146,7 +223,12 @@ export const BloodRequestApprovalPage: React.FC = () => {
 			</h2>
 			<div className="w-full max-w-3xl">
 				<Stepper
-					steps={["Thông tin yêu cầu", "Chọn máu", "Hoàn tất"]}
+					steps={[
+						"Thông tin yêu cầu",
+						"Thông tin xin máu",
+						"Chọn máu",
+						"Hoàn tất",
+					]}
 					currentStep={step}
 				/>
 
@@ -155,7 +237,7 @@ export const BloodRequestApprovalPage: React.FC = () => {
 					<Card className="mt-8 shadow-lg">
 						<CardContent className="space-y-4 text-lg p-6">
 							<div>
-								<b>Bệnh nhân:</b> {request.full_name || request.user_id}
+								<b>Tên bệnh nhân:</b> {request.full_name || "chưa cập nhật"}
 							</div>
 							<div>
 								<b>Nhóm máu yêu cầu:</b> {groupName}
@@ -202,9 +284,65 @@ export const BloodRequestApprovalPage: React.FC = () => {
 						</CardContent>
 					</Card>
 				)}
-
-				{/* Step 2: Select unit */}
+				{/* Step 2: input unit request */}
 				{step === 2 && (
+					<Card className="mt-8 shadow-lg">
+						<CardContent className="space-y-4 text-lg p-6">
+							{requestProcessDetail?.map((detail, index) => (
+								<div key={index} className="border-t pt-4 mt-4 space-y-4">
+									<div>
+										<b>Nhóm máu:</b>{" "}
+										{detail.blood_group_name || "chưa cập nhật"}
+									</div>
+
+									<div>
+										<b>Loại máu nhận:</b>{" "}
+										{detail.blood_component_name || "chưa cập nhật"}
+									</div>
+
+									<div>
+										<b>Khối lượng máu cần nhận:</b>{" "}
+										<Input
+											type="number"
+											placeholder="ml"
+											value={detail.volume_required}
+											onChange={(e) =>
+												handleOnChange(index, Number(e.target.value))
+											}
+										/>
+									</div>
+
+									<div>
+										<b>Trạng thái:</b> {detail.status || "chưa cập nhật"}
+									</div>
+								</div>
+							))}
+
+							{request?.image && (
+								<div className="mt-4">
+									<b>Ảnh đính kèm:</b>
+									<img
+										src={request.image}
+										alt="ảnh yêu cầu"
+										className="mt-2 w-48 h-auto object-cover rounded border"
+									/>
+								</div>
+							)}
+
+							<div className="text-center pt-4">
+								<Button
+									className="bg-[#236afe] hover:bg-[#4338ca] text-white px-8 py-3 rounded-xl text-lg"
+									onClick={() => handleUpdateRequestProcessDetail()}
+								>
+									Kiểm tra kho máu
+								</Button>
+							</div>
+						</CardContent>
+					</Card>
+				)}
+
+				{/* Step 3: Select unit */}
+				{step === 3 && (
 					<Card className="mt-8 shadow-lg">
 						<CardContent className="p-6">
 							<h3 className="text-xl font-bold mb-6 text-center">
@@ -243,7 +381,7 @@ export const BloodRequestApprovalPage: React.FC = () => {
 												{/* <TableCell>{u.citizen_id_number}</TableCell> */}
 												<TableCell>{u.blood_group_name}</TableCell>
 												<TableCell>
-													{bloodComponentVN(u.blood_component_name || "123" )}
+													{bloodComponentVN(u.blood_component_name || "123")}
 												</TableCell>
 												<TableCell>{u.volume} ml</TableCell>
 											</TableRow>
@@ -264,8 +402,8 @@ export const BloodRequestApprovalPage: React.FC = () => {
 					</Card>
 				)}
 
-				{/* Step 3: Done */}
-				{step === 3 && (
+				{/* Step 4: Done */}
+				{step === 4 && (
 					<div className="mt-16 text-center">
 						<div className="text-green-600 font-bold text-2xl mb-6">
 							Đã duyệt thành công!
