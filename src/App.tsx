@@ -1,3 +1,14 @@
+//import Layout from "./components/Layout";
+import React from "react";
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
+import { Provider } from "react-redux";
+import { store, persistor } from "./redux/store";
+import { PersistGate } from "redux-persist/integration/react";
+import { AnimatePresence, motion } from "framer-motion";
+// import ReviewPage from "./pages/ReviewPage";
+// import SchedulePage from "./pages/SchedulePage";
+// import DashboardAdminPage from "./pages/DashBoardAdminPage";
+// import ServicePage from "./pages/ServicePage";
 import {
 	BrowserRouter,
 	Routes,
@@ -49,49 +60,107 @@ function PrivateRoute({
 	return <>{children}</>;
 }
 
+
 export default function App() {
 	return (
-		<BrowserRouter>
-			<Routes>
-				{/* Public routes */}
-				<Route path="/" element={<HomePage />} />
-				<Route path="/login" element={<Login />} />
-				<Route path="/donateBlood" element={<DonateBloodPage />} />
-				<Route path="/blogDetail/:id" element={<BlogDetailPage />}/>
-				<Route
-					path="/donateBlood"
-					element={
-						<PrivateRoute role="custuomer">
-							<DonateBloodPage />
-						</PrivateRoute>
-					}
-				></Route>
+		<Provider store={store}>
+			<PersistGate loading={null} persistor={persistor}>
+				<div className="w-full max-w-[100vw] overflow-x-hidden">
+					<BrowserRouter>
+						<ScrollToTop />
+						<AnimatePresence mode="wait">
 
-				{/* Admin routes */}
-				<Route
-					path="/dashboard-admin"
-					element={
-						<PrivateRoute role="Admin">
-							<AdminLayout />
-						</PrivateRoute>
-					}
-				>
-					{/* <Route index element={<DashboardAdmin />} /> */}
-					{/* <Route path="staffs" element={<StaffListPage />} /> */}
-					<Route path="users" element={<UserListPage />} />
+						<Routes >
+							<Route path="/login" element={<Login />} />
+							<Route path="/register" element={<Register />} />
 
-					<Route path="bloods" element={<BloodPage />} />
-					<Route
-						path="donation-registers"
-						element={<DonationRegistrationsPage />}
-					/>
-					<Route path="blogs" element={<BlogAdminPage />} /> 
-					<Route path="blogs/:id/edit" element={<BlogEditPage />} />
-					<Route
-						path="/dashboard-admin/request-list"
-						element={<BloodRequestListPage />}
-					/>
-				</Route>
+
+							{/* Route không có layout (ví dụ: trang chủ) */}
+							<Route path="/" element={
+								<motion.div
+								initial={{ x: 0, opacity: 0 }}
+								animate={{ x: 0, opacity: 1 }}
+								exit={{ x: 300, opacity: 0 }}
+								transition={{ duration: 0.5 }}
+								>
+									<HomePage />
+								</motion.div>
+								
+							} />
+
+							<Route
+								path="/donateBlood"
+								element={
+									//<PrivateRoute requiredRole="Customer">
+									<motion.div
+									initial={{ x: 300, opacity: 0 }}
+									animate={{ x: 0, opacity: 1 }}
+									exit={{ x: -300, opacity: 0 }}
+									transition={{ duration: 0.5 }}
+									>
+									<DonateBloodPage />
+									</motion.div>
+								//</PrivateRoute>
+							}
+							/>
+
+							{/* Route có layout dùng Outlet */}
+							{/* <Route element={<Layout />}>
+								<Route
+								path="/dashboard-admin"
+								element={<DashboardAdminPage />}
+								/>
+								
+								<Route path="/reviews" element={<ReviewPage />} />
+								<Route
+								path="/staffs/:id/schedule"
+								element={<SchedulePage />}
+								/>
+								<Route path="/services" element={<ServicePage />} />
+								</Route> */}
+						</Routes>
+							
+// 		<BrowserRouter>
+// 			<Routes>
+// 				{/* Public routes */}
+// 				<Route path="/" element={<HomePage />} />
+// 				<Route path="/login" element={<Login />} />
+// 				<Route path="/donateBlood" element={<DonateBloodPage />} />
+// 				<Route path="/blogDetail/:id" element={<BlogDetailPage />}/>
+// 				<Route
+// 					path="/donateBlood"
+// 					element={
+// 						<PrivateRoute role="custuomer">
+// 							<DonateBloodPage />
+// 						</PrivateRoute>
+// 					}
+// 				></Route>
+
+// 				{/* Admin routes */}
+// 				<Route
+// 					path="/dashboard-admin"
+// 					element={
+// 						<PrivateRoute role="Admin">
+// 							<AdminLayout />
+// 						</PrivateRoute>
+// 					}
+// 				>
+// 					{/* <Route index element={<DashboardAdmin />} /> */}
+// 					{/* <Route path="staffs" element={<StaffListPage />} /> */}
+// 					<Route path="users" element={<UserListPage />} />
+
+// 					<Route path="bloods" element={<BloodPage />} />
+// 					<Route
+// 						path="donation-registers"
+// 						element={<DonationRegistrationsPage />}
+// 					/>
+// 					<Route path="blogs" element={<BlogAdminPage />} /> 
+// 					<Route path="blogs/:id/edit" element={<BlogEditPage />} />
+// 					<Route
+// 						path="/dashboard-admin/request-list"
+// 						element={<BloodRequestListPage />}
+// 					/>
+// 				</Route>
 
 				{/* staff routes */}
 				<Route
@@ -146,7 +215,13 @@ export default function App() {
 						element={<BloodSeparationProcessPage />}
 					/>
 				</Route>
-			</Routes>
-		</BrowserRouter>
+// 			</Routes>
+// 		</BrowserRouter>
+            
+            	</AnimatePresence>
+					</BrowserRouter>
+				</div>
+			</PersistGate>
+		</Provider>
 	);
 }

@@ -5,6 +5,7 @@
 //   updated_at?: string;
 // }
 
+const API_URL = "https://be-t8i8.onrender.com/api";
 
 import axios from 'axios';
 import {apiClient } from './apiClient';

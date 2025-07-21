@@ -37,7 +37,8 @@ const serviceData = {
         title: "Hiến máu tình nguyện",
         description: "Tham gia hiến máu nhân đạo, mỗi giọt máu bạn trao đi là một hy vọng sống cho người khác.",
         links: [
-            { label: "Đăng ký hiến máu", href: "/donateBlood" },
+            { label: "Đăng ký hiến máu", href: "#" },
+
             { label: "Tìm hiểu", href: "#" },
         ],
         icon: serviceIcons.bloodDonation,
@@ -57,7 +58,8 @@ const serviceData = {
         title: "Tư vấn & kiểm tra sức khỏe",
         description: "Tư vấn trước và sau khi hiến máu, kiểm tra miễn phí sức khỏe, đảm bảo an toàn cho người hiến.",
         links: [
-            { label: "Tư vấn miễn phí", href: "/donateBlood" },
+            { label: "Tư vấn miễn phí", href: "#" },
+
             { label: "Chi tiết", href: "#" },
         ],
         icon: serviceIcons.healthCheck,
@@ -67,7 +69,8 @@ const serviceData = {
         title: "Lưu trữ và quản lý máu",
         description: "Đảm bảo lưu trữ máu an toàn, quản lý hiệu quả để phục vụ kịp thời nhu cầu cấp cứu.",
         links: [
-            { label: "Chi tiết", href: "/donateBlood"},
+            { label: "Chi tiết", href: "#" },
+
             { label: "Hỗ trợ", href: "#" },
         ],
         icon: serviceIcons.bloodStorage,
@@ -77,7 +80,8 @@ const serviceData = {
         title: "Kết nối cộng đồng",
         description: "Xây dựng mạng lưới kết nối giữa những người hiến máu và bệnh nhân cần máu.",
         links: [
-            { label: "Tham gia cộng đồng", href: "/donateBlood" },
+            { label: "Tham gia cộng đồng", href: "#" },
+
             { label: "Xem hoạt động", href: "#" },
         ],
         icon: serviceIcons.communityConnect,
@@ -90,26 +94,27 @@ const serviceData = {
 ;
 export const ServiceSection = () => {
   return (
-    <SectionMotionWrapper className="w-full h-screen flex flex-col items-center justify-start bg-blue-50 snap-start">
+    <SectionMotionWrapper className="w-full h-screen flex flex-col items-center justify-start pt-16 bg-blue-50 snap-start">
         {(inview)=>(
             <>
-            <h2 className="text-2xl font-bold mt-4 mb-10 text-gray-800">Dịch vụ Hiến máu – Nhận máu</h2>
-            <div className="grid grid-cols-4 grid-rows-2 gap-6 w-5/6 h-[90vh]">
-              {serviceData.serviceCardData.map((card, idx) => (
-                  <ServiceCard key={idx} {...card} inview={inview} />
-              ))}
-              <SloganCard title={serviceData.sloganData.title} description={serviceData.sloganData.description}/>
-              <motion.div
-              initial={{ opacity: 1,scale:1, y: -150, x: 0, }}
-              animate={inview?{ opacity: 1,scale:1, y: 0, x: 0,height:'93%' }:{ opacity: 1,scale:1, y: -150, x: 0, }}
-              transition={{ duration: 1, delay: 0 }}
-              className="row-span-2 col-span-2 bg-white rounded-3xl shadow-md flex items-center justify-center overflow-hidden h-[31rem]">
-                  <img
-                      src="src/assets/blood-donation(5).jpg"
-                      alt="Hiến máu – Lan tỏa yêu thương"
-                      className="w-full h-full object-cover"
-                      />
-              </motion.div>
+            <h2 className="text-4xl font-bold mb-10 text-gray-800">Dịch vụ Hiến máu – Nhận máu</h2>
+            <div className="grid grid-cols-4 grid-rows-2 gap-6 w-5/6 h-[65rem]">
+            {serviceData.serviceCardData.map((card, idx) => (
+                <ServiceCard key={idx} {...card} inview={inview} />
+            ))}
+            <SloganCard title={serviceData.sloganData.title} description={serviceData.sloganData.description}/>
+            <motion.div
+            initial={{ opacity: 1,scale:1, y: -150, x: 0, }}
+            animate={inview?{ opacity: 1,scale:1, y: 0, x: 0,height:'95%' }:{ opacity: 1,scale:1, y: -150, x: 0, }}
+            transition={{ duration: 1, delay: 0 }}
+            className="row-span-2 col-span-2 bg-white rounded-3xl shadow-md flex items-center justify-center overflow-hidden h-[31rem]">
+                <img
+                    src="src/assets/blood-donation(5).jpg"
+                    alt="Hiến máu – Lan tỏa yêu thương"
+                    className="w-full h-full object-cover"
+                    />
+            </motion.div>
+
             </div>
             </>
         )}
