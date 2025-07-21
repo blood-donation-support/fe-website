@@ -30,6 +30,7 @@ const HeaderComponent = ({ isHomepage = false }: HeaderComponentProps) => {
   const headerClass = isHomepage
     ? "absolute bg-white/0 "
     : "fixed bg-white";
+
   return (
     <motion.header
       initial={{ opacity: 0, y: -32 }}
@@ -46,6 +47,7 @@ const HeaderComponent = ({ isHomepage = false }: HeaderComponentProps) => {
           <img src="src/assets/logo.png" alt="Donate Blood" className="w-8 h-8 rounded-full" />
           <span className="font-bold text-2xl text-blue-600">Donate Blood</span>
         </div>
+
         <button className="md:hidden p-2 rounded-full hover:bg-gray-200">
           <FaBars size={20} />
         </button>
@@ -54,6 +56,7 @@ const HeaderComponent = ({ isHomepage = false }: HeaderComponentProps) => {
             <Link to={item.nav}
               key={item.context}
               className="px-6 py-2 text-lg bg-white rounded-full border border-gray-200 shadow-sm font-medium text-gray-700 hover:bg-blue-50 transition"
+
             >
               {item.context}
             </Link>
@@ -63,6 +66,7 @@ const HeaderComponent = ({ isHomepage = false }: HeaderComponentProps) => {
       {/* Phần user & action */}
       <div className="flex items-center gap-4">
         <div className="hidden md:block text-2xl text-gray-500 mr-4 bg-white rounded-full px-6 py-3">
+
           <span className="inline-block align-middle mr-1">
             <svg width="14" height="14" fill="none" viewBox="0 0 24 24">
               <circle cx="12" cy="10" r="6" stroke="#7C8DB0" strokeWidth="2" />
@@ -73,6 +77,7 @@ const HeaderComponent = ({ isHomepage = false }: HeaderComponentProps) => {
         </div>
         <div className="flex gap-2">
           <button className="w-14 h-14 flex items-center justify-center rounded-full bg-black text-white hover:bg-blue-600 transition">
+
             <FaPhone size={16} />
           </button>
           <button className="w-14 h-14 flex items-center justify-center rounded-full bg-blue-100 text-blue-500 hover:bg-blue-600 hover:text-white transition">
@@ -88,6 +93,7 @@ const HeaderComponent = ({ isHomepage = false }: HeaderComponentProps) => {
               Đăng nhập
             </Link>
           )}
+
         </div>
       </div>
     </motion.header>

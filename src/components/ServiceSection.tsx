@@ -38,6 +38,7 @@ const serviceData = {
         description: "Tham gia hiến máu nhân đạo, mỗi giọt máu bạn trao đi là một hy vọng sống cho người khác.",
         links: [
             { label: "Đăng ký hiến máu", href: "#" },
+
             { label: "Tìm hiểu", href: "#" },
         ],
         icon: serviceIcons.bloodDonation,
@@ -58,6 +59,7 @@ const serviceData = {
         description: "Tư vấn trước và sau khi hiến máu, kiểm tra miễn phí sức khỏe, đảm bảo an toàn cho người hiến.",
         links: [
             { label: "Tư vấn miễn phí", href: "#" },
+
             { label: "Chi tiết", href: "#" },
         ],
         icon: serviceIcons.healthCheck,
@@ -68,6 +70,7 @@ const serviceData = {
         description: "Đảm bảo lưu trữ máu an toàn, quản lý hiệu quả để phục vụ kịp thời nhu cầu cấp cứu.",
         links: [
             { label: "Chi tiết", href: "#" },
+
             { label: "Hỗ trợ", href: "#" },
         ],
         icon: serviceIcons.bloodStorage,
@@ -78,6 +81,7 @@ const serviceData = {
         description: "Xây dựng mạng lưới kết nối giữa những người hiến máu và bệnh nhân cần máu.",
         links: [
             { label: "Tham gia cộng đồng", href: "#" },
+
             { label: "Xem hoạt động", href: "#" },
         ],
         icon: serviceIcons.communityConnect,
@@ -110,6 +114,7 @@ export const ServiceSection = () => {
                     className="w-full h-full object-cover"
                     />
             </motion.div>
+
             </div>
             </>
         )}

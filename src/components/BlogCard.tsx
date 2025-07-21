@@ -31,5 +31,6 @@ export default function BlogCard({ image, title, summary, logo, blogUrl, author,
         </div>
       </motion.div>
     </motion.div>
+
   );
 }

@@ -1,0 +1,91 @@
+import React from 'react';
+import { motion } from 'framer-motion';
+import { cn } from '@/lib/utils';
+
+interface StepProps {
+  title: string;
+  isActive: boolean;
+  isCompleted: boolean;
+  stepNumber: number;
+}
+
+const Step = ({ title, isActive, isCompleted, stepNumber }: StepProps) => {
+  return (
+    <div className="flex flex-col items-center text-center relative">
+      <motion.div
+        initial={false}
+        animate={{
+          scale: isActive ? 1.2 : 1,
+          backgroundColor: isCompleted
+            ? '#22c55e' // green
+            : isActive
+            ? '#2563eb' // blue
+            : '#d1d5db', // gray
+        }}
+        transition={{ type: 'spring', stiffness: 300, damping: 20 }}
+        className={cn(
+          "rounded-full w-12 h-12 flex items-center justify-center text-white font-bold z-10 shadow-lg"
+        )}
+      >
+        {isCompleted ? '✔' : stepNumber}
+      </motion.div>
+      <div className="mt-2 text-sm font-medium">{title}</div>
+    </div>
+  );
+};
+
+interface StepperProps {
+  steps: string[];
+  currentStep: number;
+}
+
+export const Stepper = ({ steps, currentStep }: StepperProps) => {
+  return (
+    <div className="relative flex items-center w-full">
+      {steps.map((title, index) => {
+        const stepNumber = index + 1;
+        const isCompleted = currentStep > stepNumber;
+        const isActive = currentStep === stepNumber;
+
+        return (
+          <div key={index} className="flex-1 flex flex-col items-center relative">
+            {/* Đường nối */}
+            {index !== steps.length - 1 && (
+              <div className="absolute top-6 left-1/2 w-full h-1 z-0">
+                <motion.div
+                  initial={false}
+                  animate={{
+                    backgroundColor: isCompleted ? '#22c55e' : '#d1d5db',
+                    width: '100%',
+                  }}
+                  transition={{ type: 'spring', stiffness: 300, damping: 20 }}
+                  className="h-1 rounded-full"
+                />
+              </div>
+            )}
+
+            {/* Step Node */}
+            <motion.div
+              initial={false}
+              animate={{
+                scale: isActive ? 1.2 : 1,
+                backgroundColor: isCompleted
+                  ? '#22c55e'
+                  : isActive
+                  ? '#2563eb'
+                  : '#d1d5db',
+              }}
+              transition={{ type: 'spring', stiffness: 300, damping: 20 }}
+              className="rounded-full w-12 h-12 flex items-center justify-center text-white font-bold z-10 shadow-lg"
+            >
+              {isCompleted ? '✔' : stepNumber}
+            </motion.div>
+
+            <div className="mt-2 text-sm font-medium text-center">{title}</div>
+          </div>
+        );
+      })}
+    </div>
+  );
+};
+

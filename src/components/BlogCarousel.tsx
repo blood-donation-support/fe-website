@@ -36,6 +36,7 @@ const BlogCarousel: React.FC<BlogCarouselProps> = ({ blogs }) => {
         className={`absolute left-6 z-10 w-20 h-16 bg-white shadow p-2 rounded-xl border text-blue-600 hover:bg-blue-50 transition ${
          currentIndex === 0 ? "opacity-40 cursor-not-allowed" : "hover:scale-105"
         }`}
+
         style={{ top: "50%", transform: "translateY(-50%)" }}
         aria-label="Trước"
       >
@@ -56,6 +57,7 @@ const BlogCarousel: React.FC<BlogCarouselProps> = ({ blogs }) => {
         >
           {blogs.map((blog, idx) => (
             <div key={idx} style={{ width: CARD_WIDTH, minWidth: CARD_WIDTH ,gap:"18px" }}>
+
               <BlogCard {...blog} />
             </div>
           ))}
@@ -69,6 +71,7 @@ const BlogCarousel: React.FC<BlogCarouselProps> = ({ blogs }) => {
         className={`absolute right-6 z-10 w-20 h-16 bg-white shadow rounded-xl border text-blue-600 hover:bg-blue-50 transition ${
           currentIndex >= maxIndex ? "opacity-40 cursor-not-allowed" : "hover:scale-105"
         } flex items-center justify-end pr-4`}
+
         style={{ top: "50%", transform: "translateY(-50%)" }}
         aria-label="Tiếp theo"
       >
@@ -77,6 +80,7 @@ const BlogCarousel: React.FC<BlogCarouselProps> = ({ blogs }) => {
 
       {/* Dots */}
       <div className="flex gap-2 mt-5">
+
         {Array.from({ length: maxIndex + 1 }).map((_, idx) => (
           <button
             key={idx}

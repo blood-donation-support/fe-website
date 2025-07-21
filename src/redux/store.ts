@@ -2,40 +2,49 @@ import { configureStore } from "@reduxjs/toolkit";
 import { persistStore, persistReducer } from "redux-persist";
 import storage from "redux-persist/lib/storage"; // localStorage
 import searchReducer from "./slices/searchSlice";
-import revenueReducer from "./slices/revenueSlice";
-import bookingReducer from "./slices/bookingSlice";
-import bestArtistReducer from "./slices/bestArtistSlice";
-import bestServiceReducer from "./slices/bestServiceSlice";
 import customerReducer from "./slices/customerSlice";
-import artistReducer from "./slices/artistSlice";
 import reviewReducer from "./slices/reviewSlice";
-import appointmentReducer from "./slices/appointmentSlice";
-import artistListReducer from "./slices/artistListSlice";
+import staffListReducer from "./slices/staffListSlice";
+import bloodUnitsReducer from "./slices/bloodUnitsSlice";
+import donationReducer from "./slices/donationSlice";
+import bestBloodTypeReducer from "./slices/bestBloodTypeSlice";
+import bestStaffReducer from "./slices/bestStaffSlice";
+import userReducer from "./slices/userSlice";
+import staffReducer from "./slices/staffSlice";
 import customerListReducer from "./slices/customerListSlice";
 import donationRegistrationReducer from "./slices/donationRegistrationSlice";
+import blogReducer from "./slices/blogSlice"; // Import blog reducer
 // import other reducers...
 
+// const persistConfig = {
+// 	key: "root",
+// 	storage,
+// 	whitelist: ["staffList"],
+// };
 const persistConfig = {
-	key: "root",
+	key: "staffList",
 	storage,
-	whitelist: ["artistList"], // chỉ persist phần này
 };
-const persistedArtistReducer = persistReducer(persistConfig, artistListReducer);
+const persistedStaffListReducer = persistReducer(
+	persistConfig,
+	staffListReducer,
+);
+
 export const store = configureStore({
 	reducer: {
 		search: searchReducer,
-		revenue: revenueReducer,
-		booking: bookingReducer,
-		bestArtist: bestArtistReducer,
-		bestService: bestServiceReducer,
 		customer: customerReducer,
-		artist: artistReducer,
 		review: reviewReducer,
-		appointment: appointmentReducer,
-		artistList: persistedArtistReducer,
+		staffList: persistedStaffListReducer, 
 		customerList: customerListReducer,
-		donationRegistration: donationRegistrationReducer
-		// other reducers...
+		donationRegistration: donationRegistrationReducer,
+		blog: blogReducer,
+		bloodUnits: bloodUnitsReducer,
+		donations: donationReducer,
+		bestBloodType: bestBloodTypeReducer,
+		bestStaff: bestStaffReducer,
+		users: userReducer,
+		staff: staffReducer,
 	},
 	middleware: (getDefaultMiddleware) =>
 		getDefaultMiddleware({

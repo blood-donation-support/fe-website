@@ -23,6 +23,7 @@ export default function ServiceCard({ number, title, description, links, icon, i
             animate={inview?{ opacity: 1,scale:1, y: 0, x: 0 }:{ opacity: 1,scale:1, y: 40, x: 0 }}
             transition={{ duration: 1, delay: 0.5 }}
             className="absolute z-0 left-7 top-6 text-[8rem] font-extrabold text-black  select-none pointer-events-none leading-none">
+
                 {number}
             </motion.span>
             <span
@@ -32,6 +33,7 @@ export default function ServiceCard({ number, title, description, links, icon, i
                 top-[7.8rem]    // nên để trùng với top của số
                 h-2     // chiều cao gạch (tùy chiều cao content)
                 w-28      // độ dày gạch
+
                 bg-black // màu nền card
                 rounded-full
                 shadow-md // tạo hiệu ứng “nổi nhẹ”
@@ -47,6 +49,7 @@ export default function ServiceCard({ number, title, description, links, icon, i
             transition={{ duration: 1, delay: 0 }}
             className="relative z-10 pt-12 flex-1 flex flex-col bg-white mt-24">
                 <span className="font-bold text-2xl flex items-center gap-2 mb-1">
+
                     {icon}
                     {title}
                 </span>
@@ -60,6 +63,7 @@ export default function ServiceCard({ number, title, description, links, icon, i
                 <div className="flex justify-between items-center w-full mt-auto">
                     <Link to={links[0]?.href || "#"} className="text-blue-600 font-medium hover:underline">Đăng ký hiến máu</Link>
                     <Link to={links[1]?.href || "#"} className="text-gray-400 hover:text-blue-600 font-medium">Tìm hiểu</Link>
+
                 </div>
             </motion.div>
         </motion.div>

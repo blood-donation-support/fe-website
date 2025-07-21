@@ -1,3 +1,5 @@
+
+import { Link } from "react-router-dom";
 import HeaderComponent from "./commons/header-component";
 import { motion } from "framer-motion";
  
@@ -37,6 +39,7 @@ const HomePageSection = () => {
 				<span className="text-2xl font-bold text-blue-500">100%</span>
 				<span className="text-sm text-gray-600">chẩn đoán kỹ thuật số</span>
 			</div>
+
 			</div>
 		</motion.div>
 
@@ -62,6 +65,7 @@ const HomePageSection = () => {
 				<img src="https://randomuser.me/api/portraits/women/35.jpg" className="w-10 h-10 rounded-full border-2 border-white -ml-4" />
 			</div>
 			</div>
+
 		
 		</motion.div>
 	</div>
@@ -77,6 +81,7 @@ const HomePageSection = () => {
 				src="https://www.secondmedic.com/app/asset/consult/image/apollo-banner-doctor.webp"
 				alt="Doctor"
 				className="w-[80rem] h-[95rem] object-cover "
+
 				style={{ zIndex: 2 }}
 				/>
 		</div>
