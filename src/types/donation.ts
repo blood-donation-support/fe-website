@@ -17,6 +17,7 @@ export interface DonationRegistration {
 
 
 export interface HealthCheck {
+  request_type: string;
   _id: string;
   user_id: string;
   donation_registration_id: string;

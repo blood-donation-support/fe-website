@@ -1,7 +1,7 @@
 // src/api/userService.ts
 import { apiClient } from './apiClient';
 import type { ApiResponse } from './apiClient';
-import type { User, NewUserPayload  } from '../types/user';
+import type { User, NewUserPayload } from '../types/user';
 
 export const fetchUserAll = async (): Promise<User[]> => {
   const res = await apiClient.get<ApiResponse<User[]>>(`/users`);
@@ -19,6 +19,14 @@ export const createUser = async (
   const res = await apiClient.post<ApiResponse<User>>(
     `/users/register`,
     userData
+  );
+  return res.data.result;
+};
+
+export const getCCCD = async (id: string): Promise<User> => {
+  const res = await apiClient.get<ApiResponse<User>>(
+    `users/${id}`
+
   );
   return res.data.result;
 };

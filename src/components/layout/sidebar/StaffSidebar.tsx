@@ -6,15 +6,19 @@ const artistNavItems = [
 	{ icon: "fa-table-cells", label: "Dashboard", path: "/dashboard" },
 	{
 		icon: "fa-calendar-check",
-		label: "My Schedule",
+		label: "Đăng kí hiến máu",
 		path: "/dashboard-staff/donation",
 	},
 	{
 		icon: "fa-hand-holding-medical",
-		label: "Donation Request",
+		label: "Tạo đơn xin máu",
 		path: "/dashboard-staff/doctor-request",
 	},
-
+	{
+		icon: "fa-hand-holding-medical",
+		label: "Danh Sách đơn xin máu",
+		path: "/dashboard-staff/doctor-request-approved",
+	},
 	{ icon: "fa-message", label: "Messages", path: "/dashboard-artist/messages" },
 ];
 

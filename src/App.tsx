@@ -43,6 +43,8 @@ import BlogDetailPage from "./pages/BlogDetailPage";
 import BlogAdminPage from "./pages/admin/BlogAdminPage";
 import BlogEditPage from "./pages/admin/BlogEditPage";
 import UserListPage from "./pages/admin/UserListPage";
+import { BloodRequestApprovedList } from "./pages/staff/BloodRequestApprovedList";
+import { HealthCheckRequest } from "./pages/staff/HealthCheckRequest";
 
 function PrivateRoute({
 	role,
@@ -63,6 +65,7 @@ function PrivateRoute({
 
 export default function App() {
 	return (
+
 		<Provider store={store}>
 			<PersistGate loading={null} persistor={persistor}>
 				<div className="w-full max-w-[100vw] overflow-x-hidden">
@@ -71,8 +74,8 @@ export default function App() {
 						<AnimatePresence mode="wait">
 
 						<Routes >
-							<Route path="/login" element={<Login />} />
-							<Route path="/register" element={<Register />} />
+
+							
 
 
 							{/* Route không có layout (ví dụ: trang chủ) */}
@@ -177,7 +180,16 @@ export default function App() {
 
 					{/* page tạo đơn xin máu */}
 					<Route path="doctor-request" element={<DoctorRequestPage />} />
-					
+					{/* page danh sách đơn xin máu đã approved */}
+					<Route
+						path="doctor-request-approved"
+						element={<BloodRequestApprovedList />}
+					/>
+					{/* healthcheck của xin máu */}
+					<Route
+						path="doctor-healthcheck-request-approved/:id"
+						element={<HealthCheckRequest />}
+					/>
 				</Route>
 
 				{/* staff warehouse routes */}
@@ -189,7 +201,6 @@ export default function App() {
 						</PrivateRoute>
 					}
 				>
-
 					{/* page danh sách đơn xin máu */}
 					<Route path="request-list" element={<BloodRequestListPage />} />
 					{/* page chi tiết đơn xin máu */}
@@ -197,8 +208,6 @@ export default function App() {
 						path="request-list/:id"
 						element={<BloodRequestApprovalPage />}
 					/>
-
-
 
 					<Route path="blood-storage" element={<BloodStoragePage />} />
 					<Route path="blood-storage-summary" element={<BloodSummaryTable />} />
