@@ -6,47 +6,51 @@ import { useAuthStore } from "@/store/authStore";
 import { useDispatch, useSelector } from "react-redux";
 import type { RootState, AppDispatch } from "@/redux/store";
 import { registerDonation, resetDonationStatus } from "@/redux/slices/donationRegistrationSlice";
+import { FaBars, FaBell, FaPhone, FaUser } from "react-icons/fa";
+import {motion} from "framer-motion";
+import { Link } from "react-router-dom";
 
 const DonateBloodPage = () => {
-  const today = new Date();
-  const accessToken = useAuthStore((state) => state.accessToken) || "";
-  const [statusForm, setStatusForm] = useState("Pending");
-  const dispatch = useDispatch<AppDispatch>();
-  const { loading, error, success } = useSelector(
-    (state: RootState) => state.donationRegistration
-  );
-  const [dateValue, setDateValue] = useState<Date | null>(today);
-  const [formData, setFormData] = useState({
-    blood_group_id: "",
-	donation_type: "",
-    start_date_donation: today.toISOString()
-  });
+	const today = new Date().toISOString().slice(0, 10);
+	const accessToken = useAuthStore((state) => state.accessToken)||"";
+	const [statusForm,setStatusForm] = useState("Pending");
+	const dispatch = useDispatch<AppDispatch>();
+	const { loading, error, success } = useSelector(
+		(state: RootState) => state.donationRegistration
+	);
+	const [formData, setFormData] = useState({
+		blood_group_id: "",
+		blood_component_id: "",
+		start_date_donation:today, 
+		status: "pending",
+	});
+	useEffect(() => {
+		if (success) {
+			toast.success("Đăng ký hiến máu thành công!");
+			setStatusForm("Submited");
+			console.log("Show toast success!");
+			setTimeout(() => {
+				dispatch(resetDonationStatus());
+			}, 200);
+		}
+		if (error) {
+			toast.error(error);
+			setTimeout(() => {
+				dispatch(resetDonationStatus());
+			}, 200);
+		}
+	}, [success, error, dispatch]);
+	const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+		e.preventDefault();
+		dispatch(registerDonation({ payload: formData, accessToken }));
+		setFormData({
+		blood_group_id: "",
+		blood_component_id: "",
+		start_date_donation: today,
+		status: "pending",
+		});
+	};
 
-  useEffect(() => {
-    if (success) {
-      setStatusForm("Submited");
-      toast.success("Đăng ký hiến máu thành công!");
-      dispatch(resetDonationStatus());
-    }
-    if (error) {
-      toast.error(error);
-      dispatch(resetDonationStatus());
-    }
-  }, [success, error, dispatch]);
-
-  useEffect(() => {
-    if (dateValue) {
-      setFormData((prev) => ({
-        ...prev,
-        start_date_donation: dateValue.toISOString(),
-      }));
-    }
-  }, [dateValue]);
-
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    dispatch(registerDonation({ payload: formData, accessToken }));
-  };
 
   const DonateBloodPageDetails = {
     why_donate_blood: {
@@ -81,25 +85,27 @@ const DonateBloodPage = () => {
   }
 ];
 
-  return (
-    <>
-      <HeaderComponent />
-      <HeroComponent {...DonateBloodPageDetails.hero} />
-      <FormComponent
-        fields={fields}
-        heading={"Lựa chọn nhóm máu muốn hiến tặng"}
-        buttonText={"Lên lịch đăng kí"}
-        handleSubmit={handleSubmit}
-        formData={formData}
-        setFormData={setFormData}
-        statusForm={statusForm}
-        dateValue={dateValue}
-        setDateValue={setDateValue}
-      />
-      <SideBySideComponent {...DonateBloodPageDetails.why_donate_blood} />
-      <FooterComponent />
-    </>
-  );
+	return (
+		<>
+			<section className="w-full h-screen relative">
+			 
+			<HeaderComponent /> 
+			<HeroComponent {...DonateBloodPageDetails.hero} />
+			<FormComponent
+				fields={fields}
+				heading={"Lựa chọn nhóm máu muốn hiến tặng"}
+				buttonText={"Lên lịch đăng kí"}
+				handleSubmit={handleSubmit}
+				formData={formData}
+				setFormData={setFormData}
+				statusForm={statusForm}
+			/>
+			{/* <SideBySideComponent {...DonateBloodPageDetails.why_donate_blood} /> */}
+			<FooterComponent />
+			</section>
+		</>
+	);
+
 };
 
 export default DonateBloodPage;

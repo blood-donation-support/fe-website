@@ -20,7 +20,7 @@ const UserDropdown: React.FC<Props> = ({ user, onLogout }) => {
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    console.log(user);
+
     const handleClickOutside = (event: MouseEvent) => {
       if (
         dropdownRef.current &&
@@ -49,9 +49,8 @@ const UserDropdown: React.FC<Props> = ({ user, onLogout }) => {
         <div className="absolute right-0 mt-2 w-72 bg-white rounded-xl shadow-lg border border-gray-100 z-50 py-4 px-6">
           <div className="flex items-center gap-4 mb-4">
             <div className="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center font-bold text-blue-600 text-lg">
-<div className="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center font-bold text-blue-600 text-lg">
-  {user.fullname?.charAt(0)?.toUpperCase() || "?"}
-</div>
+              {user.fullname.charAt(0).toUpperCase()}
+
             </div>
             <div>
               <div className="font-bold">{user.fullname}</div>

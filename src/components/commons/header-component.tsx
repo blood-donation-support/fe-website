@@ -30,8 +30,7 @@ const HeaderComponent = ({ isHomepage = false }: HeaderComponentProps) => {
   const headerClass = isHomepage
     ? "absolute bg-white/0 "
     : "fixed bg-white";
-    const locationClass = isHomepage
-    ? "bg-white":"bg-blue-50";
+
   return (
     <motion.header
       initial={{ opacity: 0, y: -32 }}
@@ -41,21 +40,23 @@ const HeaderComponent = ({ isHomepage = false }: HeaderComponentProps) => {
         ease: [0, 0.05, 0.05, 0.1],
         delay: 0.08,
       }}
-      className={`w-full px-4 pb-4 pt-2 flex items-center justify-between ${headerClass} transition  top-0 left-0 z-30`}
+      className={`w-full px-8 pb-10 pt-5 flex items-center justify-between ${headerClass} transition  top-0 left-0 z-20`}
     >
       <div className="flex items-center gap-20">
-        <Link to={'/'} className="flex items-center gap-2">
+        <div className="flex items-center gap-2">
           <img src="src/assets/logo.png" alt="Donate Blood" className="w-8 h-8 rounded-full" />
           <span className="font-bold text-2xl text-blue-600">Donate Blood</span>
-        </Link>
+        </div>
+
         <button className="md:hidden p-2 rounded-full hover:bg-gray-200">
           <FaBars size={20} />
         </button>
         <nav className="hidden md:flex items-center gap-3 ml-4">
-          {[{context:"Chúng tôi",nav:"/"},{context:"Hiến máu",nav:"/donateBlood"} ,{context:"Chính sách",nav:"/"} ,{context: "Hỗ trợ",nav:"/"}].map((item) => (
+          {[{context:"Chúng tôi",nav:"/home"},{context:"Hiến máu",nav:"/donateBlood"} ,{context:"Nhận máu",nav:"/need-blood"} ,{context: "Hỗ trợ",nav:"/contact"}].map((item) => (
             <Link to={item.nav}
               key={item.context}
-              className="px-2 py-2 text-sm font-bold rounded-sm bg-white shadow-sm text-gray-700 hover:bg-blue-50 transition"
+              className="px-6 py-2 text-lg bg-white rounded-full border border-gray-200 shadow-sm font-medium text-gray-700 hover:bg-blue-50 transition"
+
             >
               {item.context}
             </Link>
@@ -64,7 +65,8 @@ const HeaderComponent = ({ isHomepage = false }: HeaderComponentProps) => {
       </div>
       {/* Phần user & action */}
       <div className="flex items-center gap-4">
-        <div className={`hidden md:block text-2xl text-gray-500 mr-4 ${locationClass} rounded-full px-6 py-3`}>
+        <div className="hidden md:block text-2xl text-gray-500 mr-4 bg-white rounded-full px-6 py-3">
+
           <span className="inline-block align-middle mr-1">
             <svg width="14" height="14" fill="none" viewBox="0 0 24 24">
               <circle cx="12" cy="10" r="6" stroke="#7C8DB0" strokeWidth="2" />
@@ -74,7 +76,8 @@ const HeaderComponent = ({ isHomepage = false }: HeaderComponentProps) => {
           Nhà văn hóa sinh viên,Q9
         </div>
         <div className="flex gap-2">
-          <button className="w-14 h-14 flex items-center justify-center rounded-full bg-red-600 text-white hover:bg-red-900 transition">
+          <button className="w-14 h-14 flex items-center justify-center rounded-full bg-black text-white hover:bg-blue-600 transition">
+
             <FaPhone size={16} />
           </button>
           <button className="w-14 h-14 flex items-center justify-center rounded-full bg-blue-100 text-blue-500 hover:bg-blue-600 hover:text-white transition">
@@ -85,11 +88,12 @@ const HeaderComponent = ({ isHomepage = false }: HeaderComponentProps) => {
           ) : (
             <Link
               to="/login"
-              className="px-8 pt-4 bg-blue-600 hover:bg-blue-700 text-white rounded-full text-base font-semibold shadow transition"
+              className="px-8 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-full text-base font-semibold shadow transition"
             >
               Đăng nhập
             </Link>
-           )} 
+          )}
+
         </div>
       </div>
     </motion.header>
