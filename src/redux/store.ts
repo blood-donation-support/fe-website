@@ -14,6 +14,7 @@ import staffReducer from "./slices/staffSlice";
 import customerListReducer from "./slices/customerListSlice";
 import donationRegistrationReducer from "./slices/donationRegistrationSlice";
 import blogReducer from "./slices/blogSlice"; // Import blog reducer
+import dashboardSliceReducer from "./slices/dashboardSlice"; // Import dashboard slice
 // import other reducers...
 
 // const persistConfig = {
@@ -45,6 +46,9 @@ export const store = configureStore({
 		bestStaff: bestStaffReducer,
 		users: userReducer,
 		staff: staffReducer,
+
+		dashboard: dashboardSliceReducer,
+
 	},
 	middleware: (getDefaultMiddleware) =>
 		getDefaultMiddleware({

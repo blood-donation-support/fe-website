@@ -24,7 +24,6 @@ export interface BloodComponent {
   updated_at: string;
 }
 
-const API_URL = "https://be-t8i8.onrender.com/api";
 export const bloodService = {
   getBloodGroups: async (): Promise<BloodGroup[]> => {
     const res = await axios.get(`${API_URL}/bloods/blood-groups`);

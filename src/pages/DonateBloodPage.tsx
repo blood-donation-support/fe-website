@@ -1,56 +1,55 @@
 import { useEffect, useState } from "react";
 import { FooterComponent, FormComponent, HeaderComponent, HeroComponent, SideBySideComponent } from "@/components";
-import donationService from "@/api/donationService";
 import { toast } from "react-toastify";
 import { useAuthStore } from "@/store/authStore";
 import { useDispatch, useSelector } from "react-redux";
 import type { RootState, AppDispatch } from "@/redux/store";
-import { registerDonation, resetDonationStatus } from "@/redux/slices/donationRegistrationSlice";
-import { FaBars, FaBell, FaPhone, FaUser } from "react-icons/fa";
-import {motion} from "framer-motion";
-import { Link } from "react-router-dom";
+
+import { registerDonationThunk , resetDonationStatus } from "@/redux/slices/donationRegistrationSlice"; // Redux action
 
 const DonateBloodPage = () => {
-	const today = new Date().toISOString().slice(0, 10);
-	const accessToken = useAuthStore((state) => state.accessToken)||"";
-	const [statusForm,setStatusForm] = useState("Pending");
-	const dispatch = useDispatch<AppDispatch>();
-	const { loading, error, success } = useSelector(
-		(state: RootState) => state.donationRegistration
-	);
-	const [formData, setFormData] = useState({
-		blood_group_id: "",
-		blood_component_id: "",
-		start_date_donation:today, 
-		status: "pending",
-	});
-	useEffect(() => {
-		if (success) {
-			toast.success("Đăng ký hiến máu thành công!");
-			setStatusForm("Submited");
-			console.log("Show toast success!");
-			setTimeout(() => {
-				dispatch(resetDonationStatus());
-			}, 200);
-		}
-		if (error) {
-			toast.error(error);
-			setTimeout(() => {
-				dispatch(resetDonationStatus());
-			}, 200);
-		}
-	}, [success, error, dispatch]);
-	const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-		e.preventDefault();
-		dispatch(registerDonation({ payload: formData, accessToken }));
-		setFormData({
-		blood_group_id: "",
-		blood_component_id: "",
-		start_date_donation: today,
-		status: "pending",
-		});
-	};
+  const today = new Date();
+  const accessToken = useAuthStore((state) => state.accessToken) || "";
+  const [statusForm, setStatusForm] = useState("Pending");
+  const dispatch = useDispatch<AppDispatch>();
+  const { loading, error, success } = useSelector(
+    (state: RootState) => state.donationRegistration
+  );
+  const [dateValue, setDateValue] = useState<Date | null>(today);
+  const [formData, setFormData] = useState({
+    blood_group_id: "",
+    donation_type: "",
+    start_date_donation: today.toISOString()
+  });
 
+  // Handle success or error state
+  useEffect(() => {
+    if (success) {
+      setStatusForm("Submited");
+      toast.success("Đăng ký hiến máu thành công!");
+      dispatch(resetDonationStatus());
+    }
+    if (error) {
+      toast.error(error);
+      dispatch(resetDonationStatus());
+    }
+  }, [success, error, dispatch]);
+
+  // Update formData when date changes
+  useEffect(() => {
+    if (dateValue) {
+      setFormData((prev) => ({
+        ...prev,
+        start_date_donation: dateValue.toISOString(),
+      }));
+    }
+  }, [dateValue]);
+
+  // Submit form data
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    dispatch(registerDonationThunk({ payload: formData, accessToken })); // Dispatch Redux action
+  };
 
   const DonateBloodPageDetails = {
     why_donate_blood: {
@@ -71,41 +70,40 @@ const DonateBloodPage = () => {
   };
 
   const fields = [
-  {
-    key: "bg",
-    name: "blood_group_id",
-    placeholder: "blood_groups",
-    required: true,
-  },
-  {
-    key: "bt",
-    name: "donation_type",
-    placeholder: "donation_type",
-    required: true,
-  }
-];
+    {
+      key: "bg",
+      name: "blood_group_id",
+      placeholder: "blood_groups",
+      required: true,
+    },
+    {
+      key: "bt",
+      name: "donation_type",
+      placeholder: "donation_type",
+      required: true,
+    }
+  ];
 
-	return (
-		<>
-			<section className="w-full h-screen relative">
-			 
-			<HeaderComponent /> 
-			<HeroComponent {...DonateBloodPageDetails.hero} />
-			<FormComponent
-				fields={fields}
-				heading={"Lựa chọn nhóm máu muốn hiến tặng"}
-				buttonText={"Lên lịch đăng kí"}
-				handleSubmit={handleSubmit}
-				formData={formData}
-				setFormData={setFormData}
-				statusForm={statusForm}
-			/>
-			{/* <SideBySideComponent {...DonateBloodPageDetails.why_donate_blood} /> */}
-			<FooterComponent />
-			</section>
-		</>
-	);
 
+  return (
+    <>
+      <HeaderComponent />
+      <HeroComponent {...DonateBloodPageDetails.hero} />
+      <FormComponent
+        fields={fields}
+        heading={"Đăng kí thông tin hiến máu"}
+        buttonText={"Lên lịch đăng kí"}
+        handleSubmit={handleSubmit}
+        formData={formData}
+        setFormData={setFormData}
+        statusForm={statusForm}
+        dateValue={dateValue}
+        setDateValue={setDateValue}
+      />
+      <SideBySideComponent {...DonateBloodPageDetails.why_donate_blood} />
+      <FooterComponent />
+    </>
+  );
 };
 
 export default DonateBloodPage;

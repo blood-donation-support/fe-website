@@ -131,9 +131,33 @@ export const DoctorRequestPage: React.FC = () => {
 			errs.citizen_id_number = "CCCD phải có 12 chữ số";
 		}
 
-		setErrors(errs);
-		return Object.keys(errs).length === 0;
-	};
+	// 	setErrors(errs);
+	// 	return Object.keys(errs).length === 0;
+	// };
+    // Upload lên Firebase
+    // const storageRef = ref(
+    //   // analytics,
+    //   `doctor-requests/${Date.now()}_${file.name}`
+    // );
+    //const uploadTask = uploadBytesResumable(storageRef, file);
+    // uploadTask.on(
+    //   "state_changed",
+    //   (snapshot) => {
+    //     const prog = Math.round(
+    //       (snapshot.bytesTransferred / snapshot.totalBytes) * 100
+    //     );
+    //     setUploadProgress(prog);
+    //   },
+    //   (err) => console.error("Upload lỗi:", err),
+    //   () => {
+    //     getDownloadURL(uploadTask.snapshot.ref).then((url) => {
+    //       handleChange("image", url); // Lưu URL chính thức
+    //       URL.revokeObjectURL(objectUrl); // Dọn preview tạm
+    //       setUploadProgress(0);
+    //     });
+    //   }
+    // );
+  };
 
 	const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 		const file = e.target.files?.[0];

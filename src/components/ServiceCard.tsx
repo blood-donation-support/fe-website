@@ -1,16 +1,25 @@
 import { motion } from "framer-motion";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 interface ServiceCardProps {
   number: string;
   title: string;
   description: string;
-  links: { label: string; href: string }[];
+  links: { label: string; href: string };
   icon: JSX.Element;
   inview: boolean;
 }
 
 export default function ServiceCard({ number, title, description, links, icon, inview }: ServiceCardProps) {
+    const navigate = useNavigate(); // Sử dụng useNavigate để điều hướng trang
+
+  const handleLinkClick = (href: string, slideNumber: number) => {
+    navigate(href);  
+    const slideElement = document.getElementById(`slide-${slideNumber}`);
+    if (slideElement) {
+      slideElement.scrollIntoView({ behavior: "smooth" });
+    }
+  };
   return (
     <motion.div
         initial={{ opacity: 1,scale:1, y: -150, x: 0 ,height:'60%'}}
@@ -61,9 +70,14 @@ export default function ServiceCard({ number, title, description, links, icon, i
                 {description}
                 </motion.span>
                 <div className="flex justify-between items-center w-full mt-auto">
-                    <Link to={links[0]?.href || "#"} className="text-blue-600 font-medium hover:underline">Đăng ký hiến máu</Link>
-                    <Link to={links[1]?.href || "#"} className="text-gray-400 hover:text-blue-600 font-medium">Tìm hiểu</Link>
 
+                    <Link
+                        to={links.href || "#"}
+                        className="text-blue-600 font-medium hover:underline text-[10px]"
+                        onClick={() => handleLinkClick(links.href, parseInt(number))}
+                    >
+                        {links.label}
+                    </Link>
                 </div>
             </motion.div>
         </motion.div>

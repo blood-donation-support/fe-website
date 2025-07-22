@@ -22,8 +22,8 @@ import HomePage from "./pages/HomePage";
 import Login from "./Auth/Login";
 import AdminLayout from "./components/layout/AdminLayout";
 import StaffLayout from "./components/layout/StaffLayout";
-import DashboardAdmin from "./pages/admin/DashboardAdmin";
-import StaffListPage from "./pages/StaffListPage";
+// import DashboardAdmin from "./pages/admin/DashboardAdmin";
+// import StaffListPage from "./pages/StaffListPage";
 import BloodPage from "./pages/BloodPage";
 import DonationRegistrationsPage from "./pages/DonationRegistrationsPage";
 import { DonateBloodPage } from "./pages";
@@ -43,8 +43,15 @@ import BlogDetailPage from "./pages/BlogDetailPage";
 import BlogAdminPage from "./pages/admin/BlogAdminPage";
 import BlogEditPage from "./pages/admin/BlogEditPage";
 import UserListPage from "./pages/admin/UserListPage";
+<<<<<<< HEAD
 import { BloodRequestApprovedList } from "./pages/staff/BloodRequestApprovedList";
 import { HealthCheckRequest } from "./pages/staff/HealthCheckRequest";
+=======
+import Dashboard from "./pages/admin/Dashboard";
+import SupportPage from "./pages/SupportPage";
+import PolicyPage from "./pages/PolicyPage";
+import BloodHistoryPage from "./pages/BloodHistoryPage";
+>>>>>>> thanhnt/dashboard
 
 function PrivateRoute({
 	role,
@@ -65,6 +72,7 @@ function PrivateRoute({
 
 export default function App() {
 	return (
+<<<<<<< HEAD
 
 		<Provider store={store}>
 			<PersistGate loading={null} persistor={persistor}>
@@ -164,6 +172,52 @@ export default function App() {
 // 						element={<BloodRequestListPage />}
 // 					/>
 // 				</Route>
+=======
+		<BrowserRouter>
+			<Routes>
+				{/* Public routes */}
+				<Route path="/" element={<HomePage />} />
+				<Route path="/login" element={<Login />} />
+				<Route path="/donateBlood" element={<DonateBloodPage />} />
+				<Route path="/blogDetail/:id" element={<BlogDetailPage />}/>
+				<Route path="/support" element={<SupportPage />} />
+				<Route path="/policy" element={<PolicyPage />} />
+				<Route path="/blood-history" element={<BloodHistoryPage />} />
+				<Route
+					path="/donateBlood"
+					element={
+						<PrivateRoute role="custuomer">
+							<DonateBloodPage />
+						</PrivateRoute>
+					}
+				></Route>
+
+				{/* Admin routes */}
+				<Route
+					path="/dashboard-admin"
+					element={
+						<PrivateRoute role="Admin">
+							<AdminLayout />
+						</PrivateRoute>
+					}
+				>
+					{/* <Route index element={<DashboardAdmin />} /> */}
+					{/* <Route path="staffs" element={<StaffListPage />} /> */}
+					<Route path="users" element={<UserListPage />} />
+					<Route path="" element={<Dashboard />} />
+					{/* <Route path="bloods" element={<BloodPage />} />
+					<Route
+						path="donation-registers"
+						element={<DonationRegistrationsPage />}
+					/>
+					<Route path="blogs" element={<BlogAdminPage />} /> 
+					<Route path="blogs/:id/edit" element={<BlogEditPage />} />
+					<Route
+						path="/dashboard-admin/request-list"
+						element={<BloodRequestListPage />}
+					/> */}
+				</Route>
+>>>>>>> thanhnt/dashboard
 
 				{/* staff routes */}
 				<Route
