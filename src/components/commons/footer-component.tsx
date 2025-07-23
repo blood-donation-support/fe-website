@@ -17,7 +17,7 @@ const FooterComponent = () => {
   ];
 
   return (
-    <section className="flex flex-col justify-center items-center w-full mx-auto my-0 px-2.5 pt-[70px] pb-[40px] bg-blue-600 ">
+    <section className="flex flex-col justify-center items-center w-full mx-auto my-0 px-2.5 pt-[20px] pb-[40px] bg-blue-600 ">
       <div className="relative w-[min(100%_-_15px,1250px)] mx-auto p-2.5">
         <div className="grid sm:grid-cols-1 md:grid-cols-3 gap-10">
           {/* First Column: Logo and Tagline */}

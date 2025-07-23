@@ -36,6 +36,10 @@ import Dashboard from "./pages/admin/Dashboard";
 import SupportPage from "./pages/SupportPage";
 import PolicyPage from "./pages/PolicyPage";
 import BloodHistoryPage from "./pages/BloodHistoryPage";
+import BlogPreviewPage from "./components/blogComponents/BlogPreviewPage";
+import ProfileLayout from "./components/layout/ProfileLayout";
+import ProfileInfo from "./components/profileComponents/ProfileInfo";
+import ChangePasswordPage from "./components/profileComponents/ChangePasswordPage";
 
 function PrivateRoute({
 	role,
@@ -64,7 +68,15 @@ export default function App() {
 				<Route path="/blogDetail/:id" element={<BlogDetailPage />}/>
 				<Route path="/support" element={<SupportPage />} />
 				<Route path="/policy" element={<PolicyPage />} />
-				<Route path="/blood-history" element={<BloodHistoryPage />} />
+				<Route path="/dashboard-admin/blogs/:id/preview" element={<BlogPreviewPage />} />
+				<Route path="/profile" element={<ProfileLayout />}>
+					<Route path="info" element={<ProfileInfo />} />
+					<Route path="blood-history" element={<BloodHistoryPage />} />
+					<Route path="blood-history/:donationRegistrationId" element={<BloodHistoryPage />} />
+					{/* <Route path="notifications" element={<NotificationList />} /> */}
+					<Route path="change-password" element={<ChangePasswordPage />} />
+					<Route index element={<ProfileInfo />} /> {/* default */}
+				</Route>
 				<Route
 					path="/donateBlood"
 					element={
@@ -91,13 +103,13 @@ export default function App() {
 					<Route
 						path="donation-registers"
 						element={<DonationRegistrationsPage />}
-					/>
+					/>*/}
 					<Route path="blogs" element={<BlogAdminPage />} /> 
 					<Route path="blogs/:id/edit" element={<BlogEditPage />} />
-					<Route
+					{/* <Route
 						path="/dashboard-admin/request-list"
 						element={<BloodRequestListPage />}
-					/> */}
+					/>  */}
 				</Route>
 
 				{/* staff routes */}

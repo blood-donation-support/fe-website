@@ -36,10 +36,8 @@ const BlogCarousel: React.FC<BlogCarouselProps> = ({
     return visibleCount ?? 3;
   }, [cardWidthVW, widthVW, gapVW, visibleCount]);
 
-  // Card width thực tế (dùng cardWidthVW nếu có, hoặc chia đều)
   const cardWidth = useMemo(() => {
     if (cardWidthVW) return `${cardWidthVW}vw`;
-    // Chia đều cho visibleCount
     const totalGap = gapVW * (actualVisibleCount - 1);
     return `calc((${widthVW}vw - ${totalGap}vw) / ${actualVisibleCount})`;
   }, [cardWidthVW, widthVW, gapVW, actualVisibleCount]);
@@ -47,7 +45,6 @@ const BlogCarousel: React.FC<BlogCarouselProps> = ({
   const [currentIndex, setCurrentIndex] = useState(0);
   const maxIndex = Math.max(0, blogs.length - actualVisibleCount);
 
-  // Di chuyển đúng 1 card + 1 gap
   const movePerIndex = useMemo(() => {
     if (cardWidthVW) return cardWidthVW + gapVW;
     const totalGap = gapVW * (actualVisibleCount - 1);
@@ -59,7 +56,6 @@ const BlogCarousel: React.FC<BlogCarouselProps> = ({
       className={`relative flex flex-col items-center select-none w-full ${className || ""}`}
       style={{ height: `${heightVH}vh`, ...style }}
     >
-      {/* Arrow trái */}
       <button
         onClick={() => setCurrentIndex(prev => Math.max(0, prev - 1))}
         disabled={currentIndex === 0}
@@ -71,7 +67,6 @@ const BlogCarousel: React.FC<BlogCarouselProps> = ({
         <FaChevronLeft size={28} />
       </button>
 
-      {/* Slide wrapper */}
       <div className="overflow-hidden h-full p-2" style={{ maxWidth: `${widthVW + 1}vw` }}>
         <div
           className="flex transition-transform duration-500 ease-in-out"
@@ -87,7 +82,7 @@ const BlogCarousel: React.FC<BlogCarouselProps> = ({
               className="flex-shrink-0"
               style={{
                 width: cardWidth,
-                height: `${heightVH - 7}vh`, // padding nhỏ
+                height: `${heightVH - 7}vh`,
               }}
             >
               <BlogCard {...blog} />
@@ -96,7 +91,6 @@ const BlogCarousel: React.FC<BlogCarouselProps> = ({
         </div>
       </div>
 
-      {/* Arrow phải */}
       <button
         onClick={() => setCurrentIndex(prev => Math.min(maxIndex, prev + 1))}
         disabled={currentIndex >= maxIndex}
@@ -113,11 +107,7 @@ const BlogCarousel: React.FC<BlogCarouselProps> = ({
         {Array.from({ length: maxIndex + 1 }).map((_, idx) => (
           <button
             key={idx}
-            className={`w-3 h-3 rounded-full border transition-all ${
-              currentIndex === idx
-                ? "bg-blue-600 border-blue-600 scale-125"
-                : "bg-gray-300 border-gray-300"
-            }`}
+            className={`w-3 h-3 rounded-full border transition-all ${currentIndex === idx ? "bg-blue-600 border-blue-600 scale-125" : "bg-gray-300 border-gray-300"}`}
             onClick={() => setCurrentIndex(idx)}
             aria-label={`Slide ${idx + 1}`}
           />

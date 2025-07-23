@@ -11,8 +11,9 @@ interface BlogCardProps {
   content: string;
   avatar?: string;
   author: string;
-  heightVH?: number;        // tổng chiều cao card (mặc định 60)
-  imageRatio?: number;      // tỷ lệ ảnh/trên card (vd: 0.4 là 40%)
+  created_at: string;
+  heightVH?: number;        // Total height of the card (default 60)
+  imageRatio?: number;      // Image ratio on top of the card (e.g., 0.4 means 40%)
 }
 
 export default function BlogCard({
@@ -22,6 +23,8 @@ export default function BlogCard({
   content,
   author,
   avatar,
+  created_at,
+
   heightVH = 60,
   imageRatio = 0.6,
 }: BlogCardProps) {
@@ -29,7 +32,7 @@ export default function BlogCard({
   const contentHeight = heightVH - imageHeight;
 
   return (
-    <Link to={`blogDetail/${_id}`}>
+    <Link to={`/blogDetail/${_id}`}>
       <motion.div
         initial={{ opacity: 0, y: 40 }}
         whileInView={{ opacity: 1, y: 0 }}
@@ -59,24 +62,27 @@ export default function BlogCard({
           </h2>
           <div
             className="prose max-w-none text-sm text-black"
-            style={{
-              display: "-webkit-box",
-              WebkitLineClamp: 3,
-              WebkitBoxOrient: "vertical",
-              overflow: "hidden",
-              minHeight: 30,
-            }}
+            style={{ display: "-webkit-box", WebkitLineClamp: 3, WebkitBoxOrient: "vertical", overflow: "hidden", minHeight: 30 }}
           >
             <ReactMarkdown rehypePlugins={[rehypeRaw]}>
               {getPreviewText(content, 210)}
             </ReactMarkdown>
           </div>
-          <div className="flex items-center mt-auto pt-2 border-t border-gray-100">
-            {avatar && (
-              <img src={avatar} alt="Logo" className="w-7 h-7 rounded-md mr-2 border" />
-            )}
-            <div>
+
+          <div className="flex items-center justify-between mt-auto pt-2 border-t border-gray-100">
+            {/* Left: Author */}
+            <div className="flex items-center">
+              {avatar && <img src={avatar} alt="Logo" className="w-7 h-7 rounded-md mr-2 border" />}
               <div className="text-xs text-gray-500">{author}</div>
+            </div>
+
+            {/* Right: Date */}
+            <div className="text-xs text-gray-400">
+              {new Date(created_at).toLocaleDateString("vi-VN", {
+                year: "numeric",
+                month: "2-digit",
+                day: "2-digit",
+              })}
             </div>
           </div>
         </motion.div>

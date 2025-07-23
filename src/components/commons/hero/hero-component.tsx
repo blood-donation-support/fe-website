@@ -14,7 +14,7 @@ const HeroComponent = ({ subheadingText, headingText, classHint }: HeroComponent
                     <h3 className="subheading relative font-bold sm:text-[30px] leading-[2em] text-center tracking-[0.2em] uppercase text-off_white">
                         {subheadingText}
                     </h3>
-                    <h1 className="font-bold text-[35px] sm:text-[90px] leading-tight text-center capitalize text-white">
+                    <h1 className="font-bold text-[35px] sm:text-[90px] leading-tight text-center capitalize text-white w-full ">
                         {headingText}
                     </h1>
                 </div>

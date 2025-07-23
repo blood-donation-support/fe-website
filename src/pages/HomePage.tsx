@@ -2,12 +2,14 @@ import BlogCarousel from "@/components/BlogCarousel";
 import SectionMotionWrapper from "@/components/commons/SectionMotionWrapper";
 import HomePageSection from "@/components/HomepageSection";
 import { ServiceSection } from "@/components/ServiceSection";
-import FooterSection from "@/components/FooterSection";
+
 import { useDispatch, useSelector } from "react-redux";
 import type { AppDispatch, RootState } from "@/redux/store";
 import { useEffect } from "react";
 import { fetchBlogs, fetchBlogsWithAuthors } from "@/api/blogService";
 import { FooterComponent } from "@/components";
+import AboutSection from "@/components/AboutSection";
+import FooterSection from "@/components/FooterSection";
 export default function HomePage() {
 	const dispatch = useDispatch<AppDispatch>();
 	const blogs = useSelector((state: RootState) => state.blog.blogs);
@@ -47,8 +49,9 @@ export default function HomePage() {
 						)}
 					</SectionMotionWrapper>
 					{/* section 4 */}
-					<FooterSection />
+					<AboutSection />
 					{/* section 5 */}
+					<FooterSection />
 					{/* <FooterComponent /> */}
 				</div>
 			</div>

@@ -35,3 +35,17 @@ export enum UserGender {
   Male = 'Male',
   Female = 'Female'
 }
+export interface ChangePasswordPayload {
+  old_password: string;
+  password: string;
+  confirm_password: string;
+}
+export interface UpdateProfilePayload {
+  full_name: string;
+  date_of_birth: string; 
+  gender: string;
+  weight: number;
+  avatar_url: string;
+  address: string;
+  blood_group_id: string;
+}
