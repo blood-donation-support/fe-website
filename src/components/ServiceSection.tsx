@@ -33,6 +33,7 @@ const serviceIcons = {
 };
 
 const serviceData = {
+
   serviceCardData: [
     {
       number: "01",

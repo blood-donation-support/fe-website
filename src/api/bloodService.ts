@@ -5,6 +5,7 @@
 //   updated_at?: string;
 // }
 
+const API_URL = "https://be-t8i8.onrender.com/api";
 
 import axios from 'axios';
 import {apiClient } from './apiClient';
@@ -23,7 +24,6 @@ export interface BloodComponent {
   updated_at: string;
 }
 
-const API_URL = "https://be-t8i8.onrender.com/api";
 export const bloodService = {
   getBloodGroups: async (): Promise<BloodGroup[]> => {
     const res = await axios.get(`${API_URL}/bloods/blood-groups`);
@@ -114,7 +114,7 @@ export interface BloodUnit {
   blood_group_id: string;
   blood_group_name: string;
   citizen_id_number: string;
-  blood_components_name: string[];
+  blood_component_name: string;
   blood_component_id: string;
   volume: number;
   status: string | null;

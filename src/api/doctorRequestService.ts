@@ -1,10 +1,10 @@
-import {apiClient } from './apiClient';
-import type {ApiResponse } from './apiClient';
+import { apiClient } from './apiClient';
+import type { ApiResponse } from './apiClient';
 
 export interface DoctorRequestPayload {
   blood_group_id: string;
   blood_component_ids: string[];
-  receive_date_request: string; 
+  receive_date_request: string;
   citizen_id_number?: string;
   patient_code?: string;
   is_emergency: boolean;
@@ -12,6 +12,8 @@ export interface DoctorRequestPayload {
   phone: string;
   image?: string;
   note?: string;
+  request_type?: string;
+
 }
 
 export interface DoctorRequest {
@@ -29,7 +31,47 @@ export interface DoctorRequest {
   image?: string;
   created_at: string;
   updated_at: string;
+  request_type?: string;
+  full_name?: string;
+  blood_group_name?: string;
+  phone: string;
+  citizen_id_number: string;
 }
+export interface RequestProcessDetail {
+
+  id: string;
+  request_process_id: string;
+  blood_component_id: string;
+  blood_group_id: string;
+  volume_required: number;
+  status: string;
+  blood_group_name: string;
+  blood_component_name: string;
+
+}
+export interface RequestProcessDetailPayLoad {
+
+  blood_component_id: string;
+  volume_required: number;
+  status: "Pending";
+
+}
+export interface RequestProcessBlood {
+  blood_component_id: string;
+  blood_group_id: string;
+  volume: number;
+  status: string;
+  updated_at: Date;
+  blood_group_name: string;
+  blood_component_name: string;
+  blood_unit_id: string;
+}
+export interface RequestProcessBloodPayLoad {
+  blood_unit_id: string;
+  status: string;
+  blood_component_id: string;
+}
+
 
 
 
@@ -59,7 +101,7 @@ export const fetchDoctorRequestById = async (
   const res = await apiClient.get<ApiResponse<DoctorRequest>>(
     `/requests/request-registrations/${id}`
   );
-    console.log("fetch image nè", res);
+  console.log("fetch image nè", res);
 
   return res.data.result;
 };
@@ -75,6 +117,64 @@ export const approveDoctorRequest = async (
   const res = await apiClient.patch<ApiResponse<DoctorRequest>>(
     `/requests/request-registrations/${id}`,
     payload
+  );
+  return res.data.result;
+};
+
+
+// lấy dữ liệu máu và unit cần truyền máu
+export const fetchRequestProcessDetail = async (
+  id: string
+): Promise<RequestProcessDetail[]> => {
+  const res = await apiClient.get<ApiResponse<RequestProcessDetail[]>>(
+    `/requests/request-process-details/${id}`
+  );
+  console.log("res", res);
+
+  return res.data.result;
+};
+
+//update unit để của người xin máu khi xin máu
+export const updateRequestProcessDetail = async (
+  id: string,
+  payload: RequestProcessDetailPayLoad[]
+): Promise<RequestProcessDetailPayLoad[]> => {
+  const res = await apiClient.patch<ApiResponse<RequestProcessDetailPayLoad[]>>(
+    `/requests/request-process-details/${id}`, payload
+
+  );
+  return res.data.result;
+};
+
+// danh sách máu phù hợp với người xin máu
+export const fetchRequestProcessBlood = async (
+  id: string
+): Promise<RequestProcessBlood[]> => {
+  const res = await apiClient.get<ApiResponse<RequestProcessBlood[]>>(
+    `/requests/request-process-bloods/${id}`
+  );
+  console.log("res", res);
+
+  return res.data.result;
+};
+//chọn túi máu phù hợp để xin máu
+export const updateRequestProcessBloodAPI = async (
+  id: string,
+  payload: RequestProcessBloodPayLoad[]
+): Promise<RequestProcessBloodPayLoad[]> => {
+  const res = await apiClient.patch<ApiResponse<RequestProcessBloodPayLoad[]>>(
+    `/requests/request-process-bloods/${id}`, payload
+
+  );
+  return res.data.result;
+};
+//confirm
+export const confirmRequestProcessBloodAPI = async (
+  id: string,
+): Promise<RequestProcessBloodPayLoad[]> => {
+  const res = await apiClient.patch<ApiResponse<RequestProcessBloodPayLoad[]>>(
+    `/requests/request-process-bloods/${id}/confirm`,
+
   );
   return res.data.result;
 };

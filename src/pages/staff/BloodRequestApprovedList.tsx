@@ -26,54 +26,52 @@ import statusVN from "@/utils/statusVN";
 import { Calendar } from "@/components/ui/calendar";
 import bloodComponentVN from "@/utils/translateBloodComponentVN";
 
-export const BloodRequestListPage: React.FC = () => {
+export const BloodRequestApprovedList: React.FC = () => {
 	const navigate = useNavigate();
 	const userData = localStorage.getItem("user");
 	const user = userData ? JSON.parse(userData) : null;
 	const role = user?.role;
 
 	const [requests, setRequests] = useState<DoctorRequest[]>([]);
-	const [statusFilter, setStatusFilter] = useState<
-		"all" | "Pending" | "Approved" | "Rejected"
-	>("Pending");
+	const [statusFilter, setStatusFilter] = useState<string>("Pending");
 	const [urgencyFilter, setUrgencyFilter] = useState<
 		"all" | "Emergency" | "Normal"
-	>("Emergency");
-	const [searchText, setSearchText] = useState<string>("");
+	>("all");
+
 	const [selectedDate, setSelectedDate] = useState<Date | undefined>(
 		new Date(),
 	);
+	const [searchText, setSearchText] = useState<string>("");
+
 	useEffect(() => {
 		(async () => {
 			try {
 				const data = await fetchDoctorRequests();
-
 				const sorted = data.sort(
 					(a, b) =>
 						new Date(b.receive_date_request).getTime() -
 						new Date(a.receive_date_request).getTime(),
 				);
-
 				setRequests(sorted);
 			} catch (err) {
 				console.error(err);
 			}
 		})();
-	}, [fetchDoctorRequests]);
+	}, []);
 
 	const filtered = requests.filter((r) => {
-		const matchesStatus =
-			statusFilter === "all" ? true : r.status === statusFilter;
+		const matchesStatus = statusFilter === "all" || r.status === statusFilter;
 		const matchesUrgency =
-			urgencyFilter === "all"
-				? true
-				: (r.is_emergency ? "Emergency" : "Normal") === urgencyFilter;
+			urgencyFilter === "all" ||
+			(r.is_emergency ? "Emergency" : "Normal") === urgencyFilter;
 
 		const text = searchText.toLowerCase();
 		const matchesSearch =
 			r._id.toLowerCase().includes(text) ||
 			r.note?.toLowerCase().includes(text) ||
-			false;
+			r.full_name?.toLowerCase().includes(text) ||
+			r.phone?.toLowerCase().includes(text) ||
+			r.citizen_id_number?.toLowerCase().includes(text);
 
 		return matchesStatus && matchesUrgency && matchesSearch;
 	});
@@ -309,7 +307,7 @@ export const BloodRequestListPage: React.FC = () => {
 											</TableCell>
 											<TableCell className="text-center">
 												<span className="font-medium text-blue-600">
-													{r.blood_group_name}
+													{r.blood_group_name }
 												</span>
 											</TableCell>
 											<TableCell className="text-center">
@@ -360,7 +358,7 @@ export const BloodRequestListPage: React.FC = () => {
 														className="bg-[#236afe] hover:bg-[#4338ca] text-white"
 														onClick={() =>
 															navigate(
-																`/dashboard-staff-warehouse/request-list/${r._id}`,
+																`/dashboard-staff/doctor-healthcheck-request-approved/${r._id}`,
 															)
 														}
 													>
@@ -372,7 +370,7 @@ export const BloodRequestListPage: React.FC = () => {
 														className="bg-[#8DD0F8] hover:bg-[#4338ca] text-white"
 														onClick={() =>
 															navigate(
-																`/dashboard-staff-warehouse/request-list/${r._id}`,
+																`/dashboard-staff/doctor-healthcheck-request-approved/${r._id}`,
 															)
 														}
 													>

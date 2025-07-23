@@ -5,6 +5,7 @@ export interface InventoryItem {
   _id: string;
   donation_process_id: string;
   request_process_id: string;
+  donation_type: string;
   blood_group_id: string;
   blood_component_id: string;
   volume: number;

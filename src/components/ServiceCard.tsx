@@ -31,16 +31,18 @@ export default function ServiceCard({ number, title, description, links, icon, i
             initial={{ opacity: 1,scale:1, y: 40, x: 0 }}
             animate={inview?{ opacity: 1,scale:1, y: 0, x: 0 }:{ opacity: 1,scale:1, y: 40, x: 0 }}
             transition={{ duration: 1, delay: 0.5 }}
-            className="absolute z-0 left-8 top-6 text-[3.8rem] font-extrabold text-black  select-none pointer-events-none leading-none">
+            className="absolute z-0 left-7 top-6 text-[8rem] font-extrabold text-black  select-none pointer-events-none leading-none">
+
                 {number}
             </motion.span>
             <span
                 className="
                 absolute
                 left-10  // điều chỉnh vị trí gạch cho đúng (tùy layout)
-                top-[4.4rem]    // nên để trùng với top của số
+                top-[7.8rem]    // nên để trùng với top của số
                 h-2     // chiều cao gạch (tùy chiều cao content)
-                w-12      // độ dày gạch
+                w-28      // độ dày gạch
+
                 bg-black // màu nền card
                 rounded-full
                 shadow-md // tạo hiệu ứng “nổi nhẹ”
@@ -54,8 +56,9 @@ export default function ServiceCard({ number, title, description, links, icon, i
             initial={{ opacity: 1,scale:1, y: -150, x: 0 }}
             animate={inview?{ opacity: 1,scale:1, y: 0, x: 0 }:{ opacity: 1,scale:1, y: -150, x: 0 }}
             transition={{ duration: 1, delay: 0 }}
-            className="relative z-10 pt-6 flex-1 flex flex-col bg-white mt-10">
-                <span className="font-bold text-sm flex items-center gap-2 mb-1">
+            className="relative z-10 pt-12 flex-1 flex flex-col bg-white mt-24">
+                <span className="font-bold text-2xl flex items-center gap-2 mb-1">
+
                     {icon}
                     {title}
                 </span>
@@ -63,10 +66,11 @@ export default function ServiceCard({ number, title, description, links, icon, i
                     initial={{ opacity: 0,scale:1, y: 0, x: -30 }}
                     animate={inview?{ opacity: 1,scale:1, y: 0, x: 0 }:{ opacity: 0,scale:1, y: 0, x: -30 }}
                     transition={{ duration: 1, delay: 0.8 }}
-                className="text-gray-500 text-[2vh] mb-8 block pl-10 pr-6">
+                className="text-gray-500 text-lg mb-8 block">
                 {description}
                 </motion.span>
                 <div className="flex justify-between items-center w-full mt-auto">
+
                     <Link
                         to={links.href || "#"}
                         className="text-blue-600 font-medium hover:underline text-[10px]"

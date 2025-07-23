@@ -16,6 +16,7 @@ const FooterComponent = () => {
     { title: "Open 24/7", link: "/support" }
   ];
 
+
   return (
     <section className="flex flex-col justify-center items-center w-full mx-auto my-0 px-2.5 pt-[20px] pb-[40px] bg-blue-600 ">
       <div className="relative w-[min(100%_-_15px,1250px)] mx-auto p-2.5">

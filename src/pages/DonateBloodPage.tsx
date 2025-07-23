@@ -4,6 +4,7 @@ import { toast } from "react-toastify";
 import { useAuthStore } from "@/store/authStore";
 import { useDispatch, useSelector } from "react-redux";
 import type { RootState, AppDispatch } from "@/redux/store";
+
 import { registerDonationThunk , resetDonationStatus } from "@/redux/slices/donationRegistrationSlice"; // Redux action
 import { fetchUserProfile } from "@/redux/slices/userSlice";
 
@@ -85,6 +86,7 @@ const DonateBloodPage = () => {
       required: true,
     }
   ];
+
 
   return (
     <>

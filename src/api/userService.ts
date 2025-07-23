@@ -4,6 +4,7 @@ import type { ApiResponse } from './apiClient';
 import type { User, NewUserPayload, ChangePasswordPayload, UpdateProfilePayload  } from '../types/user';
 import type { UserProfile } from '@/redux/slices/userSlice';
 
+
 export const fetchUserAll = async (): Promise<User[]> => {
   const res = await apiClient.get<ApiResponse<User[]>>(`/users`);
   return res.data.result;
@@ -35,5 +36,13 @@ export const changePassword = async (
 };
 export const updateProfile = async (payload: UpdateProfilePayload): Promise<UserProfile> => {
   const res = await apiClient.patch<ApiResponse<UserProfile>>('/users/update-me', payload);
+  return res.data.result;
+};
+
+export const getCCCD = async (id: string): Promise<User> => {
+  const res = await apiClient.get<ApiResponse<User>>(
+    `users/${id}`
+
+  );
   return res.data.result;
 };

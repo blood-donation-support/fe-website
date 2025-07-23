@@ -8,7 +8,7 @@ export const fetchHealthCheck = async (healthCheckId: string): Promise<HealthChe
   return res.data.result;
 };
 
-export const updateHealthCheck = async (
+export const updateHealthCheckDonation = async (
   id: string,
   payload: Partial<
     Pick<
@@ -32,5 +32,33 @@ export const updateHealthCheck = async (
     payload
   );
   console.log("check update health check");
+  return res.data.result;
+};
+
+
+export interface HealthCheckUpdatePayload {
+  blood_group_id:string;
+  request_type:string;
+  weight: number;
+  temperature: number;
+  heart_rate: number;
+  diastolic_blood_pressure: number;
+  systolic_blood_pressure: number;
+  hemoglobin: number;
+  underlying_health_conditions: string[];
+  description: string;
+  status: string;
+  donation_type: string;
+}
+
+// Update health check
+export const updateHealthCheck = async (
+  id: string,
+  payload: HealthCheckUpdatePayload
+): Promise<HealthCheck> => {
+      const res = await apiClient.patch<ApiResponse<HealthCheck>>(
+    `/health-checks/${id}`,
+    payload
+  );
   return res.data.result;
 };
