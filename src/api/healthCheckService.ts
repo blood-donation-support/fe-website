@@ -48,6 +48,7 @@ export interface HealthCheckUpdatePayload {
   underlying_health_conditions: string[];
   description: string;
   status: string;
+  donation_type: string;
 }
 
 // Update health check
@@ -55,7 +56,7 @@ export const updateHealthCheck = async (
   id: string,
   payload: HealthCheckUpdatePayload
 ): Promise<HealthCheck> => {
-  const res = await apiClient.patch<ApiResponse<HealthCheck>>(
+      const res = await apiClient.patch<ApiResponse<HealthCheck>>(
     `/health-checks/${id}`,
     payload
   );

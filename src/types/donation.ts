@@ -46,7 +46,7 @@ export interface DonationProcess {
   health_check_id: string;
   blood_group_id: string;
   blood_group_name: string;
-  username: string;
+  full_name: string;
   donation_date: string; 
   volume_collected: number;
   status: string

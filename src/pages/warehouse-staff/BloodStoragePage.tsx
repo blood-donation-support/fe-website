@@ -59,8 +59,8 @@ export const BloodStoragePage: React.FC = () => {
 	}, [tab]);
 
 	return (
-		<div className="p-8 bg-[#f9fafb] min-h-screen flex flex-col items-center">
-			<div className="w-full max-w-4xl">
+		<div className="p-4 bg-[#f9fafb] min-h-screen flex flex-col items-center">
+			<div className="w-full max-w-8xl">
 				<h2 className="text-3xl font-semibold text-[#236afe] text-center mb-6">
 					Quản lý kho máu
 				</h2>

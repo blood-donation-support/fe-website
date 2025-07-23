@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
@@ -13,12 +13,16 @@ import {
 } from "@/components/ui/select";
 import { Stepper } from "@/components/ui/stepper";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Badge } from "@/components/ui/badge";
 
 import {
 	fetchDonationRegistrations,
 	checkInDonationRegistration,
 } from "../api/donationRegistrationService";
-import { fetchHealthCheck, updateHealthCheckDonation } from "../api/healthCheckService";
+import {
+	fetchHealthCheck,
+	updateHealthCheckDonation,
+} from "../api/healthCheckService";
 import {
 	fetchDonationProcess,
 	updateDonationProcess,
@@ -36,6 +40,15 @@ import {
 	DONATION_STATUS_LABELS,
 	CONDITION_LABELS,
 } from "@/constants/donationLabels";
+import bloodComponentVN from "@/utils/translateBloodComponentVN";
+import { Label } from "@/components/ui/label";
+import { fetchBloodGroups } from "@/api/bloodService";
+import { RequestTypeList, RequestTypeVN } from "@/constants/requestType";
+import {
+	validateDonationProcess,
+	validateHealthScreeningFields,
+} from "@/utils/healthCheckValidation";
+import { toast } from "sonner";
 
 export const DonationProcessPage: React.FC = () => {
 	const { id } = useParams<{ id: string }>();
@@ -48,11 +61,11 @@ export const DonationProcessPage: React.FC = () => {
 	);
 	const [health, setHealth] = useState<HealthCheck | null>(null);
 	const [process, setProcess] = useState<DonationProcess | null>(null);
-	const [donationType, setDonationType] = useState<string | null>(
-		null,
-	);
 
-	// --- Step 2 form state ---
+	const [donationGroup, setDonationGroup] = useState<string>("");
+	const [donationType, setDonationType] = useState<string>("");
+
+	// Step 2 form state
 	const [weight, setWeight] = useState<string>("");
 	const [temperature, setTemperature] = useState<string>("");
 	const [heartRate, setHeartRate] = useState<string>("");
@@ -64,7 +77,7 @@ export const DonationProcessPage: React.FC = () => {
 		"Approved",
 	);
 
-	// --- Step 3 form state ---
+	// Step 3 form state
 	const [donationDate, setDonationDate] = useState<string>("");
 	const [volumeCollected, setVolumeCollected] = useState<string>("");
 	const [description, setDescription] = useState<string>("");
@@ -73,34 +86,57 @@ export const DonationProcessPage: React.FC = () => {
 	);
 	const [donationDone, setDonationDone] = useState(false);
 
+	const [bloodGroupOptions, setBloodGroupOptions] = useState<
+		{ id: string; name: string }[]
+	>([]);
+	const [bloodComponentOptions, setBloodComponentOptions] = useState<string[]>(
+		[],
+	);
+	const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
+	const [donationErrors, setDonationErrors] = useState<Record<string, string>>(
+		{},
+	);
+
+	useEffect(() => {
+		const loadOptions = async () => {
+			try {
+				const groups = await fetchBloodGroups();
+				setBloodGroupOptions(groups.map((g) => ({ id: g._id, name: g.name })));
+
+				const types = await RequestTypeList;
+				setBloodComponentOptions(types.map((t) => t[0]));
+			} catch (err) {
+				console.error("Failed to load options", err);
+			}
+		};
+		loadOptions();
+	}, []);
+
+	// Fetch registration → health → process flow
 	useEffect(() => {
 		if (!id) return;
 		(async () => {
-			// fetch registration list and select
 			const regs = await fetchDonationRegistrations();
 			const reg = regs.find((r) => r._id === id) ?? null;
-			console.log("reg nè", reg);
 			setRegistration(reg);
-
+			if (reg) {
+				setDonationType(reg.donation_type || "");
+				setDonationGroup(reg.blood_group_id || "");
+			}
 			if (!reg || reg.status !== "Checked In") {
 				setCurrentStep(1);
 				return;
 			}
-
-			// fetch health check
 			let hc: HealthCheck | null = null;
 			if (reg.health_check_id) {
 				hc = await fetchHealthCheck(reg.health_check_id);
-				console.log("fetch health check", hc);
 				setHealth(hc);
 			}
-
 			if (hc && hc.status === "Rejected") {
 				setStatusDonation("Rejected");
 				setCurrentStep(4);
 				return;
 			}
-
 			if (!hc || hc.status !== "Approved") {
 				if (hc) {
 					setWeight(hc.weight?.toString() || "");
@@ -115,8 +151,6 @@ export const DonationProcessPage: React.FC = () => {
 				setCurrentStep(2);
 				return;
 			}
-
-			// health approved → fetch donation process
 			let dp: DonationProcess | null = null;
 			if (hc.donation_process_id) {
 				dp = await fetchDonationProcess(hc.donation_process_id);
@@ -126,34 +160,29 @@ export const DonationProcessPage: React.FC = () => {
 				setDescription(dp.description || "");
 				setStatusDonation(dp.status as any);
 			}
-
 			if (!dp || dp.status === "Pending") {
 				setCurrentStep(3);
 			} else {
-				setStatusDonation(dp.status as any);
 				setCurrentStep(4);
 			}
 		})();
 	}, [id]);
-useEffect(() => {
-  if (registration?.donation_type) {
-    setDonationType(registration.donation_type);
-  }
-}, [registration]);
 
-	// Step handlers
 	const handleCheckIn = async () => {
 		if (!registration) return;
-		await checkInDonationRegistration(id!, "Checked In", donationType ?? undefined);
+		await checkInDonationRegistration(
+			id!,
+			"Checked In",
+			donationType || undefined,
+		);
 		setCurrentStep(2);
 	};
 
 	const handleScreening = async () => {
+		console.log("underlying_health_conditions: conditions", conditions);
 		if (!health) return;
-		console.log("tyep ở health", health.donation_type);
-
 		await updateHealthCheckDonation(health._id, {
-			blood_group_id: health.blood_group_id,
+			blood_group_id: donationGroup || health.blood_group_id,
 			weight: parseFloat(weight),
 			temperature: parseFloat(temperature),
 			heart_rate: parseFloat(heartRate),
@@ -163,8 +192,7 @@ useEffect(() => {
 			underlying_health_conditions: conditions,
 			description: health.description,
 			status: screenResult,
-			donation_type: health.donation_type ,
-
+			donation_type: donationType || health.donation_type,
 		});
 		if (screenResult === "Rejected") {
 			setStatusDonation("Rejected");
@@ -172,6 +200,28 @@ useEffect(() => {
 		} else {
 			setCurrentStep(3);
 		}
+	};
+	const onScreening = async () => {
+		console.log("▶️ onScreening()");
+		const { valid, fieldErrors } = validateHealthScreeningFields({
+			donationGroup,
+			donationType,
+			weight: parseFloat(weight),
+			temperature: parseFloat(temperature),
+			heartRate: parseFloat(heartRate),
+			systolicBP: parseFloat(systolicBP),
+			diastolicBP: parseFloat(diastolicBP),
+			hemoglobin: parseFloat(hemoglobin),
+			conditions,
+			screenResult,
+		});
+		setFieldErrors(fieldErrors);
+
+		if (!valid) {
+			Object.values(fieldErrors).forEach((msg) => toast.error(msg));
+			return;
+		}
+		await handleScreening();
 	};
 
 	const handleDonation = async () => {
@@ -182,212 +232,658 @@ useEffect(() => {
 				volume_collected: parseFloat(volumeCollected),
 				description,
 				status: statusDonation,
-
-
 			});
 			setDonationDone(true);
 			setCurrentStep(4);
 		} catch (e: any) {
-			alert("Lỗi: " + JSON.stringify(e.response?.data.errors));
+			toast.error(
+				"Lỗi khi cập nhật: " + JSON.stringify(e.response?.data.errors),
+			);
 		}
+	};
+	const onDonate = async () => {
+		console.log("▶️ onDonate()", {
+			donationDate,
+			volumeCollected,
+			statusDonation,
+		});
+		const { valid, errors } = validateDonationProcess({
+			donationDate,
+			volumeCollected: parseFloat(volumeCollected),
+			statusDonation,
+		});
+
+		const fieldErrs: Record<string, string> = {};
+		errors.forEach((err) => {
+			if (err.includes("ngày")) fieldErrs.donationDate = err;
+			else if (err.includes("Thể tích")) fieldErrs.volumeCollected = err;
+			else fieldErrs.statusDonation = err;
+		});
+		setDonationErrors(fieldErrs);
+
+		if (!valid) {
+			errors.forEach((msg) => toast.error(msg));
+			return;
+		}
+		await handleDonation();
 	};
 
 	const finish = () => navigate("/dashboard-staff/donation");
 
 	return (
-		<div className="p-6 space-y-6">
-			<Card className="mb-6 ">
-				<CardContent className="p-6 ">
-					<h2 className="text-xl font-semibold text-blue-700 mb-4">
-						Xử lý hiến máu – {registration?.full_name || id}
-					</h2>
-
-					<Stepper
-						steps={["Thông tin yêu cầu", "Sàng lọc", "Lấy máu", "Hoàn tất"]}
-						currentStep={currentStep}
-					/>
-
-					{/* Step 1 */}
-					{currentStep === 1 && (
-						<Button onClick={handleCheckIn}>Hoàn tất Check-in</Button>
-					)}
-
-					{/* Step 2 */}
-					{currentStep === 2 && (
-						<div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-6">
-							{/* Weight */}
-							<div>
-								<label className="block mb-1">Cân nặng (kg)</label>
-								<Input
-									type="number"
-									value={weight}
-									onChange={(e) => setWeight(e.target.value)}
-								/>
+		// <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-4 md:p-6">
+		// 	<div className="max-w-6xl mx-auto space-y-6">
+		// 		{/* Header Card */}
+		// 		<Card className="shadow-lg border-0 bg-white/80 backdrop-blur-sm">
+		<div className="min-h-screen bg-white p-4 md:p-6">
+			<div className="max-w-6xl mx-auto space-y-6">
+				<Card className="shadow border bg-white">
+					<CardHeader className="bg-gradient-to-r from-blue-500 to-pink-500 text-white rounded-t-lg">
+						<CardTitle className="text-2xl font-bold flex items-center gap-3">
+							<div className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center">
+								❤️
 							</div>
-							{/* Temperature */}
-							<div>
-								<label className="block mb-1">Nhiệt độ (°C)</label>
-								<Input
-									type="number"
-									value={temperature}
-									onChange={(e) => setTemperature(e.target.value)}
-								/>
-							</div>
-							{/* Heart Rate */}
-							<div>
-								<label className="block mb-1">Nhịp tim</label>
-								<Input
-									type="number"
-									value={heartRate}
-									onChange={(e) => setHeartRate(e.target.value)}
-								/>
-							</div>
-							{/* Systolic BP */}
-							<div>
-								<label className="block mb-1">Huyết áp tâm thu</label>
-								<Input
-									type="number"
-									value={systolicBP}
-									onChange={(e) => setSystolicBP(e.target.value)}
-								/>
-							</div>
-							{/* Diastolic BP */}
-							<div>
-								<label className="block mb-1">Huyết áp tâm trương</label>
-								<Input
-									type="number"
-									value={diastolicBP}
-									onChange={(e) => setDiastolicBP(e.target.value)}
-								/>
-							</div>
-							{/* Hemoglobin */}
-							<div>
-								<label className="block mb-1">Hemoglobin</label>
-								<Input
-									type="number"
-									value={hemoglobin}
-									onChange={(e) => setHemoglobin(e.target.value)}
-								/>
-							</div>
-
-							{/* Conditions */}
-							<div className="md:col-span-2">
-								<label className="block mb-2">Tình trạng sức khỏe</label>
-								<div className="grid grid-cols-2 gap-4">
-									{Object.values(UnderlyingHealthCondition).map((cond) => (
-										<label key={cond} className="flex items-center space-x-2">
-											<Checkbox
-												checked={conditions.includes(cond)}
-												onCheckedChange={(checked) => {
-													if (checked) setConditions([...conditions, cond]);
-													else
-														setConditions(conditions.filter((c) => c !== cond));
-												}}
-											/>
-											<span>{CONDITION_LABELS[cond] || cond}</span>
-										</label>
-									))}
-								</div>
-							</div>
-
-							{/* Screening Result */}
-							<div className="md:col-span-2">
-								<label className="block mb-1">Kết quả sàng lọc</label>
-								<Select
-									value={screenResult}
-									onValueChange={(v) => setScreenResult(v as any)}
-								>
-									<SelectTrigger>
-										<SelectValue placeholder="Chọn kết quả" />
-									</SelectTrigger>
-									<SelectContent>
-										{Object.entries(SCREEN_RESULT_LABELS).map(
-											([key, label]) => (
-												<SelectItem key={key} value={key}>
-													{label}
-												</SelectItem>
-											),
-										)}
-									</SelectContent>
-								</Select>
-							</div>
-
-							<div className="md:col-span-2 text-right">
-								<Button onClick={handleScreening}>Hoàn tất Sàng lọc</Button>
-							</div>
-						</div>
-					)}
-
-					{/* Step 3 */}
-					{currentStep === 3  && !donationDone && (
-						<div className="mt-6 grid grid-cols-1 gap-6">
-							<div>
-								<label className="block mb-1">Ngày lấy máu</label>
-								<Input
-									type="datetime-local"
-									value={donationDate}
-									onChange={(e) => setDonationDate(e.target.value)}
-								/>
-							</div>
-
-							<div>
-								<label className="block mb-1">Thể tích thu (ml)</label>
-								<Input
-									type="number"
-									value={volumeCollected}
-									onChange={(e) => setVolumeCollected(e.target.value)}
-								/>
-							</div>
-
-							<div>
-								<label className="block mb-1">Ghi chú</label>
-								<Textarea
-									value={description}
-									onChange={(e) => setDescription(e.target.value)}
-								/>
-							</div>
-
-							<div>
-								<label className="block mb-1">Trạng thái hiến máu</label>
-								<Select
-									value={statusDonation}
-									onValueChange={(v) => setStatusDonation(v as any)}
-								>
-									<SelectTrigger>
-										<SelectValue placeholder="Chọn trạng thái" />
-									</SelectTrigger>
-									<SelectContent>
-										{Object.entries(DONATION_STATUS_LABELS).map(
-											([key, label]) => (
-												<SelectItem key={key} value={key}>
-													{label}
-												</SelectItem>
-											),
-										)}
-									</SelectContent>
-								</Select>
-							</div>
-
-							<div className="text-right">
-								<Button onClick={handleDonation}>Hoàn tất Lấy máu</Button>
-							</div>
-						</div>
-					)}
-
-					{/* Step 4 */}
-					{currentStep === 4 && (
-						<div className="mt-6">
-							{statusDonation === "Rejected" ? (
-								<p className="text-red-600 font-medium">Quy trình đã bị hủy.</p>
+							Quy trình hiến máu
+						</CardTitle>
+						<div className="text-red-50 mt-2">
+							{registration?.full_name ? (
+								<span className="text-lg font-medium">
+									{registration.full_name}
+								</span>
 							) : (
-								<Button variant="link" onClick={finish}>
-									Xác nhận Hoàn tất
-								</Button>
+								<span className="text-sm opacity-90">Mã đăng ký: {id}</span>
 							)}
 						</div>
-					)}
-				</CardContent>
-			</Card>
+					</CardHeader>
+
+					<CardContent className="p-8">
+						<Stepper
+							steps={[
+								"Thông tin yêu cầu",
+								"Sàng lọc sức khỏe",
+								"Lấy máu",
+								"Hoàn tất",
+							]}
+							currentStep={currentStep}
+						/>
+					</CardContent>
+				</Card>
+
+				{/* Main Content Card */}
+				<Card className="shadow-lg border-0 bg-white/90 backdrop-blur-sm">
+					<CardContent className="p-8">
+						{/* Step 1 - Registration Info */}
+						{currentStep === 1 && registration && (
+							<div className="space-y-6">
+								<div className="text-center mb-8">
+									<h3 className="text-2xl font-semibold text-gray-800 mb-2">
+										Thông tin đăng ký hiến máu
+									</h3>
+									<p className="text-gray-600">
+										Kiểm tra và xác nhận thông tin người hiến
+									</p>
+								</div>
+
+								<div className="grid grid-cols-1 md:grid-cols-2 gap-6 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-6">
+									<div className="space-y-4">
+										<div className="flex items-center gap-3">
+											<div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+												🆔
+											</div>
+											<div>
+												<p className="text-sm font-medium text-gray-500">
+													CCCD
+												</p>
+												<p className="text-lg font-semibold text-gray-800">
+													{registration.citizen_id_number}
+												</p>
+											</div>
+										</div>
+
+										<div className="flex items-center gap-3">
+											<div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
+												👤
+											</div>
+											<div>
+												<p className="text-sm font-medium text-gray-500">
+													Họ và tên
+												</p>
+												<p className="text-lg font-semibold text-gray-800">
+													{registration.full_name}
+												</p>
+											</div>
+										</div>
+
+										<div className="flex items-center gap-3">
+											<div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
+												📱
+											</div>
+											<div>
+												<p className="text-sm font-medium text-gray-500">
+													Số điện thoại
+												</p>
+												<p className="text-lg font-semibold text-gray-800">
+													{registration.phone}
+												</p>
+											</div>
+										</div>
+									</div>
+
+									<div className="space-y-4">
+										<div className="flex items-center gap-3">
+											<div className="w-10 h-10 bg-red-100 rounded-lg flex items-center justify-center">
+												🩸
+											</div>
+											<div>
+												<p className="text-sm font-medium text-gray-500">
+													Loại hiến máu
+												</p>
+												<Badge
+													variant="secondary"
+													className="text-base font-semibold"
+												>
+													{bloodComponentVN(registration.donation_type || "")}
+												</Badge>
+											</div>
+										</div>
+
+										<div className="flex items-center gap-3">
+											<div className="w-10 h-10 bg-yellow-100 rounded-lg flex items-center justify-center">
+												📅
+											</div>
+											<div>
+												<p className="text-sm font-medium text-gray-500">
+													Ngày hẹn
+												</p>
+												<p className="text-lg font-semibold text-gray-800">
+													{new Date(
+														registration.start_date_donation,
+													).toLocaleString("vi-VN")}
+												</p>
+											</div>
+										</div>
+									</div>
+								</div>
+
+								<div className="flex justify-center pt-6">
+									<Button
+										onClick={handleCheckIn}
+										size="lg"
+										className="px-12 py-3 bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white font-semibold rounded-xl shadow-lg transform transition hover:scale-105"
+									>
+										Hoàn tất Check-in
+									</Button>
+								</div>
+							</div>
+						)}
+
+						{/* Step 2 - Health Screening */}
+						{currentStep === 2 && (
+							<div className="space-y-8">
+								<div className="text-center mb-8">
+									<h3 className="text-2xl font-semibold text-gray-800 mb-2">
+										Sàng lọc sức khỏe
+									</h3>
+									<p className="text-gray-600">
+										Nhập các chỉ số sức khỏe của người hiến
+									</p>
+								</div>
+								{/* Vital Signs */}
+								<Card className="bg-gradient-to-r from-blue-50 to-cyan-50 border-blue-200">
+									<CardHeader>
+										<CardTitle className="flex items-center gap-2 text-blue-700">
+											📊 Chỉ số sức khỏe
+										</CardTitle>
+									</CardHeader>
+									<CardContent>
+										<div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+											<div className="space-y-2">
+												<label className="text-sm font-medium text-gray-700 flex items-center gap-2">
+													⚖️ Cân nặng (kg)
+												</label>
+												<Input
+													type="number"
+													value={weight}
+													onChange={(e) => setWeight(e.target.value)}
+													className="text-center text-lg font-semibold"
+													placeholder="0.0"
+												/>
+												{fieldErrors.weight && (
+													<p className="text-red-600 text-sm">
+														{fieldErrors.weight}
+													</p>
+												)}
+											</div>
+
+											<div className="space-y-2">
+												<label className="text-sm font-medium text-gray-700 flex items-center gap-2">
+													🌡️ Nhiệt độ (°C)
+												</label>
+												<Input
+													type="number"
+													value={temperature}
+													onChange={(e) => setTemperature(e.target.value)}
+													className="text-center text-lg font-semibold"
+													placeholder="36.5"
+												/>
+												{fieldErrors.temperature && (
+													<p className="text-red-600 text-sm">
+														{fieldErrors.temperature}
+													</p>
+												)}
+											</div>
+
+											<div className="space-y-2">
+												<label className="text-sm font-medium text-gray-700 flex items-center gap-2">
+													💓 Nhịp tim (bpm)
+												</label>
+												<Input
+													type="number"
+													value={heartRate}
+													onChange={(e) => setHeartRate(e.target.value)}
+													className="text-center text-lg font-semibold"
+													placeholder="72"
+												/>
+												{fieldErrors.heartRate && (
+													<p className="text-red-600 text-sm">
+														{fieldErrors.heartRate}
+													</p>
+												)}
+											</div>
+										</div>
+									</CardContent>
+								</Card>
+								{/* Registation Doantion inf */}
+								<Card className="bg-gradient-to-r from-blue-50 to-cyan-50 border-blue-200">
+									<CardHeader>
+										<CardTitle className="flex items-center gap-2 text-blue-700">
+											📊 Thông tin đơn hiến
+										</CardTitle>
+									</CardHeader>
+									<CardContent className="space-y-6">
+										<div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+											{/* Nhóm máu */}
+											<div>
+												<Label>Nhóm máu</Label>
+												<Select
+													value={donationGroup}
+													onValueChange={(v) => setDonationGroup(v)}
+												>
+													<SelectTrigger>
+														<SelectValue placeholder="Chọn nhóm máu" />
+													</SelectTrigger>
+													<SelectContent>
+														{bloodGroupOptions.map((g) => (
+															<SelectItem key={g.id} value={g.id}>
+																{g.name}
+															</SelectItem>
+														))}
+													</SelectContent>
+												</Select>
+												{fieldErrors.donationGroup && (
+													<p className="text-red-600 text-sm">
+														{fieldErrors.donationGroup}
+													</p>
+												)}
+											</div>
+											{/* Loại hiến máu */}
+											<div>
+												<Label>Loại hiến máu</Label>
+												<Select
+													value={donationType}
+													onValueChange={(v) => setDonationType(v)}
+												>
+													<SelectTrigger>
+														<SelectValue placeholder="Chọn loại hiến máu" />
+													</SelectTrigger>
+													<SelectContent>
+														{bloodComponentOptions.map((c) => (
+															<SelectItem key={c} value={c}>
+																{RequestTypeVN[
+																	c as keyof typeof RequestTypeVN
+																] || c}
+															</SelectItem>
+														))}
+													</SelectContent>
+												</Select>
+												{fieldErrors.donationType && (
+													<p className="text-red-600 text-sm">
+														{fieldErrors.donationType}
+													</p>
+												)}
+											</div>
+										</div>
+									</CardContent>
+								</Card>
+
+								{/* Blood Pressure & Hemoglobin */}
+								<Card className="bg-gradient-to-r from-red-50 to-pink-50 border-red-200">
+									<CardHeader>
+										<CardTitle className="flex items-center gap-2 text-red-700">
+											🫀 Huyết áp & Hemoglobin
+										</CardTitle>
+									</CardHeader>
+									<CardContent>
+										<div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+											<div className="space-y-2">
+												<label className="text-sm font-medium text-gray-700 flex items-center gap-2">
+													📈 Huyết áp tâm thu (mmHg)
+												</label>
+												<Input
+													type="number"
+													value={systolicBP}
+													onChange={(e) => setSystolicBP(e.target.value)}
+													className="text-center text-lg font-semibold"
+													placeholder="120"
+												/>
+												{fieldErrors.systolicBP && (
+													<p className="text-red-600 text-sm">
+														{fieldErrors.systolicBP}
+													</p>
+												)}
+											</div>
+
+											<div className="space-y-2">
+												<label className="text-sm font-medium text-gray-700 flex items-center gap-2">
+													📉 Huyết áp tâm trương (mmHg)
+												</label>
+												<Input
+													type="number"
+													value={diastolicBP}
+													onChange={(e) => setDiastolicBP(e.target.value)}
+													className="text-center text-lg font-semibold"
+													placeholder="80"
+												/>
+												{fieldErrors.diastolicBP && (
+													<p className="text-red-600 text-sm">
+														{fieldErrors.diastolicBP}
+													</p>
+												)}
+											</div>
+
+											<div className="space-y-2">
+												<label className="text-sm font-medium text-gray-700 flex items-center gap-2">
+													🔬 Hemoglobin (g/dL)
+												</label>
+												<Input
+													type="number"
+													value={hemoglobin}
+													onChange={(e) => setHemoglobin(e.target.value)}
+													className="text-center text-lg font-semibold"
+													placeholder="12.5"
+												/>
+												{fieldErrors.hemoglobin && (
+													<p className="text-red-600 text-sm">
+														{fieldErrors.hemoglobin}
+													</p>
+												)}
+											</div>
+										</div>
+									</CardContent>
+								</Card>
+
+								{/* Health Conditions */}
+								<Card className="bg-gradient-to-r from-yellow-50 to-orange-50 border-yellow-200">
+									<CardHeader>
+										<CardTitle className="flex items-center gap-2 text-yellow-700">
+											🏥 Tình trạng sức khỏe
+										</CardTitle>
+									</CardHeader>
+									<CardContent>
+										<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+											{Object.values(UnderlyingHealthCondition).map((cond) => (
+												<label
+													key={cond}
+													className="flex items-center space-x-3 p-3 rounded-lg bg-white border border-gray-200 hover:bg-gray-50 cursor-pointer transition-colors"
+												>
+													<Checkbox
+														checked={conditions.includes(cond)}
+														onCheckedChange={(checked) => {
+															if (checked) setConditions([...conditions, cond]);
+															else
+																setConditions(
+																	conditions.filter((c) => c !== cond),
+																);
+														}}
+													/>
+													<span className="text-sm font-medium text-gray-700">
+														{CONDITION_LABELS[cond] || cond}
+													</span>
+												</label>
+											))}
+										</div>
+										{fieldErrors.conditions && (
+											<p className="mt-2 text-red-600 text-sm">
+												{fieldErrors.conditions}
+											</p>
+										)}
+
+										{fieldErrors.screenResult && (
+											<p className="mt-2 text-red-600 text-sm">
+												{fieldErrors.screenResult}
+											</p>
+										)}
+									</CardContent>
+								</Card>
+
+								{/* Screening Result */}
+								<Card className="bg-gradient-to-r from-green-50 to-emerald-50 border-green-200">
+									<CardHeader>
+										<CardTitle className="flex items-center gap-2 text-green-700">
+											Kết quả sàng lọc
+										</CardTitle>
+									</CardHeader>
+									<CardContent>
+										<Select
+											value={screenResult}
+											onValueChange={(v) => setScreenResult(v as any)}
+										>
+											<SelectTrigger className="w-full text-sm font-semibold">
+												<SelectValue placeholder="Chọn kết quả sàng lọc" />
+											</SelectTrigger>
+											<SelectContent>
+												{Object.entries(SCREEN_RESULT_LABELS).map(
+													([key, label]) => (
+														<SelectItem
+															key={key}
+															value={key}
+															className="text-sm"
+														>
+															{key === "Approved" ? "✅" : "❌"} {label}
+														</SelectItem>
+													),
+												)}
+											</SelectContent>
+										</Select>
+									</CardContent>
+								</Card>
+
+								<div className="flex justify-center pt-6">
+									<Button
+										onClick={onScreening}
+										size="lg"
+										className="px-12 py-3 bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600 text-white font-semibold rounded-xl shadow-lg transform transition hover:scale-105"
+									>
+										Hoàn tất Sàng lọc
+									</Button>
+								</div>
+							</div>
+						)}
+
+						{/* Step 3 - Blood Collection */}
+						{currentStep === 3 && !donationDone && (
+							<div className="space-y-8">
+								<div className="text-center mb-8">
+									<h3 className="text-2xl font-semibold text-gray-800 mb-2">
+										Quy trình lấy máu
+									</h3>
+									<p className="text-gray-600">
+										Ghi nhận thông tin quá trình hiến máu
+									</p>
+								</div>
+
+								<div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+									<Card className="bg-gradient-to-r from-purple-50 to-violet-50 border-purple-200">
+										<CardHeader>
+											<CardTitle className="flex items-center gap-2 text-purple-700">
+												⏰ Thời gian & Thể tích
+											</CardTitle>
+										</CardHeader>
+										<CardContent className="space-y-6">
+											<div className="space-y-2">
+												<label className="text-sm font-medium text-gray-700 flex items-center gap-2">
+													📅 Ngày và giờ lấy máu
+												</label>
+												<Input
+													type="datetime-local"
+													value={donationDate}
+													onChange={(e) => setDonationDate(e.target.value)}
+													className="text-lg"
+												/>
+												{/* {donationErrors.donationDate && (
+													<p className="text-red-600 text-sm">
+														{donationErrors.donationDate}
+													</p>
+												)} */}
+												{donationErrors.statusDonation && (
+													<p className="text-red-600 text-sm">
+														{donationErrors.statusDonation}
+													</p>
+												)}
+											</div>
+
+											<div className="space-y-2">
+												<label className="text-sm font-medium text-gray-700 flex items-center gap-2">
+													🩸 Thể tích thu được (ml)
+												</label>
+												<Input
+													type="number"
+													value={volumeCollected}
+													onChange={(e) => setVolumeCollected(e.target.value)}
+													className="text-center text-lg font-semibold"
+													placeholder="450"
+												/>
+												{donationErrors.volumeCollected && (
+													<p className="text-red-600 text-sm">
+														{donationErrors.volumeCollected}
+													</p>
+												)}
+											</div>
+										</CardContent>
+									</Card>
+
+									<Card className="bg-gradient-to-r from-teal-50 to-cyan-50 border-teal-200">
+										<CardHeader>
+											<CardTitle className="flex items-center gap-2 text-teal-700">
+												📝 Trạng thái & Ghi chú
+											</CardTitle>
+										</CardHeader>
+										<CardContent className="space-y-6">
+											<div className="space-y-2">
+												<label className="text-sm font-medium text-gray-700 flex items-center gap-2">
+													📊 Trạng thái hiến máu
+												</label>
+												<Select
+													value={statusDonation}
+													onValueChange={(v) => setStatusDonation(v as any)}
+												>
+													<SelectTrigger className="text-sm">
+														<SelectValue placeholder="Chọn trạng thái" />
+													</SelectTrigger>
+													<SelectContent>
+														{Object.entries(DONATION_STATUS_LABELS).map(
+															([key, label]) => (
+																<SelectItem
+																	key={key}
+																	value={key}
+																	className="text-sm"
+																>
+																	{key === "Approved" ? "✅" : "❌"} {label}
+																</SelectItem>
+															),
+														)}
+													</SelectContent>
+												</Select>
+												{/* {donationErrors.statusDonation && (
+													<p className="text-red-600 text-sm">
+														{donationErrors.statusDonation}
+													</p>
+												)} */}
+											</div>
+
+											<div className="space-y-2">
+												<label className="text-sm font-medium text-gray-700 flex items-center gap-2">
+													💬 Ghi chú
+												</label>
+												<Textarea
+													value={description}
+													onChange={(e) => setDescription(e.target.value)}
+													className="min-h-[100px] resize-none"
+													placeholder="Nhập ghi chú về quá trình hiến máu..."
+												/>
+											</div>
+										</CardContent>
+									</Card>
+								</div>
+
+								<div className="flex justify-center pt-6">
+									<Button
+										onClick={onDonate}
+										size="lg"
+										className="px-12 py-3 bg-gradient-to-r from-red-500 to-pink-500 hover:from-red-600 hover:to-pink-600 text-white font-semibold rounded-xl shadow-lg transition"
+									>
+										Hoàn tất Lấy máu
+									</Button>
+								</div>
+							</div>
+						)}
+
+						{/* Step 4 - Completion */}
+						{currentStep === 4 && (
+							<div className="text-center space-y-8">
+								{statusDonation === "Rejected" ? (
+									<div className="space-y-6">
+										<div className="w-20 h-20 bg-red-100 rounded-full flex items-center justify-center mx-auto">
+											<span className="text-4xl">❌</span>
+										</div>
+										<div>
+											<h3 className="text-2xl font-semibold text-red-600 mb-2">
+												Quy trình đã bị hủy
+											</h3>
+											<p className="text-gray-600">
+												Quá trình hiến máu không thể hoàn tất do không đáp ứng
+												các tiêu chí sàng lọc.
+											</p>
+										</div>
+									</div>
+								) : (
+									<div className="space-y-6">
+										<div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto animate-pulse">
+											<span className="text-4xl">✅</span>
+										</div>
+										<div>
+											<h3 className="text-2xl font-semibold text-green-600 mb-2">
+												Hoàn tất thành công!
+											</h3>
+											<p className="text-gray-600 mb-6">
+												Cảm ơn bạn đã hoàn tất quy trình hiến máu. Thông tin đã
+												được lưu trữ thành công.
+											</p>
+											<Button
+												onClick={finish}
+												size="lg"
+												className="px-12 py-3 bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white font-semibold rounded-xl shadow-lg transform transition hover:scale-105"
+											>
+												🏠 Quay về Dashboard
+											</Button>
+										</div>
+									</div>
+								)}
+							</div>
+						)}
+					</CardContent>
+				</Card>
+			</div>
 		</div>
 	);
 };

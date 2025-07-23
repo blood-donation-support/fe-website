@@ -2,9 +2,8 @@ import type { DonationProcess } from '../types/donation';
 import {apiClient } from './apiClient';
 import type {ApiResponse } from './apiClient';
 
-export const fetchDonationProcessAll = async (
-): Promise<DonationProcess> => {
-  const res = await apiClient.get<ApiResponse<DonationProcess>>(
+export const fetchDonationProcessAll = async (): Promise<DonationProcess[]> => {
+  const res = await apiClient.get<ApiResponse<DonationProcess[]>>(
     `/donations/donation-processes?is_separated=false&status=Approved`
   );
   console.log("res nè", res);
