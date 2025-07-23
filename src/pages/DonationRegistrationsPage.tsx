@@ -80,7 +80,7 @@ export default function DonationRegistrationsPage() {
 			try {
 				const data = await fetchDonationRegistrations();
 				setRegistrations(data);
-console.log(data);
+				console.log(data);
 				// const allGroups = await fetchBloodGroups();
 				// const nameMap: Record<string, string> = {};
 				// allGroups.forEach((g) => {
@@ -122,29 +122,29 @@ console.log(data);
 				className="space-y-4"
 			>
 				<TabsList className="flex justify-center flex-wrap gap-4 mb-6 bg-transparent border-none p-0">
-  <TabsTrigger
-    value="questions"
-    className={`
+					<TabsTrigger
+						value="questions"
+						className={`
       px-6 py-2 rounded-xl text-lg transition-all
       data-[state=active]:bg-[#236afe] data-[state=active]:text-white
       data-[state=inactive]:bg-white data-[state=inactive]:text-[#236afe]
       border border-[#236afe]
     `}
-  >
-    Câu hỏi và nhóm máu nhận
-  </TabsTrigger>
-  <TabsTrigger
-    value="registrations"
-    className={`
+					>
+						Câu hỏi và nhóm máu nhận
+					</TabsTrigger>
+					<TabsTrigger
+						value="registrations"
+						className={`
       px-6 py-2 rounded-xl text-lg transition-all
       data-[state=active]:bg-[#236afe] data-[state=active]:text-white
       data-[state=inactive]:bg-white data-[state=inactive]:text-[#236afe]
       border border-[#236afe]
     `}
-  >
-    Danh sách đăng ký
-  </TabsTrigger>
-</TabsList>
+					>
+						Danh sách đăng ký
+					</TabsTrigger>
+				</TabsList>
 
 				<TabsContent value="questions">
 					<DonationQuestionsEditor />
@@ -174,94 +174,96 @@ console.log(data);
 					</div>
 				</TabsContent>
 
-		<TabsContent value="registrations">
-  <div className={`grid gap-4 ${selected ? "grid-cols-3" : "grid-cols-1"}`}>
-    <Card className={selected ? "col-span-2" : "col-span-1"}>
-      <CardHeader>
-        <CardTitle className="text-[#236afe] text-xl text-center">
-          Danh sách đăng ký hiến máu
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="overflow-auto max-h-[600px] p-0">
-        <table className="w-full border">
-          <thead className="bg-[#236afe] text-white">
-            <tr>
-              <th className="p-2 border">Họ tên</th>
-              <th className="p-2 border">SĐT</th>
-              <th className="p-2 border">Nhóm máu</th>
-              <th className="p-2 border">Loại hiến</th>
-              <th className="p-2 border">Chi tiết</th>
-            </tr>
-          </thead>
-          <tbody>
-            {registrations.map((reg) => (
-              <tr
-                key={reg._id}
-                className="text-center border hover:bg-gray-100"
-              >
-                <td className="p-2 border">{reg.full_name}</td>
-                <td className="p-2 border">{reg.phone}</td>
-                <td className="p-2 border">{reg.blood_group_name}</td>
-                <td className="p-2 border">
-                  {reg.donation_type
-                    ? bloodComponentVN(reg.donation_type)
-                    : "-"}
-                </td>
-                <td className="p-2 border">
-                  <Button
-                    onClick={() => handleSelectRegistration(reg._id)}
-                    size="sm"
-                    variant="outline"
-                  >
-                    Xem
-                  </Button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </CardContent>
-    </Card>
+				<TabsContent value="registrations">
+					<div
+						className={`grid gap-4 ${selected ? "grid-cols-3" : "grid-cols-1"}`}
+					>
+						<Card className={selected ? "col-span-2" : "col-span-1"}>
+							<CardHeader>
+								<CardTitle className="text-[#236afe] text-xl text-center">
+									Danh sách đăng ký hiến máu
+								</CardTitle>
+							</CardHeader>
+							<CardContent className="overflow-auto max-h-[600px] p-0">
+								<table className="w-full border">
+									<thead className="bg-[#236afe] text-white">
+										<tr>
+											<th className="p-2 border">Họ tên</th>
+											<th className="p-2 border">SĐT</th>
+											<th className="p-2 border">Nhóm máu</th>
+											<th className="p-2 border">Loại hiến</th>
+											<th className="p-2 border">Chi tiết</th>
+										</tr>
+									</thead>
+									<tbody>
+										{registrations.map((reg) => (
+											<tr
+												key={reg._id}
+												className="text-center border hover:bg-gray-100"
+											>
+												<td className="p-2 border">{reg.full_name}</td>
+												<td className="p-2 border">{reg.phone}</td>
+												<td className="p-2 border">{reg.blood_group_name}</td>
+												<td className="p-2 border">
+													{reg.donation_type
+														? bloodComponentVN(reg.donation_type)
+														: "-"}
+												</td>
+												<td className="p-2 border">
+													<Button
+														onClick={() => handleSelectRegistration(reg._id)}
+														size="sm"
+														variant="outline"
+													>
+														Xem
+													</Button>
+												</td>
+											</tr>
+										))}
+									</tbody>
+								</table>
+							</CardContent>
+						</Card>
 
-    {selected && (
-      <Card className="col-span-1 h-full">
-        <CardHeader>
-          <CardTitle className="text-[#236afe] text-lg text-center">
-            Chi tiết đơn đăng ký
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-2 text-sm">
-          <p>
-            <strong>CCCD:</strong> {selected.citizen_id_number}
-          </p>
-          <p>
-            <strong>Họ tên:</strong> {selected.full_name}
-          </p>
-          <p>
-            <strong>SĐT:</strong> {selected.phone}
-          </p>
-          <p>
-            <strong>Nhóm máu:</strong>{" "}
-            {selected.blood_group_name || "-"}
-          </p>
-          <p>
-            <strong>Loại hiến:</strong> {selected.donation_type || "-"}
-          </p>
-          <p>
-            <strong>Trạng thái:</strong> {selected.status}
-          </p>
-          <p>
-            <strong>Ngày tạo:</strong>{" "}
-            {new Date(selected.created_at).toLocaleDateString("vi-VN")}
-          </p>
-          <p>
-            <strong>Ngày hiến:</strong> {selected.start_date_donation}
-          </p>
-        </CardContent>
-      </Card>
-    )}
-  </div>
-</TabsContent>
+						{selected && (
+							<Card className="col-span-1 h-full">
+								<CardHeader>
+									<CardTitle className="text-[#236afe] text-lg text-center">
+										Chi tiết đơn đăng ký
+									</CardTitle>
+								</CardHeader>
+								<CardContent className="space-y-2 text-sm">
+									<p>
+										<strong>CCCD:</strong> {selected.citizen_id_number}
+									</p>
+									<p>
+										<strong>Họ tên:</strong> {selected.full_name}
+									</p>
+									<p>
+										<strong>SĐT:</strong> {selected.phone}
+									</p>
+									<p>
+										<strong>Nhóm máu:</strong>{" "}
+										{selected.blood_group_name || "-"}
+									</p>
+									<p>
+										<strong>Loại hiến:</strong> {selected.donation_type || "-"}
+									</p>
+									<p>
+										<strong>Trạng thái:</strong> {selected.status}
+									</p>
+									<p>
+										<strong>Ngày tạo:</strong>{" "}
+										{new Date(selected.created_at).toLocaleDateString("vi-VN")}
+									</p>
+									<p>
+										<strong>Ngày hiến:</strong> {selected.start_date_donation}
+									</p>
+								</CardContent>
+							</Card>
+						)}
+					</div>
+				</TabsContent>
 			</Tabs>
 		</div>
 	);

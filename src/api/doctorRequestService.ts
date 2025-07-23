@@ -34,6 +34,8 @@ export interface DoctorRequest {
   request_type?: string;
   full_name?: string;
   blood_group_name?: string;
+  phone: string;
+  citizen_id_number: string;
 }
 export interface RequestProcessDetail {
 
