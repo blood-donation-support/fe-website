@@ -16,7 +16,8 @@ export interface User {
   avatar_url: string;
   created_at: string; 
   updated_at: string; 
-  forgot_password_token: "string"
+  forgot_password_token: "string";
+  is_active:boolean;
 }
  
    

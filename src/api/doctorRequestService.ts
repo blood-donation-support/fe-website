@@ -36,6 +36,7 @@ export interface DoctorRequest {
   blood_group_name?: string;
   phone: string;
   citizen_id_number: string;
+  health_check_status:string;
 }
 export interface DoctorRequestForm {
   patient_code: string;

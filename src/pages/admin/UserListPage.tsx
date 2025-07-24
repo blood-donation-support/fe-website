@@ -79,7 +79,7 @@ export default function UserListPage() {
 	const handleDelete = async (id: string) => {
 		await deleteUser(id);
 		setUsers((prev) => prev.filter((u) => u._id !== id));
-		toast.success("Xóa người dùng thành công");
+		toast.success("Đã cập nhật");
 	};
 
 	const handleAddUser = async () => {
@@ -251,6 +251,9 @@ export default function UserListPage() {
 										<th className="text-white font-semibold px-6 py-4 text-left">
 											Vai trò
 										</th>
+										<th className="text-white font-semibold px-6 py-4 text-left">
+											Trạng thái
+										</th>
 										<th className="text-white font-semibold px-6 py-4 text-center">
 											Thao tác
 										</th>
@@ -292,6 +295,9 @@ export default function UserListPage() {
 												>
 													{roleVN(u.role || "chưa cập nhật")}
 												</span>
+											</td>
+												<td className="px-6 py-4 text-gray-600">
+												{u.is_active || "chưa kích hoạt"}
 											</td>
 											<td className="px-6 py-4 text-center">
 												<div className="flex items-center justify-center gap-2">

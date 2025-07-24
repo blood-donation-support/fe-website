@@ -15,7 +15,7 @@ export const fetchUser = async (): Promise<User> => {
 };
 
 export const deleteUser = async (id: string): Promise<User> => {
-  const res = await apiClient.delete<ApiResponse<User>>(`/users/${id}`);
+  const res = await apiClient.patch<ApiResponse<User>>(`/users/is-active/${id}`);
   return res.data.result;
 };
 
