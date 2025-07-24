@@ -94,7 +94,7 @@ const BlogCarousel: React.FC<BlogCarouselProps> = ({
       <button
         onClick={() => setCurrentIndex(prev => Math.min(maxIndex, prev + 1))}
         disabled={currentIndex >= maxIndex}
-        className={`absolute right-3 z-10 w-14 h-14 bg-white shadow rounded-xl border text-blue-600 hover:bg-blue-50 transition
+        className={`absolute right-3 text-center justify-center pl-3 z-10 w-14 h-14 bg-white shadow rounded-xl border text-blue-600 hover:bg-blue-50 transition
           ${currentIndex >= maxIndex ? "opacity-40 cursor-not-allowed" : "hover:scale-105"}`}
         style={{ top: "50%", transform: "translateY(-50%)" }}
         aria-label="Tiếp theo"

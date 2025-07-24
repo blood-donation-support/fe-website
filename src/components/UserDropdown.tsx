@@ -79,7 +79,18 @@ const UserDropdown: React.FC<Props> = ({ user, onLogout }) => {
                 Thông tin cá nhân
               </Link>
             </li>
-            <li>
+            {user.role === "Customer" && (
+              <li>
+                <Link
+                  to="/profile/customer-history"
+                  className="block px-2 py-2 hover:bg-blue-50 rounded-md text-gray-700 font-medium"
+                  onClick={() => setOpen(false)}
+                >
+                  Lịch sử đơn đăng kí 
+                </Link>
+              </li>
+            )}
+            {/* <li>
               <Link
                 to="/profile/blood-history"
                 className="block px-2 py-2 hover:bg-blue-50 rounded-md text-gray-700 font-medium"
@@ -87,7 +98,7 @@ const UserDropdown: React.FC<Props> = ({ user, onLogout }) => {
               >
                 Lịch sử đơn đăng kí
               </Link>
-            </li>
+            </li> */}
           </ul>
           <button
             onClick={onLogout}
