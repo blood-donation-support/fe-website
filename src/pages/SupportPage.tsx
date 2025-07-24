@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import { Link, useNavigate } from "react-router-dom";
 import { HeaderComponent } from "@/components";
 import SectionMotionWrapper from "@/components/commons/SectionMotionWrapper";
+import FooterSection from "@/components/FooterSection";
 
 const SupportPage: React.FC = () => {
   const [currentSlide, setCurrentSlide] = useState<number>(1);
@@ -121,7 +122,7 @@ const SupportPage: React.FC = () => {
                 initial={{ opacity: 0, x: 60 }}
                 animate={{ opacity: inView ? 1 : 1, x: 0 }}
                 transition={{ duration: 0.8 }}
-                className="w-3/5 flex flex-col justify-center items-center bg-blue-500/90 rounded-l-[56px] h-full"
+                className="w-3/5 flex flex-col justify-center items-center bg-blue-600/90 rounded-l-[56px] h-full"
             >
                 <img
                 src="/src/assets/regisdonate.png"
@@ -147,7 +148,7 @@ const SupportPage: React.FC = () => {
         initial={{ opacity: 0, x: -220 }}
         animate={{ opacity: inView ? 1 : 0, x: inView ? 0 : -100 }} // Kích hoạt animation khi in view
         transition={{ duration: 1, delay: 0.2, ease: "easeInOut" }} // Delay và easing để mượt mà hơn
-        className="w-[45%] flex flex-col justify-center items-center bg-blue-500/90 rounded-r-[56px] h-full pt-[10%]"
+        className="w-[45%] flex flex-col justify-center items-center bg-blue-600/90 rounded-r-[56px] h-full pt-[10%]"
       >
             <img
             src="https://careplusvn.com/files/kham-suc-khoe-dinh-ky-o-dau-tot-5.jpg"
@@ -187,7 +188,7 @@ const SupportPage: React.FC = () => {
             <p className="text-[0.9rem] text-gray-600 mb-4 text-left">
             <span className="text-red-600 font-bold">Lưu ý:</span> *Nếu có bất kỳ dấu hiệu bất thường nào, bạn có thể yêu cầu tham khảo thêm bác sĩ hoặc hoãn hiến máu để đảm bảo an toàn cho sức khỏe của bạn.*
             </p>
-            <button className="w-fit px-8 py-3 bg-gradient-to-r bg-blue-500/90 to-blue-400 rounded-full text-white font-bold text-lg shadow hover:scale-105 transition mb-8">
+            <button className="w-fit px-8 py-3 bg-gradient-to-r bg-blue-600/90 to-blue-400 rounded-full text-white font-bold text-lg shadow hover:scale-105 transition mb-8">
             <Link to="/donateBlood">Hiến máu</Link>
             </button>
         </motion.div>
@@ -239,7 +240,7 @@ const SupportPage: React.FC = () => {
                 initial={{ opacity: 0, x: 60 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ duration: 0.8 }}
-                className="w-3/5 flex flex-col justify-center items-center bg-blue-500/90 rounded-l-[56px] h-full"
+                className="w-3/5 flex flex-col justify-center items-center bg-blue-600/90 rounded-l-[56px] h-full"
             >
                 <img
                 src="/src/assets/regisdonate.png"
@@ -256,13 +257,15 @@ const SupportPage: React.FC = () => {
         )}
         </SectionMotionWrapper>
         {/* Slide 4 */}
+        <SectionMotionWrapper className="w-full h-screen flex flex-col items-center justify-center snap-start">
+        {(inView) => (
         <section id="slide-4" className="w-full h-screen snap-start flex items-center justify-center ">
             {/* Phần trái: Hình ảnh */}
             <motion.div
                 initial={{ opacity: 0, x: -60 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ duration: 0.8 }}
-                className="w-[60%] flex flex-col justify-center items-center bg-blue-500/90 rounded-r-[56px] h-full pt-8"
+                className="w-[60%] flex flex-col justify-center items-center bg-blue-600 rounded-r-[56px] h-full pt-8"
             >
                 <img
                 src="https://tambinh.vn/wp-content/uploads/2018/11/119733786_1815937145225492_6742848521244581519_o.jpg"
@@ -276,9 +279,9 @@ const SupportPage: React.FC = () => {
 
             {/* Phần phải: Nội dung */}
             <motion.div
-                initial={{ opacity: 0, x: 60 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.8 }}
+                initial={{ opacity: 0, x: 100 }}
+                animate={{ opacity: 1, x: inView ? 0 : 100 }}
+                transition={{ duration: 0.8 , delay: 0.2 , ease: "easeInOut" }}
                 className="w-[40%] flex flex-col justify-center pl-16 pr-6 text-center bg-white"
             >
                 <h1 className="text-[2rem] font-bold text-gray-800 mb-4  text-left">
@@ -304,14 +307,17 @@ const SupportPage: React.FC = () => {
                 </button>
             </motion.div>
         </section>
-
+        )}
+        </SectionMotionWrapper>
 
         {/* Slide 5 */}
+        <SectionMotionWrapper className="w-full h-screen flex flex-col items-center justify-center  snap-start">
+        {(inView) => (
         <section id="slide-5" className="w-full h-screen snap-start flex items-center justify-center ">
             {/* Phần trái: Nội dung */}
             <motion.div
                 initial={{ opacity: 0, x: -60 }}
-                animate={{ opacity: 1, x: 0 }}
+                animate={{ opacity: 1, x: inView ? 0 : -60 }}
                 transition={{ duration: 0.8 }}
                 className="w-[60%] flex flex-col justify-center pl-16 pr-6 text-center bg-white"
             >
@@ -346,7 +352,7 @@ const SupportPage: React.FC = () => {
                 initial={{ opacity: 0, x: 60 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ duration: 0.8 }}
-                className="w-[40%] flex flex-col justify-center items-center bg-blue-500/90 rounded-l-[56px] h-full pt-[5rem]"
+                className="w-[40%] flex flex-col justify-center items-center bg-blue-600/90 rounded-l-[56px] h-full pt-[5rem]"
             >
                 <img
                 src="https://medlatec.vn/media/32029/file/chi-dinh-truyen-mau-trong-nhung-truong-hop-nao-1.jpg"  // Thay thế đường dẫn này bằng URL đúng của ảnh bạn muốn hiển thị
@@ -358,7 +364,9 @@ const SupportPage: React.FC = () => {
                 </div>
             </motion.div>
         </section>
-
+        )}
+        </SectionMotionWrapper>
+        <FooterSection />
       </div>
     </div>
   );
