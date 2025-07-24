@@ -37,6 +37,19 @@ export interface DoctorRequest {
   phone: string;
   citizen_id_number: string;
 }
+export interface DoctorRequestForm {
+  patient_code: string;
+  citizen_id_number: string;
+  full_name: string;
+  phone: string;
+  bloodGroupName: string;
+  request_type: string;
+  receive_date_request: string;
+  is_emergency: boolean;
+  image: string;
+  note: string;
+}
+
 export interface RequestProcessDetail {
 
   id: string;

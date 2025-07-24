@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import {
 	Select,
@@ -12,439 +12,580 @@ import {
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { Checkbox } from "@/components/ui/checkbox";
+import { toast } from "react-toastify";
+import axios from "axios";
 
-import { createDoctorRequest } from "../../api/doctorRequestService";
+import { createDoctorRequest } from "@/api/doctorRequestService";
 import {
 	fetchBloodGroups,
-	fetchBloodComponents,
 	getBloodGroupIdByName,
 	getBloodComponentIdByName,
-} from "../../api/bloodService";
-import type { DoctorRequestPayload } from "../../api/doctorRequestService";
-
-import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
-import { analytics } from "@/firebase";
+} from "@/api/bloodService";
 import { getCCCD } from "@/api/userService";
-import { toast } from "react-toastify";
+import bloodComponentVN from "@/utils/translateBloodComponentVN";
+import { validateDoctorRequest } from "@/utils/validateDoctorRequest";
+import type { FormErrors } from "@/utils/validateDoctorRequest";
+import type { DoctorRequestForm } from "@/api/doctorRequestService";
+
+const FormField = React.memo<{
+	label: string;
+	error?: string;
+	children: React.ReactNode;
+	required?: boolean;
+	icon?: React.ReactNode;
+}>(({ label, error, children, required = false, icon }) => (
+	<div className="space-y-3">
+		<Label className="text-blue-800 font-semibold text-sm flex items-center gap-2">
+			{icon}
+			{label}
+			{required && <span className="text-red-500">*</span>}
+		</Label>
+		{children}
+		{error && (
+			<p className="text-red-500 text-sm flex items-center gap-1">
+				<svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+					<path
+						fillRule="evenodd"
+						d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
+						clipRule="evenodd"
+					/>
+				</svg>
+				{error}
+			</p>
+		)}
+	</div>
+));
+
+const REQUEST_TYPE_OPTIONS = [
+	"Whole Blood",
+	"Red Blood Cells",
+	"Platelets",
+	"Plasma",
+	"White Blood Cells",
+	"Platelets - Plasma",
+	"Plasma - Red Blood Cells",
+	"Platelets - Red Blood Cells",
+] as const;
 
 export const DoctorRequestPage: React.FC = () => {
 	const navigate = useNavigate();
 
-	const handleBlurCCCD = async () => {
-		const id = form.citizen_id_number.trim();
-		if (!id) return;
-
-		try {
-			const user = await getCCCD(id);
-			if (user) {
-				// Cập nhật form với thông tin từ API
-				handleChange("full_name", user.full_name || "");
-				handleChange("phone", user.phone || "");
-			}
-		} catch (error) {
-			console.error("Không tìm thấy người dùng theo CCCD:", error);
-		}
-	};
-
-	type Form = {
-		patient_code: string;
-		citizen_id_number: string;
-		full_name: string;
-		phone: string;
-		bloodGroupName: string;
-		bloodComponentNames: string[];
-		receive_date_request: string;
-		is_emergency: boolean;
-		image: string;
-		note: string;
-	};
-
-	const initialForm: Form = {
+	const [form, setForm] = useState<DoctorRequestForm>({
 		patient_code: "",
 		citizen_id_number: "",
 		full_name: "",
 		phone: "",
 		bloodGroupName: "",
-		bloodComponentNames: [],
+		request_type: "",
 		receive_date_request: new Date().toISOString(),
 		is_emergency: false,
 		image: "",
 		note: "",
-	};
+	});
 
-	const [idType, setIdType] = useState<"patient_code" | "citizen_id_number">(
-		"citizen_id_number", // Changed default to citizen_id_number
-	);
-	const [form, setForm] = useState<Form>(initialForm);
-	const [errors, setErrors] = useState<Partial<Record<keyof Form, string>>>({});
-	const [successMessage, setSuccessMessage] = useState("");
+	const [errors, setErrors] = useState<FormErrors>({});
 	const [bloodGroupOptions, setBloodGroupOptions] = useState<string[]>([]);
-	const [bloodComponentOptions, setBloodComponentOptions] = useState<string[]>(
-		[],
-	);
-	const [uploadProgress, setUploadProgress] = useState(0);
-	const [previewUrl, setPreviewUrl] = useState("");
+	const [previewUrl, setPreviewUrl] = useState(form.image);
+	const nowLocal = new Date().toISOString().slice(0, 16);
 
 	useEffect(() => {
 		(async () => {
 			try {
 				const groups = await fetchBloodGroups();
 				setBloodGroupOptions(groups.map((g) => g.name));
-				const comps = await fetchBloodComponents();
-				setBloodComponentOptions(comps.map((c) => c.name));
 			} catch (err) {
-				console.error("Lỗi lấy danh mục máu:", err);
+				console.error("Lỗi lấy danh mục nhóm máu:", err);
 			}
 		})();
 	}, []);
 
 	useEffect(() => {
-		setPreviewUrl(form.image || "");
+		setPreviewUrl(form.image);
 	}, [form.image]);
 
-	const handleChange = (
-		field: keyof Form,
-		value: string | boolean | string[],
-	) => {
-		setForm((prev) => ({ ...prev, [field]: value } as any));
-		setErrors((prev) => ({ ...prev, [field]: "" }));
+	const handleReceiveDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+		const valLocal = e.target.value;
+		const selected = new Date(valLocal);
+		if (selected < new Date()) {
+			setErrors((prev) => ({
+				...prev,
+				receive_date_request: "Không được chọn ngày giờ trong quá khứ",
+			}));
+			return; 
+		}
+		handleChange("receive_date_request", selected.toISOString());
 	};
 
-	const validate = () => {
-		const errs: Partial<Record<keyof Form, string>> = {};
-		
-		// Required fields
-		if (!form.full_name.trim()) errs.full_name = "Bắt buộc";
-		if (!/^\d{10,11}$/.test(form.phone)) errs.phone = "SĐT không hợp lệ";
-		if (!form.bloodGroupName) errs.bloodGroupName = "Chọn nhóm máu";
-		if (form.bloodComponentNames.length === 0)
-			errs.bloodComponentNames = "Chọn thành phần máu";
-		
-		// Always require citizen_id_number since idType is fixed to citizen_id_number
-		if (!form.citizen_id_number.trim()) {
-			errs.citizen_id_number = "Nhập CCCD";
-		}
-		
-		// Validate CCCD format (12 digits)
-		if (form.citizen_id_number.trim() && !/^\d{12}$/.test(form.citizen_id_number.trim())) {
-			errs.citizen_id_number = "CCCD phải có 12 chữ số";
-		}
+	const handleChange = <K extends keyof DoctorRequestForm>(
+		field: K,
+		value: DoctorRequestForm[K],
+	) => {
+		setForm((prev) => ({ ...prev, [field]: value }));
+		setErrors((prev) => ({ ...prev, [field]: undefined }));
+	};
 
-	// 	setErrors(errs);
-	// 	return Object.keys(errs).length === 0;
-	// };
-    // Upload lên Firebase
-    // const storageRef = ref(
-    //   // analytics,
-    //   `doctor-requests/${Date.now()}_${file.name}`
-    // );
-    //const uploadTask = uploadBytesResumable(storageRef, file);
-    // uploadTask.on(
-    //   "state_changed",
-    //   (snapshot) => {
-    //     const prog = Math.round(
-    //       (snapshot.bytesTransferred / snapshot.totalBytes) * 100
-    //     );
-    //     setUploadProgress(prog);
-    //   },
-    //   (err) => console.error("Upload lỗi:", err),
-    //   () => {
-    //     getDownloadURL(uploadTask.snapshot.ref).then((url) => {
-    //       handleChange("image", url); // Lưu URL chính thức
-    //       URL.revokeObjectURL(objectUrl); // Dọn preview tạm
-    //       setUploadProgress(0);
-    //     });
-    //   }
-    // );
-  };
+	const handleBlurCCCD = async () => {
+		const id = form.citizen_id_number.trim();
+		if (!id) return;
+		try {
+			const user = await getCCCD(id);
+			if (user) {
+				handleChange("full_name", user.full_name || "");
+				handleChange("phone", user.phone || "");
+			}
+		} catch {
+			console.error("Không tìm thấy người dùng theo CCCD");
+		}
+	};
 
-	const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+	const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
 		const file = e.target.files?.[0];
 		if (!file) return;
-
-		// Preview tạm
-		const objectUrl = URL.createObjectURL(file);
-		setPreviewUrl(objectUrl);
-
-		// Upload lên Firebase
-		const storageRef = ref(
-			analytics,
-			`doctor-requests/${Date.now()}_${file.name}`,
-		);
-		const uploadTask = uploadBytesResumable(storageRef, file);
-		uploadTask.on(
-			"state_changed",
-			(snapshot) => {
-				const prog = Math.round(
-					(snapshot.bytesTransferred / snapshot.totalBytes) * 100,
-				);
-				setUploadProgress(prog);
-			},
-			(err) => console.error("Upload lỗi:", err),
-			() => {
-				getDownloadURL(uploadTask.snapshot.ref).then((url) => {
-					handleChange("image", url); // Lưu URL chính thức
-					URL.revokeObjectURL(objectUrl); // Dọn preview tạm
-					setUploadProgress(0);
-				});
-			},
-		);
+		const data = new FormData();
+		data.append("file", file);
+		data.append("upload_preset", "BloodDonation");
+		try {
+			const resp = await axios.post(
+				"https://api.cloudinary.com/v1_1/dpf7yfupt/image/upload",
+				data,
+			);
+			handleChange("image", resp.data.secure_url);
+		} catch {
+			toast.error("Không thể upload hình ảnh");
+		}
 	};
 
 	const handleSubmit = async () => {
-		if (!validate()) return;
-
-		const bgId = await getBloodGroupIdByName(form.bloodGroupName);
-		const bcIds = await Promise.all(
-			form.bloodComponentNames.map((name) => getBloodComponentIdByName(name)),
-		);
-
-		if (!bgId || bcIds.some((id) => !id)) {
-			alert("Không tìm thấy nhóm máu hoặc thành phần máu phù hợp.");
-			return;
-		}
-
-		const payload: DoctorRequestPayload = {
-			blood_group_id: bgId,
-			blood_component_ids: bcIds as string[],
-			receive_date_request: form.receive_date_request,
-			is_emergency: form.is_emergency,
-			full_name: form.full_name,
-			phone: form.phone,
-			image: form.image || undefined,
-			note: form.note || undefined,
-			citizen_id_number: form.citizen_id_number, 
-			request_type: "Red Blood Cells",
-		};
-		console.log("payload nè", payload);
+		const errs = validateDoctorRequest(form);
+		setErrors(errs);
+		if (Object.keys(errs).length) return;
 
 		try {
-			await createDoctorRequest(payload);
-			// setSuccessMessage("Tạo đơn xin máu thành công!");
-      toast.success("Tạo đơn xin máu thành công!")
-			setForm(initialForm);
-		} catch (err: any) {
-			console.error(err);
-			
-			// Handle API validation errors
-			if (err.response?.data?.errors) {
-				const apiErrors = err.response.data.errors;
-				const newErrors: Partial<Record<keyof Form, string>> = {};
-				
-				// Map API errors to form errors
-				if (apiErrors.citizen_id_number) {
-					newErrors.citizen_id_number = apiErrors.citizen_id_number.msg;
-				}
-				if (apiErrors.phone) {
-					newErrors.phone = apiErrors.phone.msg;
-				}
-				if (apiErrors.full_name) {
-					newErrors.full_name = apiErrors.full_name.msg;
-				}
-				
-				setErrors(newErrors);
-			} else {
-				alert("Có lỗi khi gửi yêu cầu");
-			}
+			const bgId = await getBloodGroupIdByName(form.bloodGroupName);
+			const bcId = await getBloodComponentIdByName(form.request_type);
+
+			await createDoctorRequest({
+				blood_group_id: bgId!,
+				blood_component_ids: [bcId!],
+				receive_date_request: form.receive_date_request,
+				is_emergency: form.is_emergency,
+				full_name: form.full_name,
+				phone: form.phone,
+				citizen_id_number: form.citizen_id_number,
+				request_type: form.request_type,
+				image: form.image || undefined,
+				note: form.note || undefined,
+			});
+
+			toast.success("Tạo đơn xin máu thành công!");
+			navigate(-1);
+		} catch {
+			toast.error("Có lỗi khi gửi yêu cầu");
 		}
 	};
 
 	return (
-		<div className="p-8 bg-[#f9fafb] min-h-screen flex justify-center">
-			<div className="w-full max-w-3xl">
-				<h2 className="text-3xl font-semibold text-center text-[#236afe] mb-8">
-					Tạo Đơn Xin Máu
-				</h2>
-				{successMessage && (
-					<div className="mb-4 text-green-600 font-medium text-center">
-						{successMessage}
+		<div className="min-h-screen bg-gradient-to-br from-blue-100/2 via-white to-blue-100 py-8 px-4">
+			<div className="max-w-4xl mx-auto">
+				{/* Header */}
+				<div className="text-center mb-8">
+					<div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-r from-blue-600 to-blue-700 rounded-full mb-4 shadow-lg">
+						<svg
+							className="w-10 h-10 text-white"
+							viewBox="0 0 24 24"
+							fill="none"
+							stroke="currentColor"
+							strokeWidth="2"
+							strokeLinecap="round"
+							strokeLinejoin="round"
+						>
+							<circle cx="12" cy="12" r="10" />
+							<polyline points="9 12 12 15 17 10" />
+						</svg>
 					</div>
-				)}
-				<Card className="shadow-lg">
-					<CardContent className="p-6 space-y-4">
-						{/* CCCD Input */}
-						<div>
-							<div className="font-bold">CCCD</div>
-							<Input
-								placeholder="Nhập số CCCD (12 chữ số)"
-								value={form.citizen_id_number}
-								onChange={(e) =>
-									handleChange("citizen_id_number", e.target.value)
-								}
-								onBlur={handleBlurCCCD}
-								className={errors.citizen_id_number ? "border-red-500" : ""}
-							/>
-							{errors.citizen_id_number && (
-								<p className="text-red-600 text-sm mt-1">
-									{errors.citizen_id_number}
-								</p>
-							)}
-						</div>
 
-						{/* Họ tên & SĐT */}
-						<div>
-							<div className="font-bold">Họ và tên</div>
-							<Input
-								placeholder="Họ và tên"
-								value={form.full_name}
-								onChange={(e) => handleChange("full_name", e.target.value)}
-								className={errors.full_name ? "border-red-500" : ""}
-							/>
-							{errors.full_name && (
-								<p className="text-red-600 text-sm mt-1">{errors.full_name}</p>
-							)}
-						</div>
+					<h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-blue-800 bg-clip-text text-transparent">
+						Tạo Đơn Xin Máu
+					</h1>
+					<p className="text-blue-600 mt-2 text-lg">
+						Điền thông tin chi tiết để tạo yêu cầu lấy máu
+					</p>
+				</div>
 
-						<div>
-							<div className="font-bold">Số điện thoại</div>
-							<Input
-								placeholder="Số điện thoại"
-								value={form.phone}
-								onChange={(e) => handleChange("phone", e.target.value)}
-								className={errors.phone ? "border-red-500" : ""}
-							/>
-							{errors.phone && (
-								<p className="text-red-600 text-sm mt-1">{errors.phone}</p>
-							)}
-						</div>
-
-						{/* Ngày nhận yêu cầu */}
-						<div>
-							<div className="font-bold">Ngày nhận yêu cầu</div>
-							<Input
-								type="datetime-local"
-								value={form.receive_date_request.slice(0, 16)}
-								onChange={(e) =>
-									handleChange(
-										"receive_date_request",
-										new Date(e.target.value).toISOString(),
-									)
-								}
-							/>
-						</div>
-
-						{/* Nhóm máu */}
-						<div>
-							<div className="font-bold">Nhóm máu</div>
-							<Select
-								value={form.bloodGroupName}
-								onValueChange={(v) => handleChange("bloodGroupName", v)}
-							>
-								<SelectTrigger className={errors.bloodGroupName ? "border-red-500" : ""}>
-									<SelectValue placeholder="Chọn nhóm máu" />
-								</SelectTrigger>
-								<SelectContent>
-									{bloodGroupOptions.map((g) => (
-										<SelectItem key={g} value={g}>
-											{g}
-										</SelectItem>
-									))}
-								</SelectContent>
-							</Select>
-							{errors.bloodGroupName && (
-								<p className="text-red-600 text-sm mt-1">{errors.bloodGroupName}</p>
-							)}
-						</div>
-
-						{/* Thành phần máu (multi-check, 3 cột) */}
-						<div className="space-y-2">
-							<Label className="font-bold">Thành phần máu</Label>
-							<div className="grid grid-cols-3 gap-4">
-								{bloodComponentOptions.map((name) => (
-									<div key={name} className="flex items-center">
-										<Checkbox
-											id={name}
-											checked={form.bloodComponentNames.includes(name)}
-											onCheckedChange={(checked) => {
-												const isChecked = checked === true;
-												const next = isChecked
-													? [...form.bloodComponentNames, name]
-													: form.bloodComponentNames.filter((n) => n !== name);
-												handleChange("bloodComponentNames", next);
-											}}
-										/>
-										<Label htmlFor={name} className="ml-2">
-											{name}
-										</Label>
-									</div>
-								))}
-							</div>
-							{errors.bloodComponentNames && (
-								<p className="text-red-600 text-sm mt-1">
-									{errors.bloodComponentNames}
-								</p>
-							)}
-						</div>
-
-						{/* Khẩn cấp */}
-						<div>
-							<div className="font-bold">Tình trạng</div>
-							<Select
-								value={form.is_emergency ? "true" : "false"}
-								onValueChange={(v) =>
-									handleChange("is_emergency", v === "true")
-								}
-							>
-								<SelectTrigger>
-									<SelectValue placeholder="Khẩn cấp" />
-								</SelectTrigger>
-								<SelectContent>
-									<SelectItem value="false">Bình thường</SelectItem>
-									<SelectItem value="true">Khẩn cấp</SelectItem>
-								</SelectContent>
-							</Select>
-						</div>
-
-						{/* File picker + URL input */}
-						<div className="flex items-start space-x-6">
-							<div className="flex flex-col">
-								<label className="block mb-1 font-bold">Hình ảnh</label>
-								<input
-									type="file"
-									accept="image/*"
-									onChange={handleFileChange}
-									className="border rounded px-2 py-1"
+				<Card className="shadow-2xl rounded-[30px] bg-white/80 backdrop-blur-sm">
+					<CardHeader className="bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-t-lg">
+						<div className="flex items-center gap-3">
+							<svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+								<path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z" />
+								<path
+									fillRule="evenodd"
+									d="M4 5a2 2 0 012-2v1a2 2 0 00-2 2v6a2 2 0 002 2h8a2 2 0 002-2V6a2 2 0 00-2-2V3a2 2 0 012-2 2 2 0 012 2v1h1a1 1 0 110 2H3a1 1 0 110-2h1V5z"
+									clipRule="evenodd"
 								/>
-								{uploadProgress > 0 && uploadProgress < 100 && (
-									<p className="text-sm mt-1">Đang upload: {uploadProgress}%</p>
-								)}
-								{previewUrl && (
-									<img
-										src={previewUrl}
-										alt="preview"
-										className="mt-2 w-32 h-32 object-cover rounded border"
+							</svg>
+							<h2 className="text-xl font-semibold">Thông Tin Yêu Cầu</h2>
+						</div>
+					</CardHeader>
+					<CardContent className="p-8">
+						<div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+							{/* Left Column */}
+							<div className="space-y-6">
+								{/* CCCD */}
+								<FormField
+									label="Số CCCD"
+									error={errors.citizen_id_number}
+									required
+									icon={
+										<svg
+											className="w-4 h-4"
+											fill="currentColor"
+											viewBox="0 0 20 20"
+										>
+											<path
+												fillRule="evenodd"
+												d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"
+												clipRule="evenodd"
+											/>
+										</svg>
+									}
+								>
+									<Input
+										placeholder="Nhập số CCCD (12 chữ số)"
+										value={form.citizen_id_number}
+										onChange={(e) =>
+											handleChange("citizen_id_number", e.target.value)
+										}
+										onBlur={handleBlurCCCD}
+										className={`${
+											errors.citizen_id_number
+												? "border-red-500 focus:ring-red-500/20"
+												: "border-blue-200 focus:border-blue-500 focus:ring-blue-500/20"
+										} bg-white/90 backdrop-blur-sm transition-all duration-200`}
 									/>
-								)}
+								</FormField>
+
+								{/* Họ và tên */}
+								<FormField
+									label="Họ và tên"
+									error={errors.full_name}
+									required
+									icon={
+										<svg
+											className="w-4 h-4"
+											fill="currentColor"
+											viewBox="0 0 20 20"
+										>
+											<path
+												fillRule="evenodd"
+												d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"
+												clipRule="evenodd"
+											/>
+										</svg>
+									}
+								>
+									<Input
+										placeholder="Nhập họ và tên đầy đủ"
+										value={form.full_name}
+										onChange={(e) => handleChange("full_name", e.target.value)}
+										className={`${
+											errors.full_name
+												? "border-red-500 focus:ring-red-500/20"
+												: "border-blue-200 focus:border-blue-500 focus:ring-blue-500/20"
+										} bg-white/90 backdrop-blur-sm`}
+									/>
+								</FormField>
+
+								{/* Số điện thoại */}
+								<FormField
+									label="Số điện thoại"
+									error={errors.phone}
+									required
+									icon={
+										<svg
+											className="w-4 h-4"
+											fill="currentColor"
+											viewBox="0 0 20 20"
+										>
+											<path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z" />
+										</svg>
+									}
+								>
+									<Input
+										placeholder="Nhập số điện thoại"
+										value={form.phone}
+										onChange={(e) => handleChange("phone", e.target.value)}
+										className={`${
+											errors.phone
+												? "border-red-500 focus:ring-red-500/20"
+												: "border-blue-200 focus:border-blue-500 focus:ring-blue-500/20"
+										} bg-white/90 backdrop-blur-sm`}
+									/>
+								</FormField>
+
+								{/* Ngày nhận yêu cầu */}
+								<FormField
+									label="Ngày nhận yêu cầu"
+									error={errors.receive_date_request}
+									required
+									icon={
+										<svg
+											className="w-4 h-4"
+											fill="currentColor"
+											viewBox="0 0 20 20"
+										>
+											<path
+												fillRule="evenodd"
+												d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z"
+												clipRule="evenodd"
+											/>
+										</svg>
+									}
+								>
+									<Input
+										type="datetime-local"
+										min={nowLocal}
+										value={form.receive_date_request.slice(0, 16)}
+										onChange={handleReceiveDateChange}
+										className={`${
+											errors.receive_date_request
+												? "border-red-500 focus:ring-red-500/20"
+												: "border-blue-200 focus:border-blue-500 focus:ring-blue-500/20"
+										} bg-white/90 backdrop-blur-sm`}
+									/>
+								</FormField>
+
+								{/* Nhóm máu */}
+								<FormField
+									label="Nhóm máu"
+									error={errors.bloodGroupName}
+									required
+									icon={
+										<svg
+											className="w-4 h-4"
+											fill="currentColor"
+											viewBox="0 0 20 20"
+										>
+											<path
+												fillRule="evenodd"
+												d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z"
+												clipRule="evenodd"
+											/>
+										</svg>
+									}
+								>
+									<Select
+										value={form.bloodGroupName}
+										onValueChange={(v) => handleChange("bloodGroupName", v)}
+									>
+										<SelectTrigger
+											className={`${
+												errors.bloodGroupName
+													? "border-red-500 focus:ring-red-500/20"
+													: "border-blue-200 focus:border-blue-500 focus:ring-blue-500/20"
+											} bg-white/90 backdrop-blur-sm`}
+										>
+											<SelectValue placeholder="Chọn nhóm máu" />
+										</SelectTrigger>
+										<SelectContent className="bg-white border-blue-200">
+											{bloodGroupOptions.map((g) => (
+												<SelectItem
+													key={g}
+													value={g}
+													className="focus:bg-blue-50"
+												>
+													{g}
+												</SelectItem>
+											))}
+										</SelectContent>
+									</Select>
+								</FormField>
 							</div>
-							<div className="flex-1 flex flex-col">
-								<label className="block mb-1 font-medium">URL hình ảnh</label>
-								<Input
-									placeholder="Url hình ảnh"
-									value={form.image}
-									onChange={(e) => handleChange("image", e.target.value)}
-									className={errors.image ? "border-red-500" : ""}
-								/>
-								{errors.image && (
-									<p className="text-red-600 text-sm mt-1">{errors.image}</p>
-								)}
+
+							{/* Right Column */}
+							<div className="space-y-6">
+								{/* Thành phần máu */}
+								<FormField
+									label="Thành phần máu"
+									error={errors.request_type}
+									required
+									icon={
+										<svg
+											className="w-4 h-4"
+											fill="currentColor"
+											viewBox="0 0 20 20"
+										>
+											<path d="M5 4a2 2 0 012-2h6a2 2 0 012 2v14l-5-2.5L5 18V4z" />
+										</svg>
+									}
+								>
+									<Select
+										value={form.request_type}
+										onValueChange={(v) => handleChange("request_type", v)}
+									>
+										<SelectTrigger
+											className={`${
+												errors.request_type
+													? "border-red-500 focus:ring-red-500/20"
+													: "border-blue-200 focus:border-blue-500 focus:ring-blue-500/20"
+											} bg-white/90 backdrop-blur-sm`}
+										>
+											<SelectValue placeholder="Chọn thành phần máu" />
+										</SelectTrigger>
+										<SelectContent className="bg-white border-blue-200">
+											{REQUEST_TYPE_OPTIONS.map((enName) => (
+												<SelectItem
+													key={enName}
+													value={enName}
+													className="focus:bg-blue-50"
+												>
+													{bloodComponentVN(enName)}
+												</SelectItem>
+											))}
+										</SelectContent>
+									</Select>
+								</FormField>
+
+								{/* Khẩn cấp */}
+								<FormField
+									label="Mức độ ưu tiên"
+									icon={
+										<svg
+											className="w-4 h-4"
+											fill="currentColor"
+											viewBox="0 0 20 20"
+										>
+											<path
+												fillRule="evenodd"
+												d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
+												clipRule="evenodd"
+											/>
+										</svg>
+									}
+								>
+									<Select
+										value={form.is_emergency ? "true" : "false"}
+										onValueChange={(v) =>
+											handleChange("is_emergency", v === "true")
+										}
+									>
+										<SelectTrigger className="border-blue-200 focus:border-blue-500 focus:ring-blue-500/20 bg-white/90 backdrop-blur-sm">
+											<SelectValue placeholder="Chọn mức độ" />
+										</SelectTrigger>
+										<SelectContent className="bg-white border-blue-200">
+											<SelectItem value="false" className="focus:bg-blue-50">
+												<div className="flex items-center gap-2">
+													<div className="w-2 h-2 bg-green-500 rounded-full"></div>
+													Bình thường
+												</div>
+											</SelectItem>
+											<SelectItem value="true" className="focus:bg-blue-50">
+												<div className="flex items-center gap-2">
+													<div className="w-2 h-2 bg-red-500 rounded-full"></div>
+													Khẩn cấp
+												</div>
+											</SelectItem>
+										</SelectContent>
+									</Select>
+								</FormField>
+
+								{/* Hình ảnh */}
+								<FormField
+									label="Hình ảnh đính kèm"
+									error={errors.image}
+									icon={
+										<svg
+											className="w-4 h-4"
+											fill="currentColor"
+											viewBox="0 0 20 20"
+										>
+											<path
+												fillRule="evenodd"
+												d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z"
+												clipRule="evenodd"
+											/>
+										</svg>
+									}
+								>
+									<div className="space-y-3">
+										<input
+											type="file"
+											accept="image/*"
+											onChange={handleFileChange}
+											className="block w-full text-sm text-blue-600 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 file:cursor-pointer cursor-pointer"
+										/>
+										{previewUrl && (
+											<div className="relative inline-block">
+												<img
+													src={previewUrl}
+													alt="preview"
+													className="w-32 h-32 object-cover rounded-lg border-2 border-blue-200 shadow-md"
+												/>
+												<div className="absolute -top-2 -right-2 w-6 h-6 bg-green-500 rounded-full flex items-center justify-center">
+													<svg
+														className="w-4 h-4 text-white"
+														fill="currentColor"
+														viewBox="0 0 20 20"
+													>
+														<path
+															fillRule="evenodd"
+															d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+															clipRule="evenodd"
+														/>
+													</svg>
+												</div>
+											</div>
+										)}
+									</div>
+								</FormField>
+
+								{/* Ghi chú */}
+								<FormField
+									label="Ghi chú thêm"
+									error={errors.note}
+									icon={
+										<svg
+											className="w-4 h-4"
+											fill="currentColor"
+											viewBox="0 0 20 20"
+										>
+											<path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.828-2.828z" />
+										</svg>
+									}
+								>
+									<Textarea
+										placeholder="Nhập ghi chú, yêu cầu đặc biệt..."
+										value={form.note}
+										onChange={(e) => handleChange("note", e.target.value)}
+										className={`${
+											errors.note
+												? "border-red-500 focus:ring-red-500/20"
+												: "border-blue-200 focus:border-blue-500 focus:ring-blue-500/20"
+										} bg-white/90 backdrop-blur-sm min-h-[100px] resize-none`}
+										rows={4}
+									/>
+								</FormField>
 							</div>
 						</div>
 
-						{/* Ghi chú */}
-						<div>
-							<div className="font-bold">Ghi chú</div>
-							<Textarea
-								placeholder="Ghi chú"
-								value={form.note}
-								onChange={(e) => handleChange("note", e.target.value)}
-								className="min-h-[80px]"
-							/>
-						</div>
-
-						{/* Submit */}
-						<div className="text-center">
-							<Button onClick={handleSubmit}>Gửi yêu cầu</Button>
+						{/* Submit Button */}
+						<div className="mt-10 flex justify-center">
+							<Button
+								onClick={handleSubmit}
+								className="px-12 py-4 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 flex items-center gap-3"
+							>
+								<svg
+									className="w-5 h-5"
+									fill="currentColor"
+									viewBox="0 0 20 20"
+								>
+									<path
+										fillRule="evenodd"
+										d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-8.293l-3-3a1 1 0 00-1.414 0l-3 3a1 1 0 001.414 1.414L9 9.414V13a1 1 0 102 0V9.414l1.293 1.293a1 1 0 001.414-1.414z"
+										clipRule="evenodd"
+									/>
+								</svg>
+								Gửi Yêu Cầu
+							</Button>
 						</div>
 					</CardContent>
 				</Card>
