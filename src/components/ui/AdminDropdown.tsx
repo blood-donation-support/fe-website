@@ -1,21 +1,25 @@
-// UserDropdown.tsx
-import type { UserProfile } from "@/redux/slices/userSlice";
-import type { User } from "@/types/user";
 import React, { useState, useRef, useEffect } from "react";
 import { FaUser } from "react-icons/fa";
 import { Link } from "react-router-dom";
 
+type User = {
+  fullname: string;
+  email: string;
+  phone?: string;
+
+};
+
 type Props = {
-  user: UserProfile | null;
+  user: User | null;
   onLogout: () => void;
 };
 
-const UserDropdown: React.FC<Props> = ({ user, onLogout }) => {
+const AdminDropdown: React.FC<Props> = ({ user, onLogout }) => {
   const [open, setOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    console.log(user);
+
     const handleClickOutside = (event: MouseEvent) => {
       if (
         dropdownRef.current &&
@@ -30,41 +34,25 @@ const UserDropdown: React.FC<Props> = ({ user, onLogout }) => {
   }, []);
 
   if (!user) return null; 
+
   return (
     <div className="relative" ref={dropdownRef}>
       <button
         onClick={() => setOpen((prev) => !prev)}
         className="w-14 h-14 flex items-center justify-center rounded-full bg-blue-100 text-blue-500 hover:bg-blue-600 hover:text-white transition"
-        title={user.full_name}
+        title={user.fullname}
       >
-        {user.avatar_url ? (
-          <img
-            src={user.avatar_url}
-            alt="avatar"
-            className="w-10 h-10 rounded-full object-cover"
-          />
-        ) : (
-          <FaUser size={20} />
-        )}
+        <FaUser size={20} />
       </button>
       {open && (
         <div className="absolute right-0 mt-2 w-72 bg-white rounded-xl shadow-lg border border-gray-100 z-50 py-4 px-6">
           <div className="flex items-center gap-4 mb-4">
             <div className="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center font-bold text-blue-600 text-lg">
-              <div className="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center font-bold text-blue-600 text-lg">
-                {user.avatar_url ? (
-                    <img
-                      src={user.avatar_url}
-                      alt="avatar"
-                      className="w-10 h-10 rounded-full object-cover"
-                    />
-                  ) : (
-                    <span>{user.full_name?.charAt(0)?.toUpperCase() || "?"}</span>
-                  )}
-              </div>
+              {user.fullname.charAt(0).toUpperCase()}
+
             </div>
             <div>
-              <div className="font-bold">{user.full_name}</div>
+              <div className="font-bold">{user.fullname}</div>
               <div className="text-gray-400 text-sm">{user.email}</div>
             </div>
           </div>
@@ -72,33 +60,13 @@ const UserDropdown: React.FC<Props> = ({ user, onLogout }) => {
           <ul className="flex flex-col gap-2">
             <li>
               <Link
-                to="/profile/info"
+                to="/profile"
                 className="block px-2 py-2 hover:bg-blue-50 rounded-md text-gray-700 font-medium"
                 onClick={() => setOpen(false)}
               >
                 Thông tin cá nhân
               </Link>
             </li>
-            {user.role === "Customer" && (
-              <li>
-                <Link
-                  to="/profile/customer-history"
-                  className="block px-2 py-2 hover:bg-blue-50 rounded-md text-gray-700 font-medium"
-                  onClick={() => setOpen(false)}
-                >
-                  Lịch sử đơn đăng kí 
-                </Link>
-              </li>
-            )}
-            {/* <li>
-              <Link
-                to="/profile/blood-history"
-                className="block px-2 py-2 hover:bg-blue-50 rounded-md text-gray-700 font-medium"
-                onClick={() => setOpen(false)}
-              >
-                Lịch sử đơn đăng kí
-              </Link>
-            </li> */}
           </ul>
           <button
             onClick={onLogout}
@@ -112,4 +80,4 @@ const UserDropdown: React.FC<Props> = ({ user, onLogout }) => {
   );
 };
 
-export default UserDropdown;
+export default AdminDropdown;

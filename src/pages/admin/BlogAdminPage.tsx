@@ -100,7 +100,7 @@ export default function BlogAdminPage() {
                     <TableCell>Tiêu đề</TableCell>
                     <TableCell>Tác giả</TableCell>
                     <TableCell>Ngày tạo</TableCell>
-                    <TableCell>Actions</TableCell>
+                    <TableCell>Hành động</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
@@ -122,22 +122,35 @@ export default function BlogAdminPage() {
                         <Button
                           variant="text"
                           size="small"
+                          style={{ color: "#10b981", fontWeight: 600 }}
+                          onClick={() => navigate(`/dashboard-admin/blogs/${item._id}/preview`)}
+                        >
+                          Xem trước
+                        </Button>
+                        <Button
+                          variant="text"
+                          size="small"
                           color="primary"
                           onClick={() => navigate(`/dashboard-admin/blogs/${item._id}/edit`)}
-                        >Sửa</Button>
+                        >
+                          Sửa
+                        </Button>
                         <Button
                           variant="text"
                           size="small"
                           color="error"
                           onClick={() => setDeleteId(item._id)}
-                        >Xoá</Button>
+                        >
+                          Xoá
+                        </Button>
                       </TableCell>
+
                     </TableRow>
                   ))}
                   {pagedBlogs.length === 0 && (
                     <TableRow>
                       <TableCell colSpan={5} align="center" style={{ color: "#888", fontStyle: "italic" }}>
-                        No data found
+                        Không có dữ liệu
                       </TableCell>
                     </TableRow>
                   )}

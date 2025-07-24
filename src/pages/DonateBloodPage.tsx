@@ -6,9 +6,11 @@ import { useDispatch, useSelector } from "react-redux";
 import type { RootState, AppDispatch } from "@/redux/store";
 
 import { registerDonationThunk , resetDonationStatus } from "@/redux/slices/donationRegistrationSlice"; // Redux action
+import { fetchUserProfile } from "@/redux/slices/userSlice";
 
 const DonateBloodPage = () => {
-  const today = new Date();
+  const profile = useSelector((state: RootState) => state.user.profile);
+  const today = new Date(); 
   const accessToken = useAuthStore((state) => state.accessToken) || "";
   const [statusForm, setStatusForm] = useState("Pending");
   const dispatch = useDispatch<AppDispatch>();
@@ -21,8 +23,9 @@ const DonateBloodPage = () => {
     donation_type: "",
     start_date_donation: today.toISOString()
   });
-
-  // Handle success or error state
+  useEffect(() => {
+    if (!profile) dispatch(fetchUserProfile());
+  }, [dispatch, profile]);
   useEffect(() => {
     if (success) {
       setStatusForm("Submited");
@@ -87,7 +90,7 @@ const DonateBloodPage = () => {
 
   return (
     <>
-      <HeaderComponent />
+      <HeaderComponent user={profile}/>
       <HeroComponent {...DonateBloodPageDetails.hero} />
       <FormComponent
         fields={fields}

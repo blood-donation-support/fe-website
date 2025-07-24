@@ -22,38 +22,42 @@ import BlogAdminPage from "./pages/admin/BlogAdminPage";
 import BlogEditPage from "./pages/admin/BlogEditPage";
 
 import StaffLayout from "./components/layout/StaffLayout";
-import {DonationRegisterPage} from "./pages/DonationRegisterPage";
-import {DonationProcessPage} from "./pages/DonationProcessPage";
-import {DoctorRequestPage} from "./pages/staff/DoctorRequestPage";
-import {BloodRequestApprovedList} from "./pages/staff/BloodRequestApprovedList";
-import {HealthCheckRequest} from "./pages/staff/HealthCheckRequest";
+import { DonationRegisterPage } from "./pages/DonationRegisterPage";
+import { DonationProcessPage } from "./pages/DonationProcessPage";
+import { DoctorRequestPage } from "./pages/staff/DoctorRequestPage";
+import { BloodRequestApprovedList } from "./pages/staff/BloodRequestApprovedList";
+import { HealthCheckRequest } from "./pages/staff/HealthCheckRequest";
 
 import StaffWarehouseLayout from "./components/layout/StaffWarehouseLayout";
-import {BloodRequestListPage} from "./pages/staff/BloodRequestListPage";
-import {BloodRequestApprovalPage} from "./pages/warehouse-staff/BloodRequestApprovalPage";
-import {BloodStoragePage} from "./pages/warehouse-staff/BloodStoragePage";
-import {BloodSummaryTable} from "./pages/warehouse-staff/BloodSummaryTable";
-import {BloodSeparationListPage} from "./pages/warehouse-staff/BloodSeparationListPage";
-import {BloodSeparationProcessPage} from "./pages/warehouse-staff/BloodSeparationProcessPage";
+import { BloodRequestListPage } from "./pages/staff/BloodRequestListPage";
+import { BloodRequestApprovalPage } from "./pages/warehouse-staff/BloodRequestApprovalPage";
+import { BloodStoragePage } from "./pages/warehouse-staff/BloodStoragePage";
+import BloodSummaryTable from "./pages/warehouse-staff/BloodSummaryTable";
+import { BloodSeparationListPage } from "./pages/warehouse-staff/BloodSeparationListPage";
+import { BloodSeparationProcessPage } from "./pages/warehouse-staff/BloodSeparationProcessPage";
 
 import SupportPage from "./pages/SupportPage";
 import PolicyPage from "./pages/PolicyPage";
 import BloodHistoryPage from "./pages/BloodHistoryPage";
 import DashBoardAdminPage from "./pages/admin/DashBoardAdminPage";
 import WarehouseDashboardPage from "./pages/warehouse-staff/WarehouseDashboardPage";
+import BlogPreviewPage from "./components/blogComponents/BlogPreviewPage";
+import ProfileLayout from "./components/layout/ProfileLayout";
+import ProfileInfo from "./components/profileComponents/ProfileInfo";
+import ChangePasswordPage from "./components/profileComponents/ChangePasswordPage";
 
 type PrivateRouteProps = {
-  role: string;
-  children: React.ReactNode;
+	role: string;
+	children: React.ReactNode;
 };
 
 function PrivateRoute({ role, children }: PrivateRouteProps) {
-  const userData = localStorage.getItem("user");
-  const user = userData ? JSON.parse(userData) : null;
+	const userData = localStorage.getItem("user");
+	const user = userData ? JSON.parse(userData) : null;
 
-  if (!user) return <Navigate to="/login" />;
-  if (user.role !== role) return <Navigate to="/" />;
-  return <>{children}</>;
+	if (!user) return <Navigate to="/login" />;
+	if (user.role !== role) return <Navigate to="/" />;
+	return <>{children}</>;
 }
 
 export default function App() {
@@ -179,4 +183,3 @@ export default function App() {
       {/* </PersistGate> */}
     </Provider>
   );
-}
