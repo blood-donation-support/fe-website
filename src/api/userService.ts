@@ -9,6 +9,10 @@ export const fetchUserAll = async (): Promise<User[]> => {
   const res = await apiClient.get<ApiResponse<User[]>>(`/users`);
   return res.data.result;
 };
+export const fetchUser = async (): Promise<User> => {
+  const res = await apiClient.get<ApiResponse<User>>(`/users/me`);
+  return res.data.result;
+};
 
 export const deleteUser = async (id: string): Promise<User> => {
   const res = await apiClient.delete<ApiResponse<User>>(`/users/${id}`);
