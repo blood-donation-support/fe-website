@@ -4,6 +4,7 @@ import TextField from "@mui/material/TextField";
 import { useDispatch } from "react-redux";
 import { createBlog } from "@/api/blogService";
 import { validateBlogForm, type BlogFormErrors } from "@/utils/blogFormValidate";
+import UploadImageBlog from "./UploadImageBlog";
 
 function BlogModalForm({
   onClose,
@@ -21,18 +22,16 @@ function BlogModalForm({
   const [author, setAuthor] = useState("");
   const [errors, setErrors] = useState<BlogFormErrors>({});
 
-  // Hàm validate & save
   async function handleSave() {
     const formValues = { title, content, image, author };
     const validate = validateBlogForm(formValues);
     setErrors(validate);
     if (Object.keys(validate).length > 0) return;
-
     try {
       await dispatch(createBlog(formValues) as any).unwrap();
       onClose();
     } catch (e) {
-      // Có thể hiện alert/toast lỗi nếu cần
+      alert("Có lỗi khi tạo blog!");
     }
   }
 
@@ -43,7 +42,7 @@ function BlogModalForm({
         style={{
           width: "90vw",
           height: "90vh",
-          maxWidth: "1800px",
+          maxWidth: "1000px",
           maxHeight: "1000px",
           padding: "2rem",
           overflow: "auto",
@@ -64,15 +63,15 @@ function BlogModalForm({
               helperText={errors.title}
             />
             <TextField
-              label="Link ảnh đại diện blog"
+              label="thêm url"
               variant="outlined"
               className="mb-4"
               fullWidth
               value={image}
               onChange={e => setImage(e.target.value)}
+              required
               error={!!errors.image}
               helperText={errors.image}
-              placeholder="https://...jpg"
             />
             <TextField
               label="Tác giả"

@@ -39,6 +39,10 @@ import {BloodSeparationProcessPage} from "./pages/warehouse-staff/BloodSeparatio
 import SupportPage from "./pages/SupportPage";
 import PolicyPage from "./pages/PolicyPage";
 import BloodHistoryPage from "./pages/BloodHistoryPage";
+import BlogPreviewPage from "./components/blogComponents/BlogPreviewPage";
+import ProfileLayout from "./components/layout/ProfileLayout";
+import ProfileInfo from "./components/profileComponents/ProfileInfo";
+import ChangePasswordPage from "./components/profileComponents/ChangePasswordPage";
 
 type PrivateRouteProps = {
   role: string;
@@ -55,6 +59,7 @@ function PrivateRoute({ role, children }: PrivateRouteProps) {
 }
 
 export default function App() {
+
   return (
     <Provider store={store}>
       <PersistGate loading={null} persistor={persistor}>
@@ -115,7 +120,6 @@ export default function App() {
                   <Route path="blogs" element={<BlogAdminPage />} />
                   <Route path="blogs/:id/edit" element={<BlogEditPage />} />
                 </Route>
-
                 {/* Staff Routes */}
                 <Route
                   path="/dashboard-staff/*"

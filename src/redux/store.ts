@@ -15,6 +15,9 @@ import customerListReducer from "./slices/customerListSlice";
 import donationRegistrationReducer from "./slices/donationRegistrationSlice";
 import blogReducer from "./slices/blogSlice"; // Import blog reducer
 import dashboardSliceReducer from "./slices/dashboardSlice"; // Import dashboard slice
+import userSliceReducer from "./slices/userSlice";
+import notificationSliceReducer from "./slices/notificationSlice";
+import donationHealthProcessSliceReducer from "./slices/donationHealthProcessSlice"; // Import donation health process slice
 // import other reducers...
 
 // const persistConfig = {
@@ -46,8 +49,11 @@ export const store = configureStore({
 		bestStaff: bestStaffReducer,
 		users: userReducer,
 		staff: staffReducer,
-
 		dashboard: dashboardSliceReducer,
+		user: userSliceReducer,
+		notification: notificationSliceReducer,
+		donationHealthProcess: donationHealthProcessSliceReducer,
+		// other reducers...
 
 	},
 	middleware: (getDefaultMiddleware) =>
