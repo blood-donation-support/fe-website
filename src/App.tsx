@@ -32,7 +32,7 @@ import StaffWarehouseLayout from "./components/layout/StaffWarehouseLayout";
 import { BloodRequestListPage } from "./pages/staff/BloodRequestListPage";
 import { BloodRequestApprovalPage } from "./pages/warehouse-staff/BloodRequestApprovalPage";
 import { BloodStoragePage } from "./pages/warehouse-staff/BloodStoragePage";
-import { BloodSummaryTable } from "./pages/warehouse-staff/BloodSummaryTable";
+import BloodSummaryTable from "./pages/warehouse-staff/BloodSummaryTable";
 import { BloodSeparationListPage } from "./pages/warehouse-staff/BloodSeparationListPage";
 import { BloodSeparationProcessPage } from "./pages/warehouse-staff/BloodSeparationProcessPage";
 
