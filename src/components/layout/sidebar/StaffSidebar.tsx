@@ -3,10 +3,10 @@ import SidebarNavItem from "./SidebarNavItem";
 import SidebarUpdateCard from "./SidebarUpdateCard";
 
 const artistNavItems = [
-	{ icon: "fa-table-cells", label: "Dashboard", path: "/dashboard" },
+	// { icon: "fa-table-cells", label: "Dashboard", path: "/dashboard" },
 	{
 		icon: "fa-calendar-check",
-		label: "Đăng kí hiến máu",
+		label: "Hiến máu",
 		path: "/dashboard-staff/donation",
 	},
 	{
@@ -15,11 +15,11 @@ const artistNavItems = [
 		path: "/dashboard-staff/doctor-request",
 	},
 	{
-		icon: "fa-hand-holding-medical",
+		icon: "fa-table-cells",
 		label: "Danh Sách đơn xin máu",
 		path: "/dashboard-staff/doctor-request-approved",
 	},
-	{ icon: "fa-message", label: "Messages", path: "/dashboard-artist/messages" },
+	// { icon: "fa-message", label: "Messages", path: "/dashboard-artist/messages" },
 ];
 
 export default function StaffSidebar() {

@@ -25,6 +25,7 @@ export const fetchInventory = async (
   const res = await apiClient.get<ApiResponse<InventoryItem[]>>(
     `/blood-units`
   );
+  console.log(res.data.result);
   return res.data.result;
 };
 

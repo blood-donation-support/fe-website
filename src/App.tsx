@@ -1,11 +1,11 @@
 import React from "react";
-import type { ElementType } from "react";
+// import type { ElementType } from "react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { Provider } from "react-redux";
-import { PersistGate } from "redux-persist/integration/react";
+// import { PersistGate } from "redux-persist/integration/react";
 import { AnimatePresence, motion } from "framer-motion";
 
-import { store, persistor } from "./redux/store";
+import { store } from "./redux/store";
 import ScrollToTop from "./components/ScrollToTop";
 
 import HomePage from "./pages/HomePage";
@@ -14,7 +14,7 @@ import { DonateBloodPage } from "./pages";
 import BlogDetailPage from "./pages/BlogDetailPage";
 
 import AdminLayout from "./components/layout/AdminLayout";
-import Dashboard from "./pages/admin/Dashboard";
+// import Dashboard from "./pages/admin/Dashboard";
 import UserListPage from "./pages/admin/UserListPage";
 import BloodPage from "./pages/BloodPage";
 import DonationRegistrationsPage from "./pages/DonationRegistrationsPage";
@@ -39,6 +39,8 @@ import {BloodSeparationProcessPage} from "./pages/warehouse-staff/BloodSeparatio
 import SupportPage from "./pages/SupportPage";
 import PolicyPage from "./pages/PolicyPage";
 import BloodHistoryPage from "./pages/BloodHistoryPage";
+import DashBoardAdminPage from "./pages/admin/DashBoardAdminPage";
+import WarehouseDashboardPage from "./pages/warehouse-staff/WarehouseDashboardPage";
 
 type PrivateRouteProps = {
   role: string;
@@ -57,7 +59,7 @@ function PrivateRoute({ role, children }: PrivateRouteProps) {
 export default function App() {
   return (
     <Provider store={store}>
-      <PersistGate loading={null} persistor={persistor}>
+      {/* <PersistGate loading={null} persistor={persistor}> */}
         <div className="w-full max-w-[100vw] overflow-x-hidden">
           <BrowserRouter>
             <ScrollToTop />
@@ -105,7 +107,8 @@ export default function App() {
                     </PrivateRoute>
                   }
                 >
-                  <Route index element={<Dashboard />} />
+                  <Route index element={<DashBoardAdminPage />} />
+
                   <Route path="users" element={<UserListPage />} />
                   <Route path="bloods" element={<BloodPage />} />
                   <Route
@@ -125,6 +128,7 @@ export default function App() {
                     </PrivateRoute>
                   }
                 >
+
                   <Route path="donation" element={<DonationRegisterPage />} />
                   <Route path="donation/:id" element={<DonationProcessPage />} />
                   <Route path="doctor-request" element={<DoctorRequestPage />} />
@@ -147,6 +151,8 @@ export default function App() {
                     </PrivateRoute>
                   }
                 >
+                  <Route index element={<WarehouseDashboardPage />} />
+
                   <Route path="request-list" element={<BloodRequestListPage />} />
                   <Route
                     path="request-list/:id"
@@ -170,7 +176,7 @@ export default function App() {
             </AnimatePresence>
           </BrowserRouter>
         </div>
-      </PersistGate>
+      {/* </PersistGate> */}
     </Provider>
   );
 }

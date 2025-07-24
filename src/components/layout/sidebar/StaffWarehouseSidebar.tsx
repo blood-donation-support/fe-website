@@ -6,12 +6,12 @@ const artistNavItems = [
 		{
 	icon: "fa-chart-pie", 
 	label: "Dashboard Kho Máu",
-	path: "/dashboard-staff-warehouse/blood-storage-dashboard",
+	path: "/dashboard-staff-warehouse",
 },
 	
 	{
 	icon: "fa-chart-pie", 
-	label: "Blood Storage Summary",
+	label: "Quản lý ngưỡng an toàn",
 	path: "/dashboard-staff-warehouse/blood-storage-summary",
 },
 {
@@ -22,7 +22,7 @@ const artistNavItems = [
 
 {
 	icon: "fa-list-alt",  
-	label: "Đơn Xin Máu",
+	label: "Danh Sách Đơn Xin Máu",
 	path: "/dashboard-staff-warehouse/request-list",
 },
 
