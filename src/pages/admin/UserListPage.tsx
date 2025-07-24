@@ -38,6 +38,16 @@ const roleVN = (role) => {
 			return role;
 	}
 };
+// const genderVN = (genderVN) => {
+// 	switch (genderVN) {
+// 		case "Male":
+// 			return "Nam";
+// 		case "Female":
+// 			return "Nữ";
+// 		case "Other":
+// 			return "Khác";
+// 	}
+// };
 
 const formatDate = (dateString) => {
 	return new Date(dateString).toLocaleDateString("vi-VN");
@@ -261,7 +271,7 @@ export default function UserListPage() {
 												{u.citizen_id_number}
 											</td>
 											<td className="px-6 py-4 text-gray-600">
-												{u.gender || "chưa cập nhật"}
+												{genderVN(u.gender) || "chưa cập nhật"}
 											</td>
 
 											<td className="px-6 py-4 text-gray-600">
