@@ -5,9 +5,11 @@ export interface User {
   date_of_birth: string; 
   role: "Admin" | "Staff" | "Staff-Warehouse" | string;
   gender: "Male" | "Female" | "Other" | string;
+  citizen_id_number: string;
   blood_group_id: string | null;
   number_of_donation: number;
   number_of_request: number;
+  address: string;
   weight: number;
   location: string;
   phone: string;
@@ -16,6 +18,9 @@ export interface User {
   updated_at: string; 
   forgot_password_token: "string"
 }
+ 
+   
+   
 export interface NewUserPayload {
   citizen_id_number: string;
   phone: string;
