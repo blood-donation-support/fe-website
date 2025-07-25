@@ -32,7 +32,6 @@ import StaffWarehouseLayout from "./components/layout/StaffWarehouseLayout";
 import { BloodRequestListPage } from "./pages/staff/BloodRequestListPage";
 import { BloodRequestApprovalPage } from "./pages/warehouse-staff/BloodRequestApprovalPage";
 import { BloodStoragePage } from "./pages/warehouse-staff/BloodStoragePage";
-import { BloodSummaryTable } from "./pages/warehouse-staff/BloodSummaryTable";
 import { BloodSeparationListPage } from "./pages/warehouse-staff/BloodSeparationListPage";
 import { BloodSeparationProcessPage } from "./pages/warehouse-staff/BloodSeparationProcessPage";
 
@@ -45,6 +44,7 @@ import BlogPreviewPage from "./components/blogComponents/BlogPreviewPage";
 import ProfileLayout from "./components/layout/ProfileLayout";
 import ProfileInfo from "./components/profileComponents/ProfileInfo";
 import ChangePasswordPage from "./components/profileComponents/ChangePasswordPage";
+import BloodSummaryTable from "./pages/warehouse-staff/BloodSummaryTable";
 
 type PrivateRouteProps = {
   role: string;
