@@ -9,14 +9,16 @@
 // import donationReducer from "./slices/donationSlice";
 // import bestBloodTypeReducer from "./slices/bestBloodTypeSlice";
 // import bestStaffReducer from "./slices/bestStaffSlice";
-// import userReducer from "./slices/userSlice";
+import userReducer from "./slices/userSlice";
 // import staffReducer from "./slices/staffSlice";
 // import customerListReducer from "./slices/customerListSlice";
-// import donationRegistrationReducer from "./slices/donationRegistrationSlice";
-// import blogReducer from "./slices/blogSlice"; // Import blog reducer
+import donationRegistrationReducer from "./slices/donationRegistrationSlice";
+import blogReducer from "./slices/blogSlice"; // Import blog reducer
+import notificationReducer from "./slices/notificationSlice"; // Import blog reducer
+import donationHealthProcessReducer from "./slices/donationHealthProcessSlice";
+
 // import dashboardSliceReducer from "./slices/dashboardSlice"; // Import dashboard slice
 // // import other reducers...
-
 
 // // const persistConfig = {
 // // 	key: "root",
@@ -37,7 +39,7 @@
 // 		search: searchReducer,
 // 		customer: customerReducer,
 // 		review: reviewReducer,
-// 		staffList: persistedStaffListReducer, 
+// 		staffList: persistedStaffListReducer,
 // 		customerList: customerListReducer,
 // 		donationRegistration: donationRegistrationReducer,
 // 		blog: blogReducer,
@@ -45,7 +47,6 @@
 // 		donations: donationReducer,
 // 		bestBloodType: bestBloodTypeReducer,
 // 		bestStaff: bestStaffReducer,
-// 		users: userReducer,
 // 		staff: staffReducer,
 
 // 		dashboard: dashboardSliceReducer,
@@ -59,20 +60,23 @@
 
 // export type RootState = ReturnType<typeof store.getState>;
 // export type AppDispatch = typeof store.dispatch;
-// export const persistor = persistStore(store);
 
 import { configureStore } from "@reduxjs/toolkit";
 import dashboardOverviewReducer from "./slices/dashboardOverviewSlice";
 import warehouseOverviewReducer from "./slices/warehouseOverviewSlice";
 
 export const store = configureStore({
-  reducer: {
-    dashboardOverview: dashboardOverviewReducer,
-    warehouseOverview: warehouseOverviewReducer,
-
-  },
-
+	reducer: {
+		dashboardOverview: dashboardOverviewReducer,
+		warehouseOverview: warehouseOverviewReducer,
+		blog: blogReducer,
+		donationRegistration: donationRegistrationReducer,
+		users: userReducer,
+		notification: notificationReducer,
+		donationHealthProcess: donationHealthProcessReducer,
+	},
 });
 
 export type RootState = ReturnType<typeof store.getState>;
 export type AppDispatch = typeof store.dispatch;
+// export const persistor = persistStore(store);
