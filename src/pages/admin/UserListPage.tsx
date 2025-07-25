@@ -707,9 +707,9 @@ export default function UserListPage() {
 										<th className="text-white font-semibold px-6 py-4 text-left">
 											Giới tính
 										</th>
-										<th className="text-white font-semibold px-6 py-4 text-left">
+										{/* <th className="text-white font-semibold px-6 py-4 text-left">
 											Email
-										</th>
+										</th> */}
 										<th className="text-white font-semibold px-6 py-4 text-left">
 											Số điện thoại
 										</th>
@@ -741,9 +741,9 @@ export default function UserListPage() {
 											<td className="px-6 py-4 text-gray-600">
 												{genderVN(u.gender) || "chưa cập nhật"}
 											</td>
-											<td className="px-6 py-4 text-gray-600">
+											{/* <td className="px-6 py-4 text-gray-600">
 												{u.email || "chưa cập nhật"}
-											</td>
+											</td> */}
 											<td className="px-6 py-4 text-gray-600">
 												{u.phone || "chưa cập nhật"}
 											</td>
