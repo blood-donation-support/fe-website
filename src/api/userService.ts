@@ -1,7 +1,7 @@
 // src/api/userService.ts
 import { apiClient } from './apiClient';
 import type { ApiResponse } from './apiClient';
-import type { User, NewUserPayload, ChangePasswordPayload, UpdateProfilePayload  } from '../types/user';
+import type { User, NewUserPayload, ChangePasswordPayload, UpdateProfilePayload } from '../types/user';
 import type { UserProfile } from '@/redux/slices/userSlice';
 
 
@@ -19,11 +19,17 @@ export const deleteUser = async (id: string): Promise<User> => {
   return res.data.result;
 };
 
+
+export const updateRoleByAdmin = async (userId: string, payload: { role: string }): Promise<User> => {
+  const res = await apiClient.patch<ApiResponse<User>>(`/users/role-for-admin/${userId}`, payload);
+  return res.data.result;
+};
+
 export const createUser = async (
   userData: NewUserPayload
 ): Promise<User> => {
   const res = await apiClient.post<ApiResponse<User>>(
-    `/users/register`,
+    `/users/register-for-admin`,
     userData
   );
   return res.data.result;
