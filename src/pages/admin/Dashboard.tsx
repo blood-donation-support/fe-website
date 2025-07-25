@@ -15,7 +15,7 @@ export default function Dashboard() {
   const { bloodStockSummary, numberOfUsers, numberOfRequests, numberOfDonations, loading, error } = useSelector(
     (state: RootState) => state.dashboard
   );
-
+  console.log('bloodStockSummary:', bloodStockSummary);
   // Fetch all the data (blood stock, users, requests, donations)
   useEffect(() => {
     dispatch(fetchBloodStock()); // Dispatch blood stock async action
@@ -33,11 +33,14 @@ export default function Dashboard() {
     (sum, bloodComponent: { total_volume: number }) => sum + bloodComponent.total_volume, // Type the bloodComponent
     0
   );
-
+   const redBloodCellVolume = bloodStockSummary["Red Blood Cells"]?.total_volume || 0;
+  const plasmaVolume = bloodStockSummary["Plasma"]?.total_volume || 0;
+  const plateletsVolume = bloodStockSummary["Platelets"]?.total_volume || 0;
+  console.log('redBloodCellVolume:', redBloodCellVolume);
   const totalVolumeInLiters = totalVolume / 1000;
 
 	return <>
-        <Grid container rowSpacing={4.5} columnSpacing={2.75}>
+      <Grid container rowSpacing={4.5} columnSpacing={2.75}>
       
       <Grid size={{ xs: 12, sm: 6, md: 4, lg: 3 }}>
         <AnalyticEcommerce title="Lượng máu trong kho" count={`${totalVolume} lít`} />
@@ -52,6 +55,16 @@ export default function Dashboard() {
         <AnalyticEcommerce title="Tổng đơn đăng kí nhận" count={`${numberOfRequests}`}  />
       </Grid>
       <Grid sx={{ display: { sm: 'none', md: 'block', lg: 'none' } }} size={{ md: 8 }} />
+      <Grid size={{ xs: 12, sm: 6, md: 4, lg: 3 }}>
+        <AnalyticEcommerce title="Lượng máu hồng cầu" count={`${redBloodCellVolume} lít`} />
+      </Grid>
+      <Grid size={{ xs: 12, sm: 6, md: 4, lg: 3 }}>
+        <AnalyticEcommerce title="Lượng tiểu cầu trong kho" count={`${plateletsVolume} lít`} />
+      </Grid>
+      <Grid size={{ xs: 12, sm: 6, md: 4, lg: 3 }}>
+        <AnalyticEcommerce title="Lượng huyết tương" count={`${plasmaVolume} lít`} />
+      </Grid>
+      
       {/* row 2 */}
       <Grid size={{ xs: 12, md: 7, lg: 8 }}>
         <UniqueVisitorCard />

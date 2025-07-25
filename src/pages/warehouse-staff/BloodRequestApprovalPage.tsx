@@ -12,6 +12,15 @@ import {
 	TableHead,
 } from "@/components/ui/table";
 import { Stepper } from "@/components/ui/stepper";
+import {
+	Dialog,
+	DialogContent,
+	DialogHeader,
+	DialogTitle,
+	DialogFooter,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 import {
 	fetchDoctorRequestById,
@@ -27,6 +36,7 @@ import {
 	fetchBloodGroups,
 	fetchBloodComponents,
 } from "../../api/bloodService";
+import { FindUserByLocation } from "../../api/locationService"; // Add this import
 import type {
 	DoctorRequest,
 	RequestProcessDetail,
@@ -39,10 +49,10 @@ import type {
 	BloodGroup,
 	BloodComponent,
 } from "../../api/bloodService";
+import type { Location } from "@/types/location"; // Add this import
 
 import { BLOOD_COMPONENT_LABELS } from "../../constants/bloodLabels";
 import bloodComponentVN from "@/utils/translateBloodComponentVN";
-import { Input } from "@/components/ui/input";
 import { toast } from "react-toastify";
 
 export const BloodRequestApprovalPage: React.FC = () => {
@@ -74,6 +84,14 @@ export const BloodRequestApprovalPage: React.FC = () => {
 	const [loadingSuitableBlood, setLoadingSuitableBlood] = useState(false);
 	// Fixed: Use a more unique identifier for blood units
 	const [selectedBloodUnits, setSelectedBloodUnits] = useState<string[]>([]);
+
+	// New state for Find Donors Modal
+	const [showFindDonorsModal, setShowFindDonorsModal] = useState(false);
+	const [radiusKm, setRadiusKm] = useState(500);
+	const [loadingDonors, setLoadingDonors] = useState(false);
+	const [donorSearchResult, setDonorSearchResult] = useState<Location | null>(
+		null,
+	);
 
 	const bloodCompatibility: Record<string, string[]> = {
 		"O-": ["O-"],
@@ -261,7 +279,7 @@ export const BloodRequestApprovalPage: React.FC = () => {
 				// Use the renamed import
 				requestProcessId,
 			);
-			toast.success("Hoàn Tất Đơn Xin Máu");
+			toast.success("Đã gửi thông báo");
 			navigate("/dashboard-staff/doctor-request-approved");
 		} catch (err) {
 			console.error(err);
@@ -323,6 +341,50 @@ export const BloodRequestApprovalPage: React.FC = () => {
 	const handleDeselectAll = () => {
 		setSelectedBloodUnits([]);
 		setRequestProcessBloodPayload([]); // Use the renamed state variable
+	};
+
+	// New function to handle finding donors
+	const handleFindDonors = async () => {
+		if (!requestProcessDetail || requestProcessDetail.length === 0) {
+			toast.error("Không tìm thấy thông tin nhóm máu");
+			return;
+		}
+
+		if (radiusKm <= 5) {
+			toast.error("Bán kính phải lớn hơn 5km");
+			return;
+		}
+
+		setLoadingDonors(true);
+		try {
+			// Get blood group name from step 2 data
+			const bloodGroupName =
+				requestProcessDetail[0].blood_group_name || groupName;
+
+			const payload: Location = {
+				blood_group_name: bloodGroupName,
+				radiusKm: radiusKm,
+			};
+
+			const result = await FindUserByLocation(payload);
+			setDonorSearchResult(result);
+			toast.success("Tìm thấy người hiến máu phù hợp!");
+			setShowFindDonorsModal(false);
+
+			console.log("Donor search result:", result);
+		} catch (err) {
+			console.error("Error finding donors:", err);
+			toast.error("Không tìm thấy người hiến máu phù hợp trong khu vực");
+			setDonorSearchResult(null);
+		} finally {
+			setLoadingDonors(false);
+		}
+	};
+
+	const handleCloseFindDonorsModal = () => {
+		setShowFindDonorsModal(false);
+		setDonorSearchResult(null);
+		setRadiusKm(500);
 	};
 
 	if (!request) {
@@ -469,9 +531,17 @@ export const BloodRequestApprovalPage: React.FC = () => {
 							{loadingSuitableBlood ? (
 								<p className="text-center">Đang tải...</p>
 							) : suitableBloodList.length === 0 ? (
-								<p className="text-center text-gray-500">
-									Không có máu phù hợp
-								</p>
+								<div className="text-center space-y-4">
+									<p className="text-gray-500">
+										Không có máu phù hợp trong kho
+									</p>
+									<Button
+										className="bg-orange-500 hover:bg-orange-600 text-white px-6 py-3 rounded-xl"
+										onClick={() => setShowFindDonorsModal(true)}
+									>
+										Tìm người hiến máu gần nhất
+									</Button>
+								</div>
 							) : (
 								<>
 									<div className="mb-4 space-y-2">
@@ -582,13 +652,15 @@ export const BloodRequestApprovalPage: React.FC = () => {
 								>
 									Quay lại
 								</Button>
-								<Button
-									className="bg-green-600 hover:bg-green-700 text-white px-8 py-3 rounded-xl text-lg"
-									disabled={selectedBloodUnits.length === 0 || loading}
-									onClick={handleUpdateRequestProcessBlood}
-								>
-									{loading ? "Đang xử lý..." : `Duyệt`}
-								</Button>
+								{suitableBloodList.length > 0 && (
+									<Button
+										className="bg-green-600 hover:bg-green-700 text-white px-8 py-3 rounded-xl text-lg"
+										disabled={selectedBloodUnits.length === 0 || loading}
+										onClick={handleUpdateRequestProcessBlood}
+									>
+										{loading ? "Đang xử lý..." : `Duyệt`}
+									</Button>
+								)}
 							</div>
 						</CardContent>
 					</Card>
@@ -621,6 +693,59 @@ export const BloodRequestApprovalPage: React.FC = () => {
 					</div>
 				)}
 			</div>
+
+			{/* Find Donors Modal */}
+			<Dialog open={showFindDonorsModal} onOpenChange={setShowFindDonorsModal}>
+				<DialogContent className="sm:max-w-md">
+					<DialogHeader>
+						<DialogTitle>Tìm người hiến máu gần nhất</DialogTitle>
+					</DialogHeader>
+					<div className="space-y-4 py-4">
+						<div className="space-y-2">
+							<Label htmlFor="bloodGroup">Nhóm máu cần tìm</Label>
+							<Input
+								id="bloodGroup"
+								value={requestProcessDetail?.[0]?.blood_group_name || groupName}
+								disabled
+								className="bg-gray-100"
+							/>
+						</div>
+						<div className="space-y-2">
+							<Label htmlFor="radius">Bán kính tìm kiếm (km)</Label>
+							<Input
+								id="radius"
+								type="number"
+								min={6}
+								value={radiusKm}
+								onChange={(e) => setRadiusKm(Number(e.target.value))}
+								placeholder="Nhập bán kính (> 5km)"
+							/>
+							{radiusKm <= 5 && (
+								<p className="text-sm text-red-500">
+									Bán kính phải lớn hơn 5km
+								</p>
+							)}
+						</div>
+					</div>
+					<DialogFooter className="sm:justify-start">
+						<Button
+							type="button"
+							onClick={handleFindDonors}
+							disabled={loadingDonors || radiusKm <= 5}
+							className="bg-orange-500 hover:bg-orange-600"
+						>
+							{loadingDonors ? "Đang tìm..." : "Tìm kiếm"}
+						</Button>
+						<Button
+							type="button"
+							variant="secondary"
+							onClick={handleCloseFindDonorsModal}
+						>
+							Đóng
+						</Button>
+					</DialogFooter>
+				</DialogContent>
+			</Dialog>
 		</div>
 	);
 };

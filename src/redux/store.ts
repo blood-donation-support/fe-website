@@ -17,6 +17,7 @@
 // import dashboardSliceReducer from "./slices/dashboardSlice"; // Import dashboard slice
 // // import other reducers...
 
+
 // // const persistConfig = {
 // // 	key: "root",
 // // 	storage,
@@ -70,6 +71,7 @@ export const store = configureStore({
     warehouseOverview: warehouseOverviewReducer,
 
   },
+
 });
 
 export type RootState = ReturnType<typeof store.getState>;

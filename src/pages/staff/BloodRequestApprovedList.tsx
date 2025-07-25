@@ -20,7 +20,11 @@ import {
 	TableCell,
 } from "@/components/ui/table";
 
-import { fetchDoctorRequests } from "../../api/doctorRequestService";
+import {
+	fetchDoctorRequests,
+	approveDoctorRequest,
+	fetchDoctorRequestById,
+} from "../../api/doctorRequestService";
 import type { DoctorRequest } from "../../api/doctorRequestService";
 import statusVN from "@/utils/statusVN";
 import { Calendar } from "@/components/ui/calendar";
@@ -42,6 +46,7 @@ export const BloodRequestApprovedList: React.FC = () => {
 		new Date(),
 	);
 	const [searchText, setSearchText] = useState<string>("");
+	const [loadingApproval, setLoadingApproval] = useState<string | null>(null);
 
 	useEffect(() => {
 		(async () => {
@@ -58,6 +63,47 @@ export const BloodRequestApprovedList: React.FC = () => {
 			}
 		})();
 	}, []);
+
+	const handleApproveRequest = async (
+		requestId: string,
+		bloodGroupId: string,
+	) => {
+		try {
+			setLoadingApproval(requestId);
+
+			// Fetch dữ liệu request hiện tại để lấy request_type
+			const currentRequest = await fetchDoctorRequestById(requestId);
+
+			// Gọi API để approve request với request_type từ dữ liệu hiện tại
+			await approveDoctorRequest(requestId, {
+				status: "Approved",
+				assigned_blood_group: bloodGroupId,
+				request_type: currentRequest.request_type, // Giữ nguyên request_type cũ
+			});
+
+			// Cập nhật state local để reflect thay đổi ngay lập tức
+			setRequests((prevRequests) =>
+				prevRequests.map((request) =>
+					request._id === requestId
+						? { ...request, status: "Approved" as const }
+						: request,
+				),
+			);
+
+			// Hiển thị thông báo thành công (có thể thêm toast notification)
+			console.log("Request approved successfully");
+
+			// Navigate đến trang chi tiết sau khi duyệt thành công
+			navigate(
+				`/dashboard-staff/doctor-healthcheck-request-approved/${requestId}`,
+			);
+		} catch (error) {
+			console.error("Error approving request:", error);
+			// Hiển thị thông báo lỗi (có thể thêm toast notification)
+		} finally {
+			setLoadingApproval(null);
+		}
+	};
 
 	const filtered = requests.filter((r) => {
 		const matchesStatus = statusFilter === "all" || r.status === statusFilter;
@@ -307,7 +353,7 @@ export const BloodRequestApprovedList: React.FC = () => {
 											</TableCell>
 											<TableCell className="text-center">
 												<span className="font-medium text-blue-600">
-													{r.blood_group_name }
+													{r.blood_group_name}
 												</span>
 											</TableCell>
 											<TableCell className="text-center">
@@ -353,28 +399,32 @@ export const BloodRequestApprovedList: React.FC = () => {
 
 											<TableCell className="text-center">
 												{r.status === "Pending" ? (
-													<Button
-														size="sm"
-														className="bg-[#236afe] hover:bg-[#4338ca] text-white"
-														onClick={() =>
-															navigate(
-																`/dashboard-staff/doctor-healthcheck-request-approved/${r._id}`,
-															)
-														}
-													>
-														Duyệt
-													</Button>
+													<div className="flex gap-2">
+														<Button
+															size="sm"
+															className="bg-[#236afe] hover:bg-[#4338ca] text-white"
+															onClick={() =>
+																handleApproveRequest(r._id, r.blood_group_id)
+															}
+															disabled={loadingApproval === r._id}
+														>
+															{loadingApproval === r._id
+																? "Đang duyệt..."
+																: "Duyệt"}
+														</Button>
+													</div>
 												) : (
 													<Button
 														size="sm"
-														className="bg-[#8DD0F8] hover:bg-[#4338ca] text-white"
+														variant="outline"
+														className="border-[#236afe] text-[#236afe] hover:bg-[#236afe] hover:text-white"
 														onClick={() =>
 															navigate(
 																`/dashboard-staff/doctor-healthcheck-request-approved/${r._id}`,
 															)
 														}
 													>
-														Xem chi tiết
+														Chi tiết
 													</Button>
 												)}
 											</TableCell>
