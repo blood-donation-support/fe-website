@@ -16,7 +16,8 @@ export interface User {
   avatar_url: string;
   created_at: string; 
   updated_at: string; 
-  forgot_password_token: "string"
+  forgot_password_token: "string";
+  is_active:boolean;
 }
  
    
@@ -34,7 +35,11 @@ export interface NewUserPayload {
   location: string;
   avatar_url: string;
   blood_group_id: string;
+  address:string;
+  role:string;
 }
+
+
 export enum UserGender {
   Other = 'Other',
   Male = 'Male',

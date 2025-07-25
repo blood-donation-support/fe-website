@@ -37,7 +37,12 @@ export const BloodRequestApprovedList: React.FC = () => {
 	const role = user?.role;
 
 	const [requests, setRequests] = useState<DoctorRequest[]>([]);
-	const [statusFilter, setStatusFilter] = useState<string>("Pending");
+	const [statusFilter, setStatusFilter] = useState<
+		"all" | "Pending" | "Approved" | "Rejected"
+	>("Pending");
+	const [statusHealthcareFilter, setStatusHealthcareFilter] = useState<
+		"all" | "Pending" | "Approved" | "Rejected"
+	>("Pending");
 	const [urgencyFilter, setUrgencyFilter] = useState<
 		"all" | "Emergency" | "Normal"
 	>("all");
@@ -105,11 +110,28 @@ export const BloodRequestApprovedList: React.FC = () => {
 		}
 	};
 
+	const statusFilterMap: Record<string, string | undefined> = {
+		all: undefined,
+		Pending: "Pending",
+		Approved: "Approved",
+		Rejected: "Rejected",
+	};
+
 	const filtered = requests.filter((r) => {
-		const matchesStatus = statusFilter === "all" || r.status === statusFilter;
+		const mappedStatus = statusFilterMap[statusFilter];
+		const matchesStatus =
+			mappedStatus === undefined ? true : r.status === mappedStatus;
+
+		const mappedStatusHealthCare = statusFilterMap[statusHealthcareFilter];
+		const matchesStatusHealthCare =
+			mappedStatusHealthCare === undefined
+				? true
+				: r.health_check_status === mappedStatusHealthCare;
+
 		const matchesUrgency =
-			urgencyFilter === "all" ||
-			(r.is_emergency ? "Emergency" : "Normal") === urgencyFilter;
+			urgencyFilter === "all"
+				? true
+				: (r.is_emergency ? "Emergency" : "Normal") === urgencyFilter;
 
 		const text = searchText.toLowerCase();
 		const matchesSearch =
@@ -117,9 +139,15 @@ export const BloodRequestApprovedList: React.FC = () => {
 			r.note?.toLowerCase().includes(text) ||
 			r.full_name?.toLowerCase().includes(text) ||
 			r.phone?.toLowerCase().includes(text) ||
-			r.citizen_id_number?.toLowerCase().includes(text);
+			r.citizen_id_number?.toLowerCase().includes(text) ||
+			false;
 
-		return matchesStatus && matchesUrgency && matchesSearch;
+		return (
+			matchesStatus &&
+			matchesUrgency &&
+			matchesSearch &&
+			matchesStatusHealthCare
+		);
 	});
 
 	return (
@@ -205,8 +233,8 @@ export const BloodRequestApprovedList: React.FC = () => {
 									</div>
 								</div>
 
-								{/* Filters (2 columns) */}
-								<div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+								{/* Filters (3 columns for better layout) */}
+								<div className="grid grid-cols-1 md:grid-cols-3 gap-4">
 									{/* Trạng thái */}
 									<div className="space-y-3">
 										<div className="flex items-center gap-2">
@@ -226,7 +254,30 @@ export const BloodRequestApprovedList: React.FC = () => {
 												<SelectItem value="all">Tất cả</SelectItem>
 												<SelectItem value="Pending">Chờ duyệt</SelectItem>
 												<SelectItem value="Approved">Đã duyệt</SelectItem>
-												<SelectItem value="Completed">Hoàn tất</SelectItem>
+												<SelectItem value="Rejected">Từ chối</SelectItem>
+											</SelectContent>
+										</Select>
+									</div>
+
+									{/* Trạng thái Health */}
+									<div className="space-y-3">
+										<div className="flex items-center gap-2">
+											<div className="w-2 h-2 bg-emerald-500 rounded-full" />
+											<label className="text-sm font-semibold text-gray-700 tracking-wide">
+												TRẠNG THÁI KHÁM SỨC KHỎE
+											</label>
+										</div>
+										<Select
+											value={statusHealthcareFilter}
+											onValueChange={setStatusHealthcareFilter}
+										>
+											<SelectTrigger className="w-full h-12 bg-white border-gray-200 rounded-xl shadow-sm hover:border-gray-300 hover:shadow-md transition-all duration-200 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500">
+												<SelectValue placeholder="Tất cả trạng thái" />
+											</SelectTrigger>
+											<SelectContent className="rounded-xl border-gray-200 shadow-xl">
+												<SelectItem value="all">Tất cả</SelectItem>
+												<SelectItem value="Pending">Chờ duyệt</SelectItem>
+												<SelectItem value="Approved">Đã duyệt</SelectItem>
 												<SelectItem value="Rejected">Từ chối</SelectItem>
 											</SelectContent>
 										</Select>
@@ -261,6 +312,7 @@ export const BloodRequestApprovedList: React.FC = () => {
 						{/* Active Filters */}
 						{(selectedDate ||
 							statusFilter !== "all" ||
+							statusHealthcareFilter !== "all" ||
 							urgencyFilter !== "all" ||
 							searchText) && (
 							<div className="mt-6 pt-6 border-t border-gray-100">
@@ -276,6 +328,11 @@ export const BloodRequestApprovedList: React.FC = () => {
 									{statusFilter !== "all" && (
 										<span className="inline-flex items-center gap-1 px-3 py-1 bg-gray-50 text-gray-700 text-sm rounded-full border border-gray-200">
 											{statusFilter}
+										</span>
+									)}
+									{statusHealthcareFilter !== "all" && (
+										<span className="inline-flex items-center gap-1 px-3 py-1 bg-gray-50 text-gray-700 text-sm rounded-full border border-gray-200">
+											Khám sức khỏe: {statusHealthcareFilter}
 										</span>
 									)}
 									{urgencyFilter !== "all" && (
@@ -329,7 +386,7 @@ export const BloodRequestApprovedList: React.FC = () => {
 										Trạng thái
 									</TableHead>
 									<TableHead className="text-white px-4 py-3 text-center">
-										Ghi chú
+										Trạng thái khám sức khỏe
 									</TableHead>
 									<TableHead className="text-white px-4 py-3 text-center">
 										Cập nhật bởi
@@ -345,19 +402,19 @@ export const BloodRequestApprovedList: React.FC = () => {
 										<TableRow key={r._id} className="hover:bg-[#f3f4f6]">
 											<TableCell className="text-center">{i + 1}</TableCell>
 											<TableCell className="text-center">
-												{r.full_name}
+												{r.full_name ||"chưa cập nhật"}
 											</TableCell>
-											<TableCell className="text-center">{r.phone}</TableCell>
+											<TableCell className="text-center">{r.phone ||"chưa cập nhật"}</TableCell>
 											<TableCell className="text-center">
-												{r.citizen_id_number}
+												{r.citizen_id_number||"chưa cập nhật"}
 											</TableCell>
 											<TableCell className="text-center">
 												<span className="font-medium text-blue-600">
-													{r.blood_group_name}
+													{r.blood_group_name||"chưa cập nhật"}
 												</span>
 											</TableCell>
 											<TableCell className="text-center">
-												{bloodComponentVN(r.request_type || "")}
+												{bloodComponentVN(r.request_type ||"chưa cập nhật")}
 											</TableCell>
 											<TableCell className="text-center">
 												{new Date(r.receive_date_request).toLocaleString(
@@ -372,7 +429,7 @@ export const BloodRequestApprovedList: React.FC = () => {
 															: "bg-green-100 text-green-800 border border-green-200"
 													}`}
 												>
-													{r.is_emergency ? "Khẩn cấp" : "Bình thường"}
+													{r.is_emergency ? "Khẩn cấp" : "Bình thường" ||"chưa cập nhật"}
 												</span>
 											</TableCell>
 											<TableCell className="text-center">
@@ -387,15 +444,27 @@ export const BloodRequestApprovedList: React.FC = () => {
 															: "bg-red-100 text-red-800"
 													}`}
 												>
-													{statusVN(r.status)}
+													{statusVN(r.status)||"chưa cập nhật"}
 												</span>
 											</TableCell>
 											<TableCell className="text-center">
-												<div className="truncate max-w-xs" title={r.note}>
-													{r.note || "Không có"}
-												</div>
+												<span
+													className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
+														r.health_check_status === "Approved"
+															? "bg-blue-100 text-blue-800"
+															: r.health_check_status === "Completed"
+															? "bg-green-100 text-green-800"
+															: r.health_check_status === "Pending"
+															? "bg-yellow-100 text-yellow-800"
+															: "bg-red-100 text-red-800"
+													}`}
+												>
+													{statusVN(r.health_check_status)||"chưa cập nhật"}
+												</span>
 											</TableCell>
-											<TableCell>{r.updated_by || "Chưa cập nhật"}</TableCell>
+											<TableCell className="text-center">
+												{r.updated_by || "Chưa cập nhật"}
+											</TableCell>
 
 											<TableCell className="text-center">
 												{r.status === "Pending" ? (
