@@ -301,19 +301,19 @@ export const BloodRequestListPage: React.FC = () => {
 										<TableRow key={r._id} className="hover:bg-[#f3f4f6]">
 											<TableCell className="text-center">{i + 1}</TableCell>
 											<TableCell className="text-center">
-												{r.full_name}
+												{r.full_name|| "Chưa cập nhật"}
 											</TableCell>
-											<TableCell className="text-center">{r.phone}</TableCell>
+											<TableCell className="text-center">{r.phone|| "Chưa cập nhật"}</TableCell>
 											<TableCell className="text-center">
-												{r.citizen_id_number}
+												{r.citizen_id_number|| "Chưa cập nhật"}
 											</TableCell>
 											<TableCell className="text-center">
 												<span className="font-medium text-blue-600">
-													{r.blood_group_name}
+													{r.blood_group_name|| "Chưa cập nhật"}
 												</span>
 											</TableCell>
 											<TableCell className="text-center">
-												{bloodComponentVN(r.request_type || "")}
+												{bloodComponentVN(r.request_type || "Chưa cập nhật")}
 											</TableCell>
 											<TableCell className="text-center">
 												{new Date(r.receive_date_request).toLocaleString(
@@ -343,7 +343,7 @@ export const BloodRequestListPage: React.FC = () => {
 															: "bg-red-100 text-red-800"
 													}`}
 												>
-													{statusVN(r.status)}
+													{statusVN(r.status|| "Chưa cập nhật")}
 												</span>
 											</TableCell>
 											<TableCell className="text-center">
