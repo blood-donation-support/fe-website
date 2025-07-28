@@ -52,18 +52,18 @@ const formatDate = (dateString: string) => {
 // Hàm format datetime đầy đủ (giờ, ngày, tháng, năm)
 const formatDateTime = (dateString: string) => {
 	if (!dateString) return "Chưa cập nhật";
-	
+
 	const date = new Date(dateString);
 	const options = {
-		year: 'numeric',
-		month: '2-digit',
-		day: '2-digit',
-		hour: '2-digit',
+		year: "numeric",
+		month: "2-digit",
+		day: "2-digit",
+		hour: "2-digit",
 		// minute: '2-digit',
 		// second: '2-digit',
 		// hour12: false
 	};
-	
+
 	return date.toLocaleString("vi-VN", options);
 };
 
@@ -923,7 +923,21 @@ export default function UserListPage() {
 												{selectedUser.citizen_id_number || "Chưa cập nhật"}
 											</p>
 										</div>
+									
 									</div>
+										{selectedUser.address && (
+									<div className="mt-4">
+									
+										<div className="bg-white rounded-xl p-4 shadow-sm">
+											<label className="text-sm font-medium text-gray-500">
+											Địa chỉ
+											</label>
+											<p className="text-lg text-gray-900">
+												{selectedUser.address || "Chưa cập nhật"}
+											</p>
+										</div>
+									</div>
+								)}
 								</div>
 
 								{/* Medical Info Section */}
@@ -938,7 +952,9 @@ export default function UserListPage() {
 												Cân nặng
 											</label>
 											<p className="text-lg font-semibold text-gray-900">
-												{selectedUser.weight || "Chưa cập nhật"} kg
+												{selectedUser.weight
+													? `${selectedUser.weight} kg`
+													: "Chưa cập nhật"}
 											</p>
 										</div>
 										<div className="bg-white rounded-xl p-4 shadow-sm">
@@ -972,60 +988,45 @@ export default function UserListPage() {
 												Vai trò
 											</label>
 											<p className="text-lg font-semibold text-gray-900">
-										
-											<span
-												className={`inline-block px-3 py-1 rounded-full text-sm font-medium mt-2 ${
-													selectedUser.role === "Admin"
-														? "bg-red-100 text-red-800"
-														: selectedUser.role === "Donor"
-														? "bg-green-100 text-green-800"
-														: "bg-blue-100 text-blue-800"
-												}`}
-											>
-												{roleVN(selectedUser.role) || "Chưa cập nhật"}
-											</span>
-												</p>
+												<span
+													className={`inline-block px-3 py-1 rounded-full text-sm font-medium mt-2 ${
+														selectedUser.role === "Admin"
+															? "bg-red-100 text-red-800"
+															: selectedUser.role === "Donor"
+															? "bg-green-100 text-green-800"
+															: "bg-blue-100 text-blue-800"
+													}`}
+												>
+													{roleVN(selectedUser.role) || "Chưa cập nhật"}
+												</span>
+											</p>
 										</div>
 										<div className="bg-white rounded-xl p-4 shadow-sm">
 											<label className="text-sm font-medium text-gray-500">
 												Trạng thái
 											</label>
 											<p className="text-lg font-semibold text-gray-900">
-											<span
-												className={`inline-block px-3 py-1 rounded-full text-sm font-medium mt-2 ${
-													selectedUser.is_active === true
-														? "bg-green-100 text-green-800"
-														: "bg-red-100 text-red-800"
-												}`}
-											>
-												{selectedUser.is_active === true
-													? "Đã kích hoạt"
-													: "Chưa kích hoạt"}
-											</span>
+												<span
+													className={`inline-block px-3 py-1 rounded-full text-sm font-medium mt-2 ${
+														selectedUser.is_active === true
+															? "bg-green-100 text-green-800"
+															: "bg-red-100 text-red-800"
+													}`}
+												>
+													{selectedUser.is_active === true
+														? "Đã kích hoạt"
+														: "Chưa kích hoạt"}
+												</span>
 											</p>
 										</div>
-										<div className="bg-white rounded-xl p-4 shadow-sm">
-											<label className="text-sm font-medium text-gray-500">
-												ID
-											</label>
-											<p className="text-sm text-gray-600 font-mono">
-												{selectedUser._id || "Chưa cập nhật"}
-											</p>
-										</div>
-											<div className="bg-white rounded-xl p-4 shadow-sm">
-											<label className="text-sm font-medium text-gray-500">
-												Địa chỉ
-											</label>
-											<p className="text-sm text-gray-600 font-mono">
-												{selectedUser.address || "Chưa cập nhật"}
-											</p>
-										</div>
+
 										<div className="bg-white rounded-xl p-4 shadow-sm">
 											<label className="text-sm font-medium text-gray-500">
 												Ngày tạo
 											</label>
 											<p className="text-lg text-gray-900">
-												{formatDateTime(selectedUser.created_at) || "Chưa cập nhật"}
+												{formatDateTime(selectedUser.created_at) ||
+													"Chưa cập nhật"}
 											</p>
 										</div>
 										<div className="bg-white rounded-xl p-4 shadow-sm">
@@ -1033,26 +1034,15 @@ export default function UserListPage() {
 												Ngày cập nhật cuối
 											</label>
 											<p className="text-lg text-gray-900">
-												{formatDateTime(selectedUser.updated_at) || "Chưa cập nhật"}
+												{formatDateTime(selectedUser.updated_at) ||
+													"Chưa cập nhật"}
 											</p>
 										</div>
 									</div>
 								</div>
 
-								{/* Address Section */}
-								{selectedUser.address && (
-									<div className="bg-gradient-to-r from-orange-50 to-red-50 rounded-2xl p-6">
-										<h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center">
-											<div className="w-2 h-6 bg-gradient-to-b from-orange-500 to-red-500 rounded-full mr-3"></div>
-											Địa chỉ
-										</h3>
-										<div className="bg-white rounded-xl p-4 shadow-sm">
-											<p className="text-lg text-gray-900">
-												{selectedUser.address || "Chưa cập nhật"}
-											</p>
-										</div>
-									</div>
-								)}
+							
+							
 							</div>
 						)}
 					</DialogContent>
