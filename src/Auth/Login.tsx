@@ -94,6 +94,11 @@ const Login: React.FC = () => {
 	const navigate = useNavigate();
 	const setAuth = useAuthStore((state) => state.setAuth);
 
+	function mapErrorMessage(msg: string): string {
+		if (msg === "Phone or password is incorrect")
+			return "Số điện thoại hoặc mật khẩu không đúng";
+		return msg;
+	}
 	const validatePhone = (phone: string): boolean => {
 		const phoneRegex = /^(0|\+84)[0-9]{9}$/;
 		return phoneRegex.test(phone.trim());
@@ -151,7 +156,20 @@ const Login: React.FC = () => {
 						navigate("/");
 				}
 			} else {
-				throw new Error(response?.errorMessage || "Đăng nhập thất bại");
+				if (response?.errorMessage?.errors) {
+					// Trường hợp trả về { errors: {...} }
+					const errorsObj = response.errorMessage.errors;
+					Object.keys(errorsObj).forEach((field) => {
+						console.log(`Field: ${field}, Error:`, errorsObj[field]);
+						toast.error(
+							mapErrorMessage(errorsObj[field].msg) || "Lỗi không xác định",
+						);
+					});
+				} else if (typeof response?.errorMessage === "string") {
+					toast.error(mapErrorMessage(response.errorMessage));
+				} else {
+					toast.error("Đăng ký thất bại");
+				}
 			}
 		} catch (error: any) {
 			console.error("Lỗi đăng nhập:", error.message);

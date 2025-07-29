@@ -37,8 +37,8 @@ const authService = {
   };
   console.log("dòng 38", user);
      localStorage.setItem("accessToken", access_token);
-        localStorage.setItem("refreshToken", refresh_token);
-        localStorage.setItem("user", JSON.stringify(user));
+      localStorage.setItem("refreshToken", refresh_token);
+      localStorage.setItem("user", JSON.stringify(user));
 
 
   return { access_token, refresh_token, user };
@@ -52,30 +52,37 @@ throw new Error("Invalid login response");
         refreshToken: null,
         role: null,
         errorMessage:
-          error.response?.data?.message || error.message || "Login failed",
+          error.response?.data || "Login failed",
       };
     }
   },
 
  register: async ({
+  citizen_id_number,
   full_name,
   email,
   phone,
   password,
   confirm_password,
   gender,
+  date_of_birth,
+  blood_group_id
 }: {
+  citizen_id_number: string;
   full_name: string;
   email: string;
   phone: string;
   password: string;
   confirm_password: string;
   gender: string;
+  date_of_birth: string;
+  blood_group_id: string;
 }) => {
   try {
     const response = await axios.post(
       `${API_URL}/users/register`,
       {
+        citizen_id_number,
         full_name,
         email,
         phone,
@@ -90,10 +97,10 @@ throw new Error("Invalid login response");
           "Content-Type": "application/json",
         },
         // Quan trọng nếu server yêu cầu
-        withCredentials: true,
+        // withCredentials: true,
       }
     );
-
+    console.log("Register response:", response);
     if (response.data?.result?.access_token) {
       const { access_token, refresh_token } = response.data.result;
       const decodedUser: DecodedToken = jwtDecode(access_token);
@@ -107,13 +114,13 @@ throw new Error("Invalid login response");
 
     throw new Error("Invalid register response");
   } catch (error: any) {
-    console.error("Register Error:", error.response?.data || error.message);
+    console.error("Register error:", error);
     return {
       token: null,
       refreshToken: null,
       role: null,
       errorMessage:
-        error.response?.data?.message || error.message || "Đăng ký thất bại",
+        error.response?.data || "Đăng ký thất bại",
     };
   }
 },

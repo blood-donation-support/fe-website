@@ -14,12 +14,12 @@ const HomePageSection = () => {
 						transition={{ duration: 0.8, delay: 0.4 }}
 						className="w-1/2 flex flex-col justify-center pl-24 pr-6 bg-white z-10"
 					>
-						<h1 className="text-7xl font-extrabold leading-none text-gray-900 mb-8">
-							Donate<br />Blood
+						<h1 className="text-7xl font-extrabold leading-none text-gray-900 mb-4">
+							Donate Blood
 						</h1>
 						<p className="text-lg text-gray-700 mb-6">
-							<span className="font-semibold">Hiến máu</span> hôm nay<br />
-							<span className="font-semibold">- Sức khỏe </span> ngày mai.
+							<span className="font-semibold">Hiến máu</span> hôm nay 
+							<span className="font-semibold"> - Sức khỏe </span> ngày mai.
 						</p>
 						<button className="w-fit px-8 py-3 bg-gradient-to-r from-blue-500 to-blue-400 rounded-full text-white font-bold text-lg shadow hover:scale-105 transition mb-8">
 							<Link to ={'donateBlood'}>Hiến máu</Link>
@@ -40,11 +40,11 @@ const HomePageSection = () => {
 					initial={{ opacity: 0, x: 60 }}
 					animate={{ opacity: 1, x: 0 }}
 					transition={{ duration: 0.8, delay: 1.5 }}
-					className="w-1/2 flex flex-col justify-between pl-6 pr-24 py-12 bg-blue-600 text-white z-10 rounded-l-[56px] h-full"
+					className="w-1/2 flex flex-col justify-between pl-4 pr-24 py-12 bg-blue-600 text-white z-10 rounded-l-[56px] h-full"
 					>
-						<div className="mt-32 pl-80 pr-2">
-							<h2 className="text-4xl font-bold mb-2 ">Hiến máu an toàn <br />– Không lo ngại</h2>
-							<p className="text-lg opacity-80">
+						<div className="mt-32 pl-64 ">
+							<h2 className="text-[1.5vw] font-bold mb-2 ">Hiến máu an toàn – Không lo ngại</h2>
+							<p className="text-[1.1vw] opacity-80">
 								<span className="font-semibold">Quy trình hiến máu hiện đại</span>, thiết bị tiên tiến và đội ngũ chuyên nghiệp – đảm bảo an toàn tuyệt đối cho bạn. Mỗi giọt máu cho đi là một hy vọng được trao gửi.
 							</p>
 						</div>

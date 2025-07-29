@@ -53,6 +53,8 @@ import ChangePasswordPage from "./components/profileComponents/ChangePasswordPag
 import BloodSummaryTable from "./pages/warehouse-staff/BloodSummaryTable";
 import NotFoundPage from "./pages/NotFoundPage";
 import { toast, Toaster } from "sonner";
+import Register from "./Auth/Register";
+
 
 type PrivateRouteProps = {
 	role: string;
