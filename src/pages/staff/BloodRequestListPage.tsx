@@ -25,6 +25,13 @@ import type { DoctorRequest } from "../../api/doctorRequestService";
 import statusVN from "@/utils/statusVN";
 import { Calendar } from "@/components/ui/calendar";
 import bloodComponentVN from "@/utils/translateBloodComponentVN";
+import {
+	Dialog,
+	DialogContent,
+	DialogFooter,
+	DialogHeader,
+	DialogTitle,
+} from "@/components/ui/dialog";
 
 export const BloodRequestListPage: React.FC = () => {
 	const navigate = useNavigate();
@@ -43,6 +50,9 @@ export const BloodRequestListPage: React.FC = () => {
 	const [selectedDate, setSelectedDate] = useState<Date | undefined>(
 		new Date(),
 	);
+	const [noteModalOpen, setNoteModalOpen] = useState(false);
+	const [selectedNote, setSelectedNote] = useState<string | null>(null);
+
 	useEffect(() => {
 		(async () => {
 			try {
@@ -231,7 +241,7 @@ export const BloodRequestListPage: React.FC = () => {
 									)}
 									{statusFilter !== "all" && (
 										<span className="inline-flex items-center gap-1 px-3 py-1 bg-gray-50 text-gray-700 text-sm rounded-full border border-gray-200">
-											{statusFilter}
+											{statusVN(statusFilter)}
 										</span>
 									)}
 									{urgencyFilter !== "all" && (
@@ -273,7 +283,7 @@ export const BloodRequestListPage: React.FC = () => {
 										Nhóm Máu
 									</TableHead>
 									<TableHead className="text-white px-4 py-3 text-center">
-										Loại Máu
+										Loại Yêu Cầu
 									</TableHead>
 									<TableHead className="text-white px-4 py-3 text-center">
 										Ngày yêu cầu
@@ -301,15 +311,18 @@ export const BloodRequestListPage: React.FC = () => {
 										<TableRow key={r._id} className="hover:bg-[#f3f4f6]">
 											<TableCell className="text-center">{i + 1}</TableCell>
 											<TableCell className="text-center">
-												{r.full_name|| "Chưa cập nhật"}
+												{r.full_name || "Chưa cập nhật"}
 											</TableCell>
-											<TableCell className="text-center">{r.phone|| "Chưa cập nhật"}</TableCell>
 											<TableCell className="text-center">
-												{r.citizen_id_number|| "Chưa cập nhật"}
+												{r.phone || "Chưa cập nhật"}
+											</TableCell>
+											<TableCell className="text-center">
+												{r.citizen_id_number || "Chưa cập nhật"}
 											</TableCell>
 											<TableCell className="text-center">
 												<span className="font-medium text-blue-600">
-													{r.blood_group_name|| "Chưa cập nhật"}
+													{r.blood_group_name || "Chưa cập nhật"}
+
 												</span>
 											</TableCell>
 											<TableCell className="text-center">
@@ -347,11 +360,27 @@ export const BloodRequestListPage: React.FC = () => {
 												</span>
 											</TableCell>
 											<TableCell className="text-center">
-												<div className="truncate max-w-xs" title={r.note}>
-													{r.note || "Không có"}
-												</div>
+												{r.note ? (
+													<button
+														className="truncate max-w-[200px] text-blue-600 hover:underline"
+														title="Bấm để xem đầy đủ"
+														onClick={() => {
+															setSelectedNote(r.note || "Chưa cập nhật");
+															setNoteModalOpen(true);
+														}}
+													>
+														{r.note}
+													</button>
+												) : (
+													<span className="text-gray-400 italic">
+														Chưa cập nhật
+													</span>
+												)}
 											</TableCell>
-											<TableCell>{r.updated_by || "Chưa cập nhật"}</TableCell>
+
+											<TableCell className="text-center">
+												{r.updated_by || "Chưa cập nhật"}
+											</TableCell>
 
 											<TableCell className="text-center">
 												{r.status === "Pending" ? (
@@ -394,6 +423,19 @@ export const BloodRequestListPage: React.FC = () => {
 								)}
 							</TableBody>
 						</Table>
+						<Dialog open={noteModalOpen} onOpenChange={setNoteModalOpen}>
+							<DialogContent className="max-w-md">
+								<DialogHeader>
+									<DialogTitle>Ghi chú đầy đủ</DialogTitle>
+								</DialogHeader>
+								<div className="text-sm text-gray-800 whitespace-pre-line max-h-80 overflow-y-auto">
+									{selectedNote}
+								</div>
+								<DialogFooter className="mt-4">
+									<Button onClick={() => setNoteModalOpen(false)}>Đóng</Button>
+								</DialogFooter>
+							</DialogContent>
+						</Dialog>
 					</CardContent>
 				</Card>
 			</div>
