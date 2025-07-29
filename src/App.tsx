@@ -56,7 +56,6 @@ import NotFoundPage from "./pages/NotFoundPage";
 import { toast, Toaster } from "sonner";
 import Register from "./Auth/Register";
 
-
 type PrivateRouteProps = {
 	role: string;
 	children: React.ReactNode;
@@ -108,6 +107,8 @@ function RouterWrapper() {
 						}
 					/>
 					<Route path="/login" element={<Login />} />
+					<Route path="/register" element={<Register />} />
+
 					<Route
 						path="/donateBlood"
 						element={
@@ -154,6 +155,11 @@ function RouterWrapper() {
 						<Route path="users" element={<UserListPage />} />
 						<Route path="bloods" element={<BloodPage />} />
 						<Route
+							path="doctor-request-approved"
+							element={<BloodRequestApprovedList />}
+						/>
+
+						<Route
 							path="donation-registers"
 							element={<DonationRegistrationsPage />}
 						/>
@@ -174,7 +180,7 @@ function RouterWrapper() {
 							</PrivateRoute>
 						}
 					>
-						<Route path="donation" element={<DonationRegisterPage />} />
+						<Route index element={<DonationRegisterPage />} />
 						<Route path="donation/:id" element={<DonationProcessPage />} />
 						<Route path="doctor-request" element={<DoctorRequestPage />} />
 						<Route

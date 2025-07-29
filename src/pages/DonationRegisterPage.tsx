@@ -190,7 +190,7 @@ export const DonationRegisterPage: React.FC = () => {
 									)}
 									{statusFilter !== "all" && (
 										<span className="inline-flex items-center gap-1 px-3 py-1 bg-gray-50 text-gray-700 text-sm rounded-full border border-gray-200">
-											{statusFilter}
+											{statusVN(statusFilter)}
 										</span>
 									)}
 								</div>
