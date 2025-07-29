@@ -16,8 +16,8 @@ const adminNavItems = [
 	},
 	{
 		icon: "fa-hand-holding-heart",
-		label: "Danh sách đơn Xin  Máu",
-		path: "/dashboard-admin/doctor-request-approved",
+		label: "Đơn Xin  Máu",
+		path: "/dashboard-admin/request-registers",
 	},
 	//   { icon: "fa-file-alt", label: "Reports", path: "/dashboard-admin/reports" },
 	{ icon: "fa-blog", label: "Blogs", path: "/dashboard-admin/blogs" },
@@ -46,5 +46,4 @@ export default function AdminSidebar() {
 			<SidebarUpdateCard />
 		</aside>
 	);
-
 }

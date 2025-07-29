@@ -30,6 +30,7 @@ import { fetchDoctorRequests } from "@/api/doctorRequestService";
 import { fetchRequestHealthProcess } from "@/api/requestHealthProcessService";
 import type { DoctorRequest } from "@/api/doctorRequestService";
 import type { RequestHealthProcess } from "@/api/requestHealthProcessService";
+import bloodComponentVN from "@/utils/translateBloodComponentVN";
 
 // Utility functions
 const formatDateTime = (dateString: string) => {
@@ -432,16 +433,7 @@ export default function RequestRegistrationsPage() {
 								</tr>
 							</thead>
 							<tbody>
-								{loading ? (
-									<tr>
-										<td colSpan={9} className="text-center py-8 text-gray-500">
-											<div className="flex items-center justify-center gap-2">
-												<div className="w-4 h-4 border-2 border-red-500 border-t-transparent rounded-full animate-spin"></div>
-												Đang tải dữ liệu...
-											</div>
-										</td>
-									</tr>
-								) : filtered.length > 0 ? (
+								{ filtered.length > 0 ? (
 									filtered.map((r, i) => (
 										<tr
 											key={r._id}
@@ -584,7 +576,7 @@ export default function RequestRegistrationsPage() {
 											Loại yêu cầu
 										</label>
 										<p className="text-lg font-semibold text-blue-600 mt-1">
-											{requestTypeVN(selectedRequest.request_type || "") ||
+											{bloodComponentVN(selectedRequest.request_type || "") ||
 												"Chưa cập nhật"}
 										</p>
 									</div>
