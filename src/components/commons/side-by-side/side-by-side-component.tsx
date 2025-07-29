@@ -21,6 +21,9 @@ const SideBySideComponent = ({
 	classHint,
 	buttonHave,
 }:SideBySideComponentProps) => {
+	const scrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
 	return (
 		<WrapperSection>
 			<div className="wrapper grid grid-cols0-1 lg:grid-cols-2">
@@ -39,6 +42,7 @@ const SideBySideComponent = ({
 							buttonText={buttonText}
 							buttonLink={buttonLink}
 							buttonType={"fill"}
+							onClick={scrollToTop} 
 						/>
 					)}
 				</div>

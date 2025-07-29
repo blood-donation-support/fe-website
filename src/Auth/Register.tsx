@@ -1,7 +1,7 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { toast, ToastContainer } from "react-toastify";
-import { Eye, EyeOff, User, Lock, Sparkles, Mail, Phone, VenetianMask } from "lucide-react";
+import { Eye, EyeOff, User, Lock, Sparkles, Mail, Phone, VenetianMask, } from "lucide-react";
 import Logo from "../assets/logo2.png";
 import authService from "@/api/authService";
 import GoogleLoginButton from "./GoogleAuth";
@@ -22,6 +22,11 @@ import {
     MenuItem,
     FormHelperText,
 } from "@mui/material";
+import { bloodService, type BloodGroup } from "@/api/bloodService";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import { DatePicker } from "@mui/x-date-pickers/DatePicker";
+import dayjs from "dayjs";
 
 const customTheme = createTheme({
     palette: {
@@ -91,6 +96,7 @@ const customTheme = createTheme({
     },
 });
 const Register: React.FC = () => {
+    const [citizenIdNumber, setCitizenIdNumber] = useState<string>("");
     const [phone, setPhone] = useState<string>("");
     const [password, setPassword] = useState<string>("");
     const [fullName, setFullName] = useState<string>("");
@@ -98,13 +104,27 @@ const Register: React.FC = () => {
     const [confirmPassword, setConfirmPassword] = useState<string>("");
     const [gender, setGender] = useState('');
     const [error, setError] = useState(false);
+    const [dateOfBirth, setDateOfBirth] = useState<string>("");
+    const [bloodGroupId, setBloodGroupId] = useState<string>("");
 
-
+    const [bloodGroups, setBloodGroups] = useState<BloodGroup[]>([]);
     const [passwordVisible, setPasswordVisible] = useState<boolean>(false);
     const [loading, setLoading] = useState<boolean>(false);
-
+    useEffect(() => {
+        const fetchBloodGroups = async () => {
+          const bloodGroupFetch = await bloodService.getBloodGroups();
+          console.log('bloodGroupFetch', bloodGroupFetch);
+          setBloodGroups(bloodGroupFetch);
+        };
+        fetchBloodGroups();
+      }, []);
     const navigate = useNavigate();
-
+    function mapErrorMessage(msg : string): string {
+        if (msg === "Citizen already exists") return "CCCD đã tồn tại trong hệ thống";
+        if (msg === "Phone already exists") return "Số điện thoại đã tồn tại trong hệ thống";
+        if (msg === "Email already exists") return "Email đã tồn tại trong hệ thống";
+        return msg; 
+    }
     const validatePhone = (phone: string): boolean => {
         const phoneRegex = /^(0|\+84)[0-9]{9}$/;
         return phoneRegex.test(phone.trim());
@@ -123,7 +143,8 @@ const Register: React.FC = () => {
         const validGenders = ['male', 'female', 'other'];
         return validGenders.includes(gender.toLowerCase());
     };
-    const handleRegisterSubmit = async () => {
+    const handleRegisterSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+        event.preventDefault();
         if (!validatePhone(phone)) {
             toast.error("Số điện thoại không tồn tại");
             return;
@@ -146,34 +167,47 @@ const Register: React.FC = () => {
         }
 
         try {
+            console.log('bắt đầu call api đăng ký');
             const response = await authService.register({
-  full_name: fullName,
-  email,
-  phone,
-  password,
-  confirm_password: confirmPassword,
-  gender,
-});
+                citizen_id_number: citizenIdNumber,
+                full_name: fullName,
+                email,
+                phone,
+                password,
+                confirm_password: confirmPassword,
+                gender,
+                date_of_birth: dateOfBirth,
+                blood_group_id: bloodGroupId,
+            });
 
             if (response?.access_token && response?.user) {
-                localStorage.setItem("access_token", response.access_token);
-                localStorage.setItem("refresh_token", response.refresh_token);
-                localStorage.setItem("user", JSON.stringify(response.user));
+                // localStorage.setItem("access_token", response.access_token);
+                // localStorage.setItem("refresh_token", response.refresh_token);
+                // localStorage.setItem("user", JSON.stringify(response.user));
 
-                console.log(localStorage.setItem("access_token", response.access_token),
-                    localStorage.setItem("refresh_token", response.refresh_token),
-                    localStorage.setItem("user", JSON.stringify(response.user)))
+                // console.log(localStorage.setItem("access_token", response.access_token),
+                // localStorage.setItem("refresh_token", response.refresh_token),
+                // localStorage.setItem("user", JSON.stringify(response.user)))
 
                 toast.success("Đăng ki thành công");
-                navigate("/home");
+                navigate("/");
             } else {
-                throw new Error(response?.errorMessage || "Đăng nhập thất bại");
+                console.log("First error:", response?.errorMessage);
+               if (response?.errorMessage?.errors) {
+                    const errorsObj = response.errorMessage.errors;
+                    Object.keys(errorsObj).forEach((field) => {
+                        console.log(`Field: ${field}, Error:`, errorsObj[field]);
+                        toast.error(mapErrorMessage(errorsObj[field].msg) || "Lỗi không xác định");
+                    });
+                } else if (typeof response?.errorMessage === "string") {
+                    toast.error(mapErrorMessage(response.errorMessage));
+                } else {
+                    toast.error("Đăng ký thất bại");
+                }
             }
+
         } catch (error: any) {
-            console.error("Lỗi đăng nhập:", error.message);
-            toast.error(error.message || "Đăng nhập thất bại");
-        } finally {
-            setLoading(false);
+            toast.error(mapErrorMessage("Lỗi không xác định"));
         }
     };
 
@@ -401,11 +435,80 @@ const Register: React.FC = () => {
                                                 <MenuItem value="">
                                                     -- Chọn giới tính --
                                                 </MenuItem>
-                                                <MenuItem value="male">Nam</MenuItem>
-                                                <MenuItem value="female">Nữ</MenuItem>
-                                                <MenuItem value="other">Khác</MenuItem>
+                                                <MenuItem value="Male">Nam</MenuItem>
+                                                <MenuItem value="Female">Nữ</MenuItem>
+                                                <MenuItem value="Other">Khác</MenuItem>
                                             </TextField>
+                                            <TextField
+                                                fullWidth
+                                                id="citizen_id_number"
+                                                label="Số CMND/CCCD"
+                                                variant="outlined"
+                                                value={citizenIdNumber}
+                                                onChange={(e) => setCitizenIdNumber(e.target.value)}
+                                                size="medium"
+                                                InputProps={{
+                                                    startAdornment: (
+                                                        <InputAdornment position="start">
+                                                            <Phone className="text-blue-600 w-5 h-5" />
+                                                        </InputAdornment>
+                                                    ),
+                                                    style: { height: "56px" },
+                                                }}
+                                                sx={{
+                                                    "& .MuiOutlinedInput-root": {
+                                                        height: "56px",
+                                                    },
+                                                }}
+                                            />
+                                            <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="vi">
+                                                <DatePicker
+                                                    label="Ngày sinh"
+                                                    value={dateOfBirth ? dayjs(dateOfBirth) : null}
+                                                    onChange={val => setDateOfBirth(val ? val.format("YYYY-MM-DD") : "")}
+                                                    format="DD/MM/YYYY"
+                                                    slotProps={{
+                                                    textField: {
+                                                        fullWidth: true,
+                                                        required: true,
+                                                        size: "medium",
+                                                        sx: { "& .MuiOutlinedInput-root": { height: "56px" } },
+                                                    }
+                                                    }}
+                                                />
+                                            </LocalizationProvider>
 
+                                            <TextField
+                                                fullWidth
+                                                select
+                                                id="blood_group_id"
+                                                label="Nhóm máu"
+                                                value={bloodGroupId}
+                                                onChange={e => setBloodGroupId(e.target.value)}
+                                                size="medium"
+                                                InputProps={{
+                                                    startAdornment: (
+                                                        <InputAdornment position="start">
+                                                            <Phone className="text-blue-600 w-5 h-5" />
+                                                        </InputAdornment>
+                                                    ),
+                                                    style: { height: "56px" },
+                                                }}
+                                                sx={{
+                                                    "& .MuiOutlinedInput-root": {
+                                                        height: "56px",
+                                                    },
+                                                }}
+                                                >
+                                                <MenuItem value="">
+                                                    -- Chọn nhóm máu của bạn --
+                                                </MenuItem>
+                                                {bloodGroups.map(bg => (
+                                                    <MenuItem key={bg._id} value={bg._id}>
+                                                    {bg.name}
+                                                    </MenuItem>
+                                                ))}
+                                            </TextField>
 
                                             <TextField
                                                 fullWidth
@@ -524,27 +627,6 @@ const Register: React.FC = () => {
                                             </div>
                                         </motion.form>
 
-                                        <motion.div
-                                            initial={{ opacity: 0 }}
-                                            animate={{ opacity: 1 }}
-                                            transition={{ delay: 0.9, duration: 0.6 }}
-                                            className="mt-8"
-                                        >
-                                            <div className="relative">
-                                                <div className="absolute inset-0 flex items-center">
-                                                    <div className="w-full border-t border-gray-200" />
-                                                </div>
-                                                <div className="relative flex justify-center text-sm">
-                                                    <span className="px-6 bg-white text-gray-500 font-medium">
-                                                        Hoặc tiếp tục với
-                                                    </span>
-                                                </div>
-                                            </div>
-
-                                            {/* <div className="mt-6 flex justify-center">
-                                                <GoogleLoginButton />
-                                            </div> */}
-                                        </motion.div>
                                     </motion.div>
                                 </div>
 
