@@ -4,8 +4,8 @@ import { Link } from "react-router-dom";
 
 type User = {
   fullname: string;
-  email: string;
-  phone?: string;
+  role: string;
+  avatar_url?: string;
 
 };
 
@@ -47,20 +47,33 @@ const AdminDropdown: React.FC<Props> = ({ user, onLogout }) => {
       {open && (
         <div className="absolute right-0 mt-2 w-72 bg-white rounded-xl shadow-lg border border-gray-100 z-50 py-4 px-6">
           <div className="flex items-center gap-4 mb-4">
-            <div className="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center font-bold text-blue-600 text-lg">
+            {/* <div className="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center font-bold text-blue-600 text-lg">
               {user.fullname.charAt(0).toUpperCase()}
 
+            </div> */}
+            <span className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden">
+          {user?.avatar_url ? (
+            <img
+              src={user.avatar_url}
+              alt="avatar"
+              className="w-10 h-10 rounded-full object-cover"
+            />
+          ) : (
+            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center text-white font-semibold">
+              {user?.fullname?.charAt(0)?.toUpperCase() || 'U'}
             </div>
+          )}
+        </span>
             <div>
               <div className="font-bold">{user.fullname}</div>
-              <div className="text-gray-400 text-sm">{user.email}</div>
+              <div className="text-gray-400 text-sm">{user.role}</div>
             </div>
           </div>
           <hr className="mb-4" />
           <ul className="flex flex-col gap-2">
             <li>
               <Link
-                to="/profile"
+                to="profile-admin"
                 className="block px-2 py-2 hover:bg-blue-50 rounded-md text-gray-700 font-medium"
                 onClick={() => setOpen(false)}
               >

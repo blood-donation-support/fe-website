@@ -72,6 +72,10 @@ export const BloodRequestListPage: React.FC = () => {
 	}, [fetchDoctorRequests]);
 
 	const filtered = requests.filter((r) => {
+		const matchesDate = selectedDate
+			? new Date(r.created_at).toDateString() === selectedDate.toDateString()
+			: true;
+
 		const matchesStatus =
 			statusFilter === "all" ? true : r.status === statusFilter;
 		const matchesUrgency =
@@ -85,7 +89,7 @@ export const BloodRequestListPage: React.FC = () => {
 			r.note?.toLowerCase().includes(text) ||
 			false;
 
-		return matchesStatus && matchesUrgency && matchesSearch;
+		return matchesStatus && matchesUrgency && matchesSearch && matchesDate;
 	});
 
 	return (
@@ -98,7 +102,7 @@ export const BloodRequestListPage: React.FC = () => {
 					<div className="bg-gradient-to-r from-blue-600 to-indigo-600 h-1"></div>
 					<CardContent className="p-8">
 						<div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-							{/* CHỌN NGÀY: 4/12 */}
+							{/* CHỌN NGÀY: */}
 							<div className="space-y-3 lg:col-span-4">
 								<div className="flex items-center gap-2">
 									<div className="w-2 h-2 bg-blue-500 rounded-full" />
@@ -322,7 +326,6 @@ export const BloodRequestListPage: React.FC = () => {
 											<TableCell className="text-center">
 												<span className="font-medium text-blue-600">
 													{r.blood_group_name || "Chưa cập nhật"}
-
 												</span>
 											</TableCell>
 											<TableCell className="text-center">
@@ -356,7 +359,7 @@ export const BloodRequestListPage: React.FC = () => {
 															: "bg-red-100 text-red-800"
 													}`}
 												>
-													{statusVN(r.status|| "Chưa cập nhật")}
+													{statusVN(r.status || "Chưa cập nhật")}
 												</span>
 											</TableCell>
 											<TableCell className="text-center">
@@ -393,7 +396,7 @@ export const BloodRequestListPage: React.FC = () => {
 															)
 														}
 													>
-														Duyệt
+														Chờ xét nghiệm
 													</Button>
 												) : (
 													<Button
@@ -405,7 +408,7 @@ export const BloodRequestListPage: React.FC = () => {
 															)
 														}
 													>
-														Xem chi tiết
+														Duyệt
 													</Button>
 												)}
 											</TableCell>
