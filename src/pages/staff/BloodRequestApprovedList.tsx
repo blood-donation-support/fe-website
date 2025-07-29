@@ -79,6 +79,7 @@ export const BloodRequestApprovedList: React.FC = () => {
 			// Fetch dữ liệu request hiện tại để lấy request_type
 			const currentRequest = await fetchDoctorRequestById(requestId);
 
+console.log("currentRequest.request_type", currentRequest.request_type);
 			// Gọi API để approve request với request_type từ dữ liệu hiện tại
 			await approveDoctorRequest(requestId, {
 				status: "Approved",

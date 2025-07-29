@@ -18,6 +18,7 @@ import {
 	Legend,
 } from "recharts";
 import bloodComponentVN from "@/utils/translateBloodComponentVN";
+import { format } from "date-fns";
 
 export default function WarehouseDashboardPage() {
 	const dispatch = useDispatch<AppDispatch>();
@@ -430,69 +431,74 @@ export default function WarehouseDashboardPage() {
 						</h2>
 					</div>
 
-					<div className="overflow-x-auto rounded-xl border border-slate-200">
-						<table className="w-full">
-							<thead>
-								<tr className="bg-gradient-to-r from-slate-100 to-slate-200">
-									<th className="p-4 text-left font-semibold text-slate-700 border-b border-slate-300">
-										Mã túi
-									</th>
-									<th className="p-4 text-left font-semibold text-slate-700 border-b border-slate-300">
-										Nhóm máu
-									</th>
-									<th className="p-4 text-left font-semibold text-slate-700 border-b border-slate-300">
-										Thành phần
-									</th>
-									<th className="p-4 text-left font-semibold text-slate-700 border-b border-slate-300">
-										Hạn dùng
-									</th>
-									<th className="p-4 text-left font-semibold text-slate-700 border-b border-slate-300">
-										Còn lại (ngày)
-									</th>
-									<th className="p-4 text-left font-semibold text-slate-700 border-b border-slate-300">
-										Vị trí
-									</th>
-								</tr>
-							</thead>
-							<tbody>
-								{expiring_soon.map((item, index) => (
-									<tr
-										key={item.blood_bag_id}
-										className={index % 2 === 0 ? "bg-white" : "bg-slate-50"}
-									>
-										<td className="p-4 font-mono text-sm">
-											{item.blood_bag_id}
-										</td>
-										<td className="p-4">
-											<span className="px-3 py-1 bg-red-100 text-red-800 rounded-full text-sm font-medium">
-												{item.blood_group_name}
-											</span>
-										</td>
-										<td className="p-4">
-											<span className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm font-medium">
-												{bloodComponentVN(item.blood_component_name)}
-											</span>
-										</td>
-										<td className="p-4 font-medium">{item.expired_date}</td>
-										<td className="p-4">
-											<span
-												className={`px-3 py-1 rounded-full text-sm font-medium ${
-													item.days_left <= 3
-														? "bg-red-100 text-red-800"
-														: item.days_left <= 7
-														? "bg-yellow-100 text-yellow-800"
-														: "bg-green-100 text-green-800"
-												}`}
-											>
-												{item.days_left} ngày
-											</span>
-										</td>
-										<td className="p-4 text-slate-600">—</td>
-									</tr>
-								))}
-							</tbody>
-						</table>
-					</div>
+				<div className="overflow-x-auto rounded-xl border border-slate-200">
+	<table className="w-full">
+		<thead>
+			<tr className="bg-gradient-to-r from-slate-100 to-slate-200">
+				<th className="p-4 text-center font-semibold text-slate-700 border-b border-slate-300">
+					Mã túi
+				</th>
+				<th className="p-4 text-center font-semibold text-slate-700 border-b border-slate-300">
+					Nhóm máu
+				</th>
+				<th className="p-4 text-center font-semibold text-slate-700 border-b border-slate-300">
+					Thành phần
+				</th>
+				<th className="p-4 text-center font-semibold text-slate-700 border-b border-slate-300">
+					Ngày hết hạn
+				</th>
+				<th className="p-4 text-center font-semibold text-slate-700 border-b border-slate-300">
+					Còn lại (ngày)
+				</th>
+				{/* <th className="p-4 text-left font-semibold text-slate-700 border-b border-slate-300">
+					Vị trí
+				</th> */}
+			</tr>
+		</thead>
+		<tbody>
+			{expiring_soon.map((item, index) => (
+				<tr
+					key={item.blood_bag_id}
+					className={index % 2 === 0 ? "bg-white" : "bg-slate-50"}
+				>
+					<td className="p-4 text-center font-mono text-sm">
+						{item.blood_bag_id}
+					</td>
+					<td className="p-4 text-center">
+						<span className="px-3 py-1 bg-red-100 text-red-800 rounded-full text-sm font-medium">
+							{item.blood_group_name}
+						</span>
+					</td>
+					<td className="p-4 text-center">
+						<span className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm font-medium">
+							{bloodComponentVN(item.blood_component_name)}
+						</span>
+					</td>
+					<td className="p-4 text-center text-sm text-slate-700">
+						{item.expired_date
+							? format(new Date(item.expired_date), "dd/MM/yyyy HH:mm")
+							: "Chưa cập nhật"}
+					</td>
+					<td className="p-4 text-center">
+						<span
+							className={`px-3 py-1 rounded-full text-sm font-medium ${
+								item.days_left <= 3
+									? "bg-red-100 text-red-800"
+									: item.days_left <= 7
+									? "bg-yellow-100 text-yellow-800"
+									: "bg-green-100 text-green-800"
+							}`}
+						>
+							{item.days_left} ngày
+						</span>
+					</td>
+					{/* <td className="p-4 text-slate-600">—</td> */}
+				</tr>
+			))}
+		</tbody>
+	</table>
+</div>
+
 				</div>
 			</div>
 		</div>
