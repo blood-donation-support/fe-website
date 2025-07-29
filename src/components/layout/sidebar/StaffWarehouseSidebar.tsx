@@ -47,7 +47,7 @@ export default function StaffWarehouseSidebar() {
 				</Link>
 				<div className="flex flex-col gap-2">
 					{artistNavItems.map((item) => (
-						<SidebarNavItem key={item.path} {...item} />
+						<SidebarNavItem key={item.path} {...item}  end={item.path === "/dashboard-staff-warehouse"}  />
 					))}
 				</div>
 			</div>
