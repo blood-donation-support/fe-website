@@ -10,6 +10,7 @@ import HeaderComponent from "../commons/header-component";
 import FooterComponent from "../commons/footer-component";
 import BlogCarousel from "../BlogCarousel";
 import remarkGfm from "remark-gfm";
+import { getPreviewText } from "@/utils/prettier";
 const markdownStyles = {
   h1: {
     fontWeight: "bold",
@@ -181,14 +182,13 @@ export default function BlogPreviewPage() {
               <span className="italic">bởi <b>{blog.author || "Unknown"}</b></span>
             </div>
             <h1 className="text-5xl md:text-5xl font-extrabold leading-tight text-white drop-shadow-[0_2px_16px_rgba(0,0,0,0.7)]">
-              {blog.title}
+              {getPreviewText(blog.title, 80)}
             </h1>
           </div>
         </div>
         <div className="max-w-5xl w-[80vw] mx-auto px-3 md:px-0 py-10">
           <div className="prose prose-invert prose-2xl max-w-none text-black">
             <ReactMarkdown
-              remarkPlugins={[remarkGfm]}
               components={{
                 h1: ({ children }) => <h1 style={markdownStyles.h1}>{children}</h1>,
                 h2: ({ children }) => <h2 style={markdownStyles.h2}>{children}</h2>,
@@ -213,15 +213,16 @@ export default function BlogPreviewPage() {
             </ReactMarkdown>
           </div>
         </div>
-        <div className="w-[80vw] mx-auto px-3 md:px-3 m-6">
-          <h2 className="text-3xl font-bold mb-4 text-black pl-[33vw]">Bài viết liên quan</h2>
+        <div className="w-[full] mx-auto px-3 md:px-3 m-6">
+          <h2 className="text-3xl font-bold mb-4 text-black content-center justify-center text-center">
+            Bài viết liên quan
+          </h2>
           <BlogCarousel
             blogs={blogs}
-            visibleCount={2}
+            cardWidthVW={24}
             gapVW={3}
-            widthVW={50}
+            widthVW={80}
             heightVH={70}
-            cardWidthVW={23}
           />
         </div>
         <FooterComponent />

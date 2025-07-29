@@ -3,8 +3,9 @@ import "react-markdown-editor-lite/lib/index.css";
 import MdEditor from "react-markdown-editor-lite";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
+import { marked } from "marked";
 
-// Inline styles for Markdown content (same as before)
+// Style cho markdown preview (giữ như bạn)
 const markdownStyles = {
   h1: {
     fontWeight: "bold",
@@ -31,7 +32,7 @@ const markdownStyles = {
     fontSize: "1.5rem",
   },
   strong: {
-    fontWeight: "600",
+    fontWeight: 600,
     color: "#333",
   },
   em: {
@@ -60,29 +61,29 @@ const markdownStyles = {
     margin: "10px 0",
   },
   table: {
-    width: "80%", /* Set table width to 80% */
-    marginLeft: "auto", /* Center the table horizontally */
-    marginRight: "auto", /* Center the table horizontally */
-    borderCollapse: "collapse" as "collapse", /* Correct value for borderCollapse */
-    marginTop: "20px", /* Add space above the table */
-    marginBottom: "20px", /* Add space below the table */
+    width: "80%",
+    marginLeft: "auto",
+    marginRight: "auto",
+    borderCollapse: "collapse" as const,
+    marginTop: "20px",
+    marginBottom: "20px",
   },
   th: {
-    backgroundColor: "#f4f4f4", /* Light background for headers */
-    fontWeight: "bold", /* Make header text bold */
-    padding: "8px 12px", /* Add padding to header cells */
-    textAlign: "left" as "left", /* Correct value for textAlign */
-    border: "1px solid #ddd", /* Add border to header cells */
+    backgroundColor: "#f4f4f4",
+    fontWeight: "bold",
+    padding: "8px 12px",
+    textAlign: "left" as const,
+    border: "1px solid #ddd",
   },
   td: {
-    padding: "8px 12px", /* Add padding to table cells */
-    textAlign: "left" as "left", /* Correct value for textAlign */
-    border: "1px solid #ddd", /* Add border to table cells */
+    padding: "8px 12px",
+    textAlign: "left" as const,
+    border: "1px solid #ddd",
   },
   img: {
-    width: "100%", /* Make image span full width */
-    height: "auto", /* Maintain aspect ratio */
-    display: "block", /* Removes extra space below image */
+    width: "100%",
+    height: "auto",
+    display: "block",
     marginTop: "10px",
     marginBottom: "10px",
   },
@@ -101,30 +102,29 @@ export default function EditorTextWithPreview({
 
   const handleEditorChange = ({ text }: { text: string }) => {
     onChange(text);
-    setPreviewContent(text); // Update preview content when editor content changes
+    setPreviewContent(text);
   };
 
   return (
-    <div className="flex flex-row space-x-4">
+    <div className="flex flex-row gap-4 w-full">
       {/* Markdown Editor */}
-      <div className="flex-1">
+      <div className="flex-1 min-w-0">
         <MdEditor
           value={value}
-          style={{ height: "50vh" }}
-          renderHTML={(text) => <ReactMarkdown>{text}</ReactMarkdown>}
+          style={{ height: "52vh" }}
+          renderHTML={(text) => marked.parse(text || "")}
           onChange={handleEditorChange}
-          view={{ menu: true, md: true, html: false }} // Only show markdown, not HTML
+          view={{ menu: true, md: true, html: false }}
           placeholder="Nhập nội dung blog, chèn ảnh trực tiếp nếu muốn"
         />
       </div>
 
       {/* Preview */}
       <div
-        className="flex-1 bg-gray-100 p-4 border rounded-lg overflow-auto"
-        style={{ height: "50vh", maxHeight: "50vh", paddingRight: "20px" }}
+        className="flex-1 min-w-0 bg-gray-100 p-4 border rounded-lg overflow-auto"
+        style={{ height: "52vh", maxHeight: "52vh", paddingRight: "20px" }}
       >
         <div className="prose max-w-none">
-          {/* Render Markdown preview with inline styles */}
           <ReactMarkdown
             remarkPlugins={[remarkGfm]}
             components={{
@@ -144,7 +144,7 @@ export default function EditorTextWithPreview({
               table: ({ children }) => <table style={markdownStyles.table}>{children}</table>,
               th: ({ children }) => <th style={markdownStyles.th}>{children}</th>,
               td: ({ children }) => <td style={markdownStyles.td}>{children}</td>,
-              img: ({ src, alt }) => <img src={src} alt={alt} style={markdownStyles.img} />,
+              img: ({ src, alt }) => <img src={src ?? ""} alt={alt ?? ""} style={markdownStyles.img} />,
             }}
           >
             {previewContent}

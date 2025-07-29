@@ -18,6 +18,7 @@ import { toast } from "react-toastify";
 import { updateProfile } from "@/api/userService";
 import { fetchBloodGroups } from "@/api/bloodService";
 import roleVN from "@/utils/roleVN";
+import axios from "axios";
 
 const DEFAULT_AVATAR =
 	"https://ui-avatars.com/api/?name=User&background=dedede&color=222&rounded=true&size=128";
@@ -165,21 +166,34 @@ const ProfileInfo: React.FC = () => {
 	};
 
 	// Upload avatar (fake), bạn thay API thật vào nếu cần
-	const handleAvatarUpload = async (
-		event: React.ChangeEvent<HTMLInputElement>,
-	) => {
+	const handleAvatarUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
 		const file = event.target.files?.[0];
 		if (!file) return;
-		setTimeout(() => {
-			setFormData((old: any) => ({
-				...old,
-				avatar_url: URL.createObjectURL(file),
-			}));
-			setIsDirty(true);
+
+		const data = new FormData();
+		data.append("file", file);
+		data.append("upload_preset", "BloodDonation");
+
+		try {
+			const resp = await axios.post(
+				"https://api.cloudinary.com/v1_1/dpf7yfupt/image/upload",
+				data
+			);
+			console.log("Upload response:", resp.data.url);
+
+			const newFormData = {
+				...formData,
+				avatar_url: resp.data.url,
+			};
+			setFormData(newFormData);
+			setIsDirty(checkDirty(newFormData));
 			setFieldErrors((old) => ({ ...old, avatar_url: "" }));
 			toast.success("Tải ảnh thành công!");
-		}, 500);
+		} catch {
+			toast.error("Không thể upload hình ảnh");
+		}
 	};
+
 
 	// Gọi API update
 	const handleSave = async () => {

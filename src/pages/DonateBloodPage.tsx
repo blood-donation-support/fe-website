@@ -16,9 +16,11 @@ import {
 	resetDonationStatus,
 } from "@/redux/slices/donationRegistrationSlice"; // Redux action
 import { fetchUserProfile } from "@/redux/slices/userSlice";
+import { useNavigate } from "react-router-dom";
 
 const DonateBloodPage = () => {
 	const profile = useSelector((state: RootState) => state.users.profile);
+	const navigate = useNavigate();
 	const today = new Date();
 	const accessToken = useAuthStore((state) => state.accessToken) || "";
 	const [statusForm, setStatusForm] = useState("Pending");
@@ -57,9 +59,13 @@ const DonateBloodPage = () => {
 		}
 	}, [dateValue]);
 
-	// Submit form data
 	const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
 		e.preventDefault();
+		if (!profile) {
+			toast.warn("Bạn phải đăng nhập để đăng ký hiến máu!");
+			navigate("/login");
+			return;
+		}
 		dispatch(registerDonationThunk({ payload: formData, accessToken })); // Dispatch Redux action
 	};
 
@@ -68,7 +74,7 @@ const DonateBloodPage = () => {
 			subheadingText: "Hiến máu hôm nay",
 			headingText: "Tại sao bạn nên hiến máu?",
 			classHint: "side-col-image why-donate-blood",
-			paraText: `Hiến máu là một hành động vô tư có sức mạnh cứu sống. ...`,
+			paraText: `Hiến máu là một hành động vô tư có sức mạnh cứu sống. Bạn có thể cứu tới ba mạng người chỉ bằng một lần hiến máu. Máu luôn cần thiết trong tình huống khẩn cấp, phẫu thuật, điều trị... Và máu chỉ có thể đến từ những người tình nguyện.`,
 			imageUrl: "../../assets/blood-donation(1).jpg",
 			buttonText: "Hiến máu ngay",
 			buttonLink: "/donateBlood",
@@ -98,7 +104,7 @@ const DonateBloodPage = () => {
 
 	return (
 		<>
-			<HeaderComponent user={profile} />
+			<HeaderComponent />
 			<HeroComponent {...DonateBloodPageDetails.hero} />
 			<FormComponent
 				fields={fields}

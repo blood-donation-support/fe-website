@@ -6,8 +6,8 @@ import dayjs from "dayjs";
 import { FooterComponent, HeaderComponent } from "@/components";
 import BlogCarousel from "@/components/BlogCarousel";
 import ReactMarkdown from "react-markdown";
-import remarkGfm from "remark-gfm";
 import type { RootState } from "@/redux/store";
+import { getPreviewText } from "@/utils/prettier";
 
 // Inline styles for Markdown content
 // Inline styles for Markdown content
@@ -140,7 +140,7 @@ export default function BlogDetailPage() {
               </span>
             </div>
             <h1 className="text-5xl md:text-5xl font-extrabold leading-tight drop-shadow-[0_2px_16px_rgba(0,0,0,0.7)]">
-              {blog.title}
+              {getPreviewText(blog.title, 80)}
             </h1>
           </div>
         </div>
@@ -149,7 +149,6 @@ export default function BlogDetailPage() {
         <div className="max-w-[85%] w-[85%] mx-auto px-3 md:px-0 py-10">
           <div className="prose prose-invert prose-2xl max-w-none text-black">
             <ReactMarkdown
-              remarkPlugins={[remarkGfm]}
               components={{
                 h1: ({ children }) => <h1 style={markdownStyles.h1}>{children}</h1>,
                 h2: ({ children }) => <h2 style={markdownStyles.h2}>{children}</h2>,

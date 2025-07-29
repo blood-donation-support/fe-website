@@ -67,15 +67,15 @@ const HeaderComponent = ({ isHomepage }: HeaderComponentProps) => {
 				</button>
 				<nav className="hidden md:flex items-center gap-3 ml-4">
 					{[
-						{ context: "Chúng tôi", nav: "/" },
-						{ context: "Hiến máu", nav: "/donateBlood" },
-						{ context: "Chính sách", nav: "/policy" },
-						{ context: "Hỗ trợ", nav: "/support" },
+						{ context: "Giới Thiệu", nav: "/" },
+						{ context: "Hiến Máu", nav: "/donateBlood" },
+						{ context: "Chính Sách", nav: "/policy" },
+						{ context: "Hỗ Trợ", nav: "/support" },
 					].map((item) => (
 						<Link
 							to={item.nav}
 							key={item.context}
-							className="px-2 py-2 text-sm font-bold rounded-sm bg-white shadow-sm text-gray-700 hover:bg-blue-50 transition"
+							className="px-2 py-2 text-sm font-bold rounded-lg  text-gray-700 hover:bg-blue-50  transition"
 						>
 							{item.context}
 						</Link>
@@ -86,7 +86,7 @@ const HeaderComponent = ({ isHomepage }: HeaderComponentProps) => {
 			<div className="flex items-center gap-4">
 				<Link
 					to={"https://maps.app.goo.gl/oLicVPMzHJ1XvgmS6"}
-					className={`hidden md:block text-2xl text-gray-500 mr-4 ${locationClass} rounded-full px-6 py-3`}
+					className={`hidden md:block text-[1.7vh] text-black mr-4 ${locationClass} rounded-full px-6 py-4`}
 				>
 					<span className="inline-block align-middle mr-1">
 						<svg width="14" height="14" fill="none" viewBox="0 0 24 24">
@@ -99,7 +99,7 @@ const HeaderComponent = ({ isHomepage }: HeaderComponentProps) => {
 							/>
 						</svg>
 					</span>
-					Nhà văn hóa sinh viên, Q9
+					Nhà Văn hóa Sinh viên, P. Đông Hòa, tx. Dĩ An, Bình Dương
 				</Link>
 				<div className="flex gap-2">
 					<button className="w-14 h-14 flex items-center justify-center rounded-full bg-red-600 text-white hover:bg-red-900 transition">
@@ -111,7 +111,7 @@ const HeaderComponent = ({ isHomepage }: HeaderComponentProps) => {
 					) : (
 						<Link
 							to="/login"
-							className="px-8 pt-4 bg-blue-600 hover:bg-blue-700 text-white rounded-full text-base font-semibold shadow transition"
+							className="px-8 pt-4 bg-white hover:bg-blue-800 hover:text-white text-blue-500 rounded-full text-base font-semibold shadow transition"
 						>
 							Đăng nhập
 						</Link>

@@ -1,8 +1,11 @@
 import { Routes, Route, NavLink, Outlet } from "react-router-dom";
 import HeaderComponent from "../commons/header-component";
 import FooterComponent from "../commons/footer-component";
+import { useSelector } from "react-redux";
+import type { RootState } from "@/redux/store";
 
 export default function ProfileLayout() {
+    const profile = useSelector((state: RootState) => state.users.profile);
     return (<>
     <HeaderComponent />
     <div className="min-h-screen bg-gray-50 flex flex-col mt-[5%]">
@@ -19,7 +22,7 @@ export default function ProfileLayout() {
         >
             Thông tin cá nhân
         </NavLink>
-        <NavLink
+        {profile?.role === "Customer" && ( <NavLink
             to="blood-history"
             className={({ isActive }) =>
             `px-6 py-3 text-lg font-semibold rounded-t-lg transition ${
@@ -31,6 +34,7 @@ export default function ProfileLayout() {
         >
             Lịch sử đơn
         </NavLink>
+    )}
         <NavLink
             to="change-password"
             className={({ isActive }) =>

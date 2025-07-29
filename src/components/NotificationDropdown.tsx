@@ -14,9 +14,13 @@ const NotificationDropdown: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
   const { list: notifications, loading } = useSelector((state: any) => state.notification);
 
-  // Automatically fetch notifications when component is mounted
+  
   useEffect(() => {
-    dispatch(fetchNotiList()); // Fetch notifications immediately
+    const interval = setInterval(() => {
+      dispatch(fetchNotiList());
+    }, 10000); // 10 giây kiểm tra 1 lần
+
+    return () => clearInterval(interval);
   }, [dispatch]);
 
   useEffect(() => {
@@ -31,7 +35,8 @@ const NotificationDropdown: React.FC = () => {
 
   const handleMarkAllRead = () => {
     dispatch(markAllNotiRead()).then(() => {
-      setOpen(false); 
+      dispatch(fetchNotiList()); 
+      setOpen(false);
     });
   };
 
@@ -78,24 +83,26 @@ const NotificationDropdown: React.FC = () => {
               {notifications.length === 0 ? (
                 <li className="text-gray-400 text-center py-6">Không có thông báo</li>
               ) : (
-                notifications.map((item: any) => (
-                  <li
-                    key={item._id}
-                    className={`p-3 rounded-md hover:bg-blue-50 cursor-pointer flex items-center justify-between ${item.is_read ? "" : "bg-blue-50"}`}
-                    onClick={() => handleNotificationClick(item)} // Redirect to BloodHistoryPage on click
-                  >
-                    <div>
-                      <div className="font-semibold">{item.title}</div>
-                      <div className="text-sm">{item.message}</div>
-                      <div className="text-xs text-gray-400 mt-1">
-                        {dayjs(item.created_at).format("HH:mm DD/MM/YYYY")}
+                [...notifications]
+                  .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()) // Sắp xếp mới nhất lên đầu
+                  .map((item: any) => (
+                    <li
+                      key={item._id}
+                      className={`p-3 rounded-md hover:bg-blue-50 cursor-pointer flex items-center justify-between ${item.is_read ? "" : "bg-blue-50"}`}
+                      onClick={() => handleNotificationClick(item)}
+                    >
+                      <div>
+                        <div className="font-semibold">{item.title}</div>
+                        <div className="text-sm">{item.message}</div>
+                        <div className="text-xs text-gray-400 mt-1">
+                          {dayjs(item.created_at).format("HH:mm DD/MM/YYYY")}
+                        </div>
                       </div>
-                    </div>
-                    {!item.is_read && (
-                      <span className="ml-2 w-3 h-3 rounded-full bg-blue-500"></span>
-                    )}
-                  </li>
-                ))
+                      {!item.is_read && (
+                        <span className="ml-2 w-3 h-3 rounded-full bg-blue-500"></span>
+                      )}
+                    </li>
+                  ))
               )}
             </ul>
           )}
