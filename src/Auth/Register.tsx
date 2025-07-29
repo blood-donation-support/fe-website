@@ -1,7 +1,7 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { toast, ToastContainer } from "react-toastify";
-import { Eye, EyeOff, User, Lock, Sparkles, Mail, Phone, VenetianMask, } from "lucide-react";
+import { Eye, EyeOff, User, Lock, Sparkles, Mail, Phone, VenetianMask, CalendarDays, } from "lucide-react";
 import Logo from "../assets/logo2.png";
 import authService from "@/api/authService";
 import GoogleLoginButton from "./GoogleAuth";
@@ -26,6 +26,7 @@ import { bloodService, type BloodGroup } from "@/api/bloodService";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
+import { CalendarToday } from "@mui/icons-material";
 import dayjs from "dayjs";
 
 const customTheme = createTheme({
@@ -119,6 +120,8 @@ const Register: React.FC = () => {
         fetchBloodGroups();
       }, []);
     const navigate = useNavigate();
+     const [open, setOpen] = useState(false);
+
     function mapErrorMessage(msg : string): string {
         if (msg === "Citizen already exists") return "CCCD đã tồn tại trong hệ thống";
         if (msg === "Phone already exists") return "Số điện thoại đã tồn tại trong hệ thống";
@@ -189,7 +192,7 @@ const Register: React.FC = () => {
                 // localStorage.setItem("refresh_token", response.refresh_token),
                 // localStorage.setItem("user", JSON.stringify(response.user)))
 
-                toast.success("Đăng ki thành công");
+                toast.success("Đăng kí thành công");
                 navigate("/");
             } else {
                 console.log("First error:", response?.errorMessage);
@@ -461,22 +464,56 @@ const Register: React.FC = () => {
                                                     },
                                                 }}
                                             />
-                                            <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="vi">
-                                                <DatePicker
-                                                    label="Ngày sinh"
-                                                    value={dateOfBirth ? dayjs(dateOfBirth) : null}
-                                                    onChange={val => setDateOfBirth(val ? val.format("YYYY-MM-DD") : "")}
-                                                    format="DD/MM/YYYY"
-                                                    slotProps={{
-                                                    textField: {
-                                                        fullWidth: true,
-                                                        required: true,
-                                                        size: "medium",
-                                                        sx: { "& .MuiOutlinedInput-root": { height: "56px" } },
-                                                    }
-                                                    }}
-                                                />
-                                            </LocalizationProvider>
+
+<LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="vi">
+      <DatePicker
+        label="Ngày sinh"
+        value={dateOfBirth ? dayjs(dateOfBirth) : null}
+        onChange={(val) => {
+            setDateOfBirth(val ? val.toISOString() : "")
+            console.log('Selected date:', val ? val.toISOString() : 'No date selected');
+        }}
+        format="DD/MM/YYYY"
+        maxDate={dayjs()}
+        open={open}
+        onOpen={() => setOpen(true)}
+        onClose={() => setOpen(false)}
+        slotProps={{
+          textField: {
+            fullWidth: true,
+            required: true,
+            size: "medium",
+            InputProps: {
+              startAdornment: (
+                <InputAdornment position="start">
+                  <IconButton onClick={() => setOpen(true)}>
+                    <CalendarToday className="text-blue-600" />
+                  </IconButton>
+                </InputAdornment>
+              ),
+              style: {
+                height: "56px",
+                borderRadius: "14px",
+                backgroundColor: "#F7F9FF",
+              },
+            },
+            sx: {
+              "& .MuiOutlinedInput-root": {
+                height: "56px",
+                borderRadius: "14px",
+                "& fieldset": {
+                  borderWidth: "1.5px",
+                },
+              },
+            },
+          },
+          openPickerButton: {
+            sx: { display: "none" }, // ẩn icon mặc định bên phải
+          },
+        }}
+      />
+    </LocalizationProvider>
+
 
                                             <TextField
                                                 fullWidth

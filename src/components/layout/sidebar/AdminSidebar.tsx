@@ -16,8 +16,8 @@ const adminNavItems = [
 	},
 	{
 		icon: "fa-hand-holding-heart",
-		label: "Đơn Xin  Máu",
-		path: "/dashboard-admin/request-list",
+		label: "Danh sách đơn Xin  Máu",
+		path: "/dashboard-admin/doctor-request-approved",
 	},
 	//   { icon: "fa-file-alt", label: "Reports", path: "/dashboard-admin/reports" },
 	{ icon: "fa-blog", label: "Blogs", path: "/dashboard-admin/blogs" },

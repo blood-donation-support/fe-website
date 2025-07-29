@@ -90,6 +90,39 @@ const UserDropdown: React.FC<Props> = ({ user, onLogout }) => {
                 </Link>
               </li>
             )}
+            {user.role === "Admin" && (
+              <li>
+                <Link
+                  to="/dashboard-admin"
+                  className="block px-2 py-2 hover:bg-blue-50 rounded-md text-gray-700 font-medium"
+                  onClick={() => setOpen(false)}
+                >
+                  Quản lý quản trị viên
+                </Link>
+              </li>
+            )}
+            {(user.role === "Staff" ) && (
+              <li>
+                <Link
+                  to="/dashboard-staff"
+                  className="block px-2 py-2 hover:bg-blue-50 rounded-md text-gray-700 font-medium"
+                  onClick={() => setOpen(false)}
+                >
+                  Quản lý nhân viên
+                </Link>
+              </li>
+            )}
+            {user.role === "Staff Warehouse" && (
+              <li>
+                <Link
+                  to="/dashboard-staff-warehouse"
+                  className="block px-2 py-2 hover:bg-blue-50 rounded-md text-gray-700 font-medium"
+                  onClick={() => setOpen(false)}
+                >
+                  Quản lý kho
+                </Link>
+              </li>
+            )}
             {/* <li>
               <Link
                 to="/profile/blood-history"

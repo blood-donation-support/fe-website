@@ -56,6 +56,7 @@ import { BLOOD_COMPONENT_LABELS } from "../../constants/bloodLabels";
 import bloodComponentVN from "@/utils/translateBloodComponentVN";
 import { toast } from "react-toastify";
 import type { HealthCheck } from "@/types/donation";
+import statusVN from "@/utils/statusVN";
 
 const formatDateTime = (dateString: string) => {
 	if (!dateString) return "Chưa cập nhật";
@@ -459,7 +460,7 @@ export const BloodRequestApprovalPage: React.FC = () => {
 			<h2 className="text-3xl font-semibold text-[#4f46e5] mb-10">
 				Duyệt Đơn Xin Máu
 			</h2>
-			<div className="w-full max-w-3xl">
+			<div className="w-full max-w-6xl">
 				<Stepper
 					steps={[
 						"Thông tin yêu cầu",
@@ -1119,7 +1120,7 @@ export const BloodRequestApprovalPage: React.FC = () => {
 																		: "bg-gray-100 text-gray-800"
 																}`}
 															>
-																{blood.status}
+																{statusVN(blood.status)}
 															</span>
 														</TableCell>
 														<TableCell>
