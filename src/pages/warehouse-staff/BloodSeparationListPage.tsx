@@ -77,24 +77,24 @@ export const BloodSeparationListPage: React.FC = () => {
 										<TableRow key={job._id} className="hover:bg-[#f9fafb]">
 											<TableCell className="text-center">{i + 1}</TableCell>
 											<TableCell className="text-center">
-												{job.full_name}
+												{job.full_name|| "Chưa cập nhật"}
 											</TableCell>
 											<TableCell className="text-center">
-												{job.blood_group_name}
+												{job.blood_group_name|| "Chưa cập nhật"}
 											</TableCell>
 											<TableCell className="text-center">
-												{bloodComponentVN(job.donation_type || "Chưa có")}
+												{bloodComponentVN(job.donation_type || "Chưa cập nhật")}
 											</TableCell>
 											{/* <TableCell className="text-center">{job.blood_component_name}</TableCell> */}
 											<TableCell className="text-center">
-												{job.volume_collected}
+												{job.volume_collected|| "Chưa cập nhật"}
 											</TableCell>
 											<TableCell className="text-center">
 												{new Date(job.donation_date).toLocaleString("vi-VN")}
 											</TableCell>
 											<TableCell className="text-center">
 												<span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-													{statusVN(job.status)}
+													{statusVN(job.status|| "Chưa cập nhật")}
 												</span>
 											</TableCell>
 											<TableCell className="text-center">

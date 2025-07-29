@@ -32,7 +32,7 @@ export default function AdminSidebar() {
                     ))}
                 </div>
             </div>
-            <SidebarUpdateCard />
+            {/* <SidebarUpdateCard /> */}
         </aside>
     );
 }

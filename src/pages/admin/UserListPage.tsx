@@ -49,6 +49,24 @@ const formatDate = (dateString: string) => {
 	return new Date(dateString).toLocaleDateString("vi-VN");
 };
 
+// Hàm format datetime đầy đủ (giờ, ngày, tháng, năm)
+const formatDateTime = (dateString: string) => {
+	if (!dateString) return "Chưa cập nhật";
+
+	const date = new Date(dateString);
+	const options = {
+		year: "numeric",
+		month: "2-digit",
+		day: "2-digit",
+		hour: "2-digit",
+		// minute: '2-digit',
+		// second: '2-digit',
+		// hour12: false
+	};
+
+	return date.toLocaleString("vi-VN", options);
+};
+
 export default function UserListPage() {
 	const navigate = useNavigate();
 	const [users, setUsers] = useState<User[]>([]);
@@ -699,6 +717,9 @@ export default function UserListPage() {
 								<thead className="bg-gradient-to-r from-blue-600 to-purple-600">
 									<tr>
 										<th className="text-white font-semibold px-6 py-4 text-left">
+											STT
+										</th>
+										<th className="text-white font-semibold px-6 py-4 text-left">
 											Họ tên
 										</th>
 										<th className="text-white font-semibold px-6 py-4 text-left">
@@ -733,19 +754,22 @@ export default function UserListPage() {
 											}`}
 										>
 											<td className="px-6 py-4 font-medium text-gray-900">
-												{u.full_name || "chưa cập nhật"}
+												{index + 1 || "Chưa cập nhật"}
+											</td>
+											<td className="px-6 py-4 font-medium text-gray-900">
+												{u.full_name || "Chưa cập nhật"}
 											</td>
 											<td className="px-6 py-4 text-gray-600">
 												{u.citizen_id_number}
 											</td>
 											<td className="px-6 py-4 text-gray-600">
-												{genderVN(u.gender) || "chưa cập nhật"}
+												{genderVN(u.gender) || "Chưa cập nhật"}
 											</td>
 											{/* <td className="px-6 py-4 text-gray-600">
-												{u.email || "chưa cập nhật"}
+												{u.email || "Chưa cập nhật"}
 											</td> */}
 											<td className="px-6 py-4 text-gray-600">
-												{u.phone || "chưa cập nhật"}
+												{u.phone || "Chưa cập nhật"}
 											</td>
 											<td className="px-6 py-4">
 												<span
@@ -757,7 +781,7 @@ export default function UserListPage() {
 															: "bg-blue-100 text-blue-800"
 													}`}
 												>
-													{roleVN(u.role || "chưa cập nhật")}
+													{roleVN(u.role || "Chưa cập nhật")}
 												</span>
 											</td>
 											<td className="px-6 py-4">
@@ -855,7 +879,7 @@ export default function UserListPage() {
 												Họ tên
 											</label>
 											<p className="text-lg font-semibold text-gray-900">
-												{selectedUser.full_name || "chưa cập nhật"}
+												{selectedUser.full_name || "Chưa cập nhật"}
 											</p>
 										</div>
 										<div className="bg-white rounded-xl p-4 shadow-sm">
@@ -863,7 +887,7 @@ export default function UserListPage() {
 												Email
 											</label>
 											<p className="text-lg text-gray-900">
-												{selectedUser.email || "chưa cập nhật"}
+												{selectedUser.email || "Chưa cập nhật"}
 											</p>
 										</div>
 										<div className="bg-white rounded-xl p-4 shadow-sm">
@@ -871,7 +895,7 @@ export default function UserListPage() {
 												Số điện thoại
 											</label>
 											<p className="text-lg text-gray-900">
-												{selectedUser.phone || "chưa cập nhật"}
+												{selectedUser.phone || "Chưa cập nhật"}
 											</p>
 										</div>
 										<div className="bg-white rounded-xl p-4 shadow-sm">
@@ -879,7 +903,7 @@ export default function UserListPage() {
 												Giới tính
 											</label>
 											<p className="text-lg text-gray-900">
-												{genderVN(selectedUser.gender) || "chưa cập nhật"}
+												{genderVN(selectedUser.gender) || "Chưa cập nhật"}
 											</p>
 										</div>
 										<div className="bg-white rounded-xl p-4 shadow-sm">
@@ -888,7 +912,7 @@ export default function UserListPage() {
 											</label>
 											<p className="text-lg text-gray-900">
 												{formatDate(selectedUser.date_of_birth) ||
-													"chưa cập nhật"}
+													"Chưa cập nhật"}
 											</p>
 										</div>
 										<div className="bg-white rounded-xl p-4 shadow-sm">
@@ -896,10 +920,24 @@ export default function UserListPage() {
 												CMND/CCCD
 											</label>
 											<p className="text-lg text-gray-900">
-												{selectedUser.citizen_id_number || "chưa cập nhật"}
+												{selectedUser.citizen_id_number || "Chưa cập nhật"}
+											</p>
+										</div>
+									
+									</div>
+										{selectedUser.address && (
+									<div className="mt-4">
+									
+										<div className="bg-white rounded-xl p-4 shadow-sm">
+											<label className="text-sm font-medium text-gray-500">
+											Địa chỉ
+											</label>
+											<p className="text-lg text-gray-900">
+												{selectedUser.address || "Chưa cập nhật"}
 											</p>
 										</div>
 									</div>
+								)}
 								</div>
 
 								{/* Medical Info Section */}
@@ -914,7 +952,9 @@ export default function UserListPage() {
 												Cân nặng
 											</label>
 											<p className="text-lg font-semibold text-gray-900">
-												{selectedUser.weight || "chưa cập nhật"} kg
+												{selectedUser.weight
+													? `${selectedUser.weight} kg`
+													: "Chưa cập nhật"}
 											</p>
 										</div>
 										<div className="bg-white rounded-xl p-4 shadow-sm">
@@ -922,7 +962,7 @@ export default function UserListPage() {
 												Số lần hiến máu
 											</label>
 											<p className="text-lg font-semibold text-green-600">
-												{selectedUser.number_of_donation || "chưa cập nhật"}
+												{selectedUser.number_of_donation || "Chưa cập nhật"}
 											</p>
 										</div>
 										<div className="bg-white rounded-xl p-4 shadow-sm">
@@ -930,7 +970,7 @@ export default function UserListPage() {
 												Số lần yêu cầu
 											</label>
 											<p className="text-lg font-semibold text-blue-600">
-												{selectedUser.number_of_request || "chưa cập nhật"}
+												{selectedUser.number_of_request || "Chưa cập nhật"}
 											</p>
 										</div>
 									</div>
@@ -947,75 +987,62 @@ export default function UserListPage() {
 											<label className="text-sm font-medium text-gray-500">
 												Vai trò
 											</label>
-											<span
-												className={`inline-block px-3 py-1 rounded-full text-sm font-medium mt-2 ${
-													selectedUser.role === "Admin"
-														? "bg-red-100 text-red-800"
-														: selectedUser.role === "Donor"
-														? "bg-green-100 text-green-800"
-														: "bg-blue-100 text-blue-800"
-												}`}
-											>
-												{roleVN(selectedUser.role) || "chưa cập nhật"}
-											</span>
+											<p className="text-lg font-semibold text-gray-900">
+												<span
+													className={`inline-block px-3 py-1 rounded-full text-sm font-medium mt-2 ${
+														selectedUser.role === "Admin"
+															? "bg-red-100 text-red-800"
+															: selectedUser.role === "Donor"
+															? "bg-green-100 text-green-800"
+															: "bg-blue-100 text-blue-800"
+													}`}
+												>
+													{roleVN(selectedUser.role) || "Chưa cập nhật"}
+												</span>
+											</p>
 										</div>
 										<div className="bg-white rounded-xl p-4 shadow-sm">
 											<label className="text-sm font-medium text-gray-500">
 												Trạng thái
 											</label>
-											<span
-												className={`inline-block px-3 py-1 rounded-full text-sm font-medium mt-2 ${
-													selectedUser.is_active === true
-														? "bg-green-100 text-green-800"
-														: "bg-red-100 text-red-800"
-												}`}
-											>
-												{selectedUser.is_active === true
-													? "Đã kích hoạt"
-													: "Chưa kích hoạt"}
-											</span>
-										</div>
-										<div className="bg-white rounded-xl p-4 shadow-sm">
-											<label className="text-sm font-medium text-gray-500">
-												ID
-											</label>
-											<p className="text-sm text-gray-600 font-mono">
-												{selectedUser._id || "chưa cập nhật"}
+											<p className="text-lg font-semibold text-gray-900">
+												<span
+													className={`inline-block px-3 py-1 rounded-full text-sm font-medium mt-2 ${
+														selectedUser.is_active === true
+															? "bg-green-100 text-green-800"
+															: "bg-red-100 text-red-800"
+													}`}
+												>
+													{selectedUser.is_active === true
+														? "Đã kích hoạt"
+														: "Chưa kích hoạt"}
+												</span>
 											</p>
 										</div>
+
 										<div className="bg-white rounded-xl p-4 shadow-sm">
 											<label className="text-sm font-medium text-gray-500">
 												Ngày tạo
 											</label>
 											<p className="text-lg text-gray-900">
-												{formatDate(selectedUser.created_at) || "chưa cập nhật"}
+												{formatDateTime(selectedUser.created_at) ||
+													"Chưa cập nhật"}
 											</p>
 										</div>
 										<div className="bg-white rounded-xl p-4 shadow-sm">
 											<label className="text-sm font-medium text-gray-500">
-												Cập nhật cuối
+												Ngày cập nhật cuối
 											</label>
 											<p className="text-lg text-gray-900">
-												{formatDate(selectedUser.updated_at) || "chưa cập nhật"}
+												{formatDateTime(selectedUser.updated_at) ||
+													"Chưa cập nhật"}
 											</p>
 										</div>
 									</div>
 								</div>
 
-								{/* Address Section */}
-								{selectedUser.address && (
-									<div className="bg-gradient-to-r from-orange-50 to-red-50 rounded-2xl p-6">
-										<h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center">
-											<div className="w-2 h-6 bg-gradient-to-b from-orange-500 to-red-500 rounded-full mr-3"></div>
-											Địa chỉ
-										</h3>
-										<div className="bg-white rounded-xl p-4 shadow-sm">
-											<p className="text-lg text-gray-900">
-												{selectedUser.address || "chưa cập nhật"}
-											</p>
-										</div>
-									</div>
-								)}
+							
+							
 							</div>
 						)}
 					</DialogContent>
