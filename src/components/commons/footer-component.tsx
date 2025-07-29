@@ -4,16 +4,14 @@ const FooterComponent = () => {
   const exploreLinks = [
     { title: "Trang chủ", link: "/" },
     { title: "Hiến máu", link: "/donateBlood" },
-    { title: "Yêu cầu máu", link: "/" },
-    { title: "Donate Money", link: "https://www.facebook.com/dustin.tsan.181003" },
-    { title: "Trợ giúp", link: "/" }
+    { title: "Chính sách", link: "/policy" },
+    { title: "Hỗ trợ", link: "/support" }
   ];
 
   const contactLinks = [
-    { title: "(+92) 899353935", link: "tel:+899353935" },
-    { title: "help@BloodDonation.com", link: "mailto:help@BloodDonation.com" },
-    { title: "Di An,Binh Duong", link: "https://maps.app.goo.gl/oLicVPMzHJ1XvgmS6" },
-    { title: "Open 24/7", link: "/support" }
+    { title: "(+84) 935245940", link: "tel:+84935245940" },
+    { title: "support@blooddonation.com", link: "mailto:support@blooddonation.com" },
+    { title: "Di An,Binh Duong", link: "https://maps.app.goo.gl/oLicVPMzHJ1XvgmS6" }
   ];
 
 
@@ -26,8 +24,8 @@ const FooterComponent = () => {
             <h2 className="text-4xl font-bold text-white">
               Donation<span className="text-red-500">Blood</span>
             </h2>
-            <h3 className="font-normal text-lg text-[#D9D9D9] mt-2">
-              Bạn không cần phải là bác sĩ để cứu mạng người: <br /> Chỉ cần hiến máu
+            <h3 className="font-normal text-lg text-white mt-2">
+              Bạn không cần phải là bác sĩ để cứu mạng người: <span className="font-bold">Chỉ cần hiến máu</span>
             </h3>
           </div>
 
@@ -38,8 +36,7 @@ const FooterComponent = () => {
               {exploreLinks.map((link, index) => (
                 <li key={index}>
                   <NavLink
-                    className={({ isActive }) =>
-                      isActive ? "font-medium text-xl text-gray-400" : "font-medium text-xl text-white"
+                    className={ "font-medium text-xl text-white"
                     }
                     to={link.link}
                   >

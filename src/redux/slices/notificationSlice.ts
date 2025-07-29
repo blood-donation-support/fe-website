@@ -87,10 +87,14 @@ const notiSlice = createSlice({
       })
       .addCase(markAllNotiRead.fulfilled, (state, action) => {
         if (action.payload && Array.isArray(action.payload)) {
-          state.list = state.list.map(notification => ({
-            ...notification,
-            is_read: true 
-          }));
+          if (action.payload && Array.isArray(action.payload)) {
+            state.list = action.payload;
+          } else {
+            state.list = state.list.map(notification => ({
+              ...notification,
+              is_read: true 
+            }));
+          }
         } else {
           state.error = "Không có thông báo nào để đánh dấu";
         }

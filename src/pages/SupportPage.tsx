@@ -198,64 +198,67 @@ const SupportPage: React.FC = () => {
         </SectionMotionWrapper>
         {/* Slide 3 */}
         <SectionMotionWrapper className="w-full h-screen flex flex-col items-center justify-center bg-blue-50 snap-start">
-                    {(inView) => (
+        {(inView) => (
           <>
-        <section id="slide-3" className="w-full h-screen snap-start flex items-center justify-center bg-blue-50">
-            {/* Phần trái: Nội dung */}
-            <motion.div
+            <section id="slide-3" className="w-full h-screen snap-start flex items-center justify-center bg-blue-50">
+              {/* Phần trái: Nội dung */}
+              <motion.div
                 initial={{ opacity: 0, x: -60 }}
                 animate={{ opacity: 1, x: inView ? 0 : -60 }}
                 transition={{ duration: 0.8 }}
                 className="w-2/5 flex flex-col justify-center pl-16 pr-6 text-center"
-            >
+              >
                 <h1 className="text-[2rem] font-bold text-gray-800 mb-4 mt-[8rem] text-left">
-                Đăng ký thông tin nhận máu
+                  Quy trình hiến máu tình nguyện
                 </h1>
                 <p className="text-[1.125rem] text-gray-600 mb-2 text-left">
-                Trước khi nhận máu, bạn cần điền đầy đủ thông tin và yêu cầu nhận máu. 
-                Đây là bước quan trọng giúp chúng tôi đảm bảo việc cung cấp máu đúng mục đích và phù hợp với nhu cầu của bạn.
+                  Để đảm bảo an toàn và hiệu quả trong việc hiến máu, hãy làm theo quy trình dưới đây:
                 </p>
-                <p className="text-[1.125rem] text-gray-600 text-left">
-                Các thông tin cần điền:
-                </p>
-                <ul className="text-left text-[1.125rem] text-gray-600 mb-2">
-                <li>• <span className="text-blue-600 font-bold">Nhóm máu của bạn</span> : Chọn nhóm máu của bạn từ danh sách để chúng tôi có thể xác định chính xác nhu cầu nhận máu.</li>
-                <li>• <span className="text-blue-600 font-bold">Lý do cần nhận máu</span> : Mô tả lý do bạn cần nhận máu, ví dụ như điều trị bệnh lý, phẫu thuật, hoặc các tình huống khẩn cấp.</li>
-                <li>• <span className="text-blue-600 font-bold">Số lượng máu yêu cầu</span> : Cung cấp số lượng máu bạn cần nhận, bao gồm các đơn vị máu hoặc tiểu cầu.</li>
-                <li>• <span className="text-blue-600 font-bold">Ngày nhận máu</span> : Chọn ngày bạn cần nhận máu để chúng tôi có thể sắp xếp lịch với nguồn cung ứng.</li>
+                <ul className="text-left text-[1.125rem] text-gray-600 mb-2 space-y-2">
+                  <li>
+                    <span className="text-blue-600 font-bold">Bước 1: Đăng ký thông tin</span> – Điền đầy đủ thông tin cá nhân, nhóm máu, và tiền sử sức khỏe tại điểm hiến máu hoặc trên hệ thống trực tuyến.
+                  </li>
+                  <li>
+                    <span className="text-blue-600 font-bold">Bước 2: Khám và tư vấn sức khỏe</span> – Được đội ngũ y tế kiểm tra sức khỏe, đo huyết áp, cân nặng và tư vấn trước khi hiến máu.
+                  </li>
+                  <li>
+                    <span className="text-blue-600 font-bold">Bước 3: Hiến máu</span> – Thực hiện lấy máu trong thời gian khoảng 10-15 phút, đảm bảo quy trình vô trùng, an toàn tuyệt đối.
+                  </li>
+                  <li>
+                    <span className="text-blue-600 font-bold">Bước 4: Nghỉ ngơi </span> – Sau khi hiến máu, bạn sẽ được nghỉ ngơi, dùng nhẹ .
+                  </li>
+                  <li>
+                    <span className="text-blue-600 font-bold">Bước 5: Theo dõi sức khỏe</span> – Nếu có bất kỳ dấu hiệu bất thường nào sau khi hiến máu, hãy liên hệ ngay với cán bộ y tế để được hỗ trợ kịp thời.
+                  </li>
                 </ul>
-                <p className="text-[1.125rem] text-gray-600 text-left">
-                Sau khi hoàn thành các thông tin trên, bạn chỉ cần nhấn vào nút "<span className="text-blue-600 font-bold">Lên lịch nhận máu</span>" để xác nhận lịch nhận máu của bạn.
-                </p>
-                <p className="text-[1.125rem] text-gray-600 mb-2 text-left">
-                Cảm ơn bạn đã tin tưởng và hợp tác với chúng tôi để đảm bảo sức khỏe cộng đồng!
+                <p className="text-[0.9rem] text-gray-600 text-left">
+                   "Hãy cùng chung tay chia sẻ những giọt máu quý giá, góp phần cứu sống nhiều người bệnh!"
                 </p>
                 <button className="w-fit px-8 py-3 bg-gradient-to-r from-blue-500 to-blue-400 rounded-full text-white font-bold text-lg shadow hover:scale-105 transition mb-8">
-                <Link to="/donateBlood">Đến trang đăng kí nhận máu</Link>
+                  <Link to="/donateBlood">Đăng ký hiến máu ngay</Link>
                 </button>
-            </motion.div>
- 
-            {/* Phần phải: Hình ảnh */}
-            <motion.div
+              </motion.div>
+              {/* Phần phải: Hình ảnh */}
+              <motion.div
                 initial={{ opacity: 0, x: 60 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ duration: 0.8 }}
                 className="w-3/5 flex flex-col justify-center items-center bg-blue-600/90 rounded-l-[56px] h-full"
-            >
+              >
                 <img
-                src="/src/assets/regisdonate.png"
-                alt="Nhận máu"
-                className="w-5/6 h-3/5 object-cover rounded-lg"
+                  src="/src/assets/regisdonate.png"
+                  alt="Hiến máu"
+                  className="w-5/6 h-3/5 object-cover rounded-lg"
                 />
                 <div className="mt-8 text-white text-center">
-                <h2 className="text-3xl font-bold mb-2">Màn hình đăng kí nhận máu</h2>
+                  <h2 className="text-3xl font-bold mb-2">Quy trình hiến máu an toàn</h2>
                 </div>
-            </motion.div>
-        </section>
-
-</>
+              </motion.div>
+            </section>
+          </>
         )}
-        </SectionMotionWrapper>
+      </SectionMotionWrapper>
+
         {/* Slide 4 */}
         <SectionMotionWrapper className="w-full h-screen flex flex-col items-center justify-center snap-start">
         {(inView) => (
@@ -322,17 +325,15 @@ const SupportPage: React.FC = () => {
                 className="w-[60%] flex flex-col justify-center pl-16 pr-6 text-center bg-white"
             >
                 <h1 className="text-[2rem] font-bold text-gray-800 mb-4 mt-[8rem] text-left">
-                Nhận máu
+                Nhận máu tại cơ sở
                 </h1>
                 <p className="text-[1.125rem] text-gray-800 mb-4 text-left">
-                Khi bạn cần <span className="font-semibold text-blue-600">nhận máu</span>, hệ thống của chúng tôi sẽ giúp bạn <span className="font-semibold text-blue-600">đăng ký và đảm bảo</span> rằng bạn nhận được lượng máu cần thiết cho việc điều trị của mình. Quá trình nhận máu bao gồm các bước sau:
+                Khi bạn cần <span className="font-semibold text-blue-600">nhận máu</span>, bạn cần trực tiếp đến cơ sở chúng tôi và hệ thống của chúng tôi sẽ giúp bạn <span className="font-semibold text-blue-600">đăng ký và đảm bảo</span> rằng bạn nhận được lượng máu cần thiết cho việc điều trị của mình. Quá trình nhận máu bao gồm các bước sau:
                 </p>
                 <p className="text-[1.125rem] text-gray-600 text-left">
-                <span className="font-semibold text-blue-600">Địa điểm nhận máu:</span> Bạn sẽ nhận máu tại các cơ sở y tế, bệnh viện hoặc trung tâm nhận máu được chỉ định trong hệ thống. Thông tin chi tiết về địa điểm sẽ được gửi cho bạn sau khi xác nhận đăng ký.
+                <span className="font-semibold text-blue-600">Địa điểm nhận máu:</span> Bạn sẽ nhận máu tại các cơ sở y tế, bệnh viện hoặc trung tâm nhận máu được chỉ định trong hệ thống.
                 </p>
-                <p className="text-[1.125rem] text-gray-600 text-left">
-                <span className="font-semibold text-blue-600">Thời gian nhận máu:</span> Buổi nhận máu sẽ diễn ra vào thời gian đã được lên lịch trong quá trình đăng ký. Hệ thống sẽ gửi thông tin về thời gian và địa điểm nhận máu để bạn có thể sắp xếp tham gia.
-                </p>
+                
                 <p className="text-[1.125rem] text-gray-600 text-left">
                 <span className="font-semibold text-blue-600">Quy trình nhận máu:</span> Kỹ thuật viên và nhân viên y tế sẽ thực hiện việc truyền máu cho bạn. Hệ thống theo dõi sức khỏe và tình trạng của bạn trong suốt quá trình để đảm bảo mọi thứ diễn ra an toàn.
                 </p>
@@ -342,9 +343,7 @@ const SupportPage: React.FC = () => {
                 <p className="text-[1.125rem] text-gray-600 mb-4 text-left">
                 "Cảm ơn bạn đã tin tưởng và hợp tác với chúng tôi để đảm bảo sức khỏe cộng đồng!"
                 </p>
-                <button className="w-fit px-8 py-3 bg-gradient-to-r from-blue-500 to-blue-400 rounded-full text-white font-bold text-lg shadow hover:scale-105 transition mb-8">
-                <Link to="/donateBlood">Đến trang đăng kí nhận máu</Link>
-                </button>
+                
             </motion.div>
 
             {/* Phần phải: Hình ảnh */}

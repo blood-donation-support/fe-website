@@ -20,7 +20,7 @@ export default function DateInputVi({ value, onChange, disabled }: DateInputViPr
         dateFormat="dd/MM/yyyy"
         placeholderText="Chọn ngày muốn hiến máu"
         minDate={new Date()}
-        className="w-full p-4 pl-10 border-none bg-[#D9D9D9] rounded-md focus:outline-none focus:ring-2 focus:ring-gray-200 text-black text-base"
+        className="w-full p-4 pl-10 border-none bg-white rounded-md focus:outline-none focus:ring-2 focus:ring-gray-200 text-black text-base"
         calendarClassName="!bg-white !text-black !shadow-lg !rounded-lg"
         wrapperClassName="w-full"
         disabled={disabled}

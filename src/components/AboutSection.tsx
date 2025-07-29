@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import GroupedHeadingComponent from "./commons/grouped-heading-component";
 import ParaComponent from "./commons/para-component";
 import SectionMotionWrapper from "./commons/SectionMotionWrapper";
@@ -55,7 +56,7 @@ export default function AboutSection() {
 								/>
 							</div>
 							<button className="w-fit px-[2vw] py-[1vh] bg-gradient-to-r from-blue-500 to-blue-400 rounded-full text-white font-bold text-[1.2vw] shadow hover:scale-105 transition mb-[1.5vh]">
-								Hiến máu
+								<Link to="/donateBlood">Hiến máu</Link>
 							</button>
 							<div className="flex items-center gap-[2vw]">
 								<div className="flex flex-col items-center">
@@ -81,7 +82,6 @@ export default function AboutSection() {
 								: { opacity: 1, scale: 0.8, y: "2vh", x: "-10vw" }
 						}
 						transition={{ duration: 1 }}
-						// className="absolute top-1/2 left-[46vw] w-[30vw] h-[80vh] -translate-x-1/2 -translate-y-1/2 z-30"
 						className="absolute top-1  w-[90vw] h-[300vh] -translate-x-1/2 -translate-y-1/2 z-30"
 					>
 						<div className="relative w-full h-full flex items-center justify-center">
