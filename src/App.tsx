@@ -157,6 +157,10 @@ function RouterWrapper() {
 							path="donation-registers"
 							element={<DonationRegistrationsPage />}
 						/>
+            	<Route
+							path="request-registers"
+							element={<RequestRegistrationsPage />}
+						/>
 						<Route path="blogs" element={<BlogAdminPage />} />
 						<Route path="blogs/:id/edit" element={<BlogEditPage />} />
 					</Route>

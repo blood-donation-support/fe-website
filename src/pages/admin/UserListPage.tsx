@@ -38,8 +38,8 @@ const roleVN = (role: string) => {
 			return "Bệnh nhân";
 		case "Staff":
 			return "Nhân viên y tế";
-		case "Admin":
-			return "Quản trị viên";
+		case "Staff Warehouse":
+			return "Nhân viên kho máu";
 		default:
 			return role;
 	}
@@ -88,7 +88,9 @@ export default function UserListPage() {
 	const [selectedUserForUpdate, setSelectedUserForUpdate] =
 		useState<User | null>(null);
 	const [newRole, setNewRole] = useState<string>("");
-
+	const [deleteId, setDeleteId] = useState<string | null>(null);
+	const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
+	const [loading, setLoading] = useState(false);
 	useEffect(() => {
 		fetchBloodGroups()
 			.then(setBloodGroups)
@@ -117,16 +119,37 @@ export default function UserListPage() {
 			);
 			setUsers(sorted);
 		});
-	}, []);
-
-	const handleDelete = async (id: string) => {
+	}, [fetchUserAll]);
+	const fetchUsers = async () => {
+		setLoading(true);
 		try {
-			await deleteUser(id);
-			setUsers((prev) => prev.filter((u) => u._id !== id));
+			const res = await fetchUserAll();
+			setUsers(res.reverse());
+		} catch (err) {
+			console.error("Fetch error", err);
+			toast.error("Không thể tải danh sách người dùng");
+		} finally {
+			setLoading(false);
+		}
+	};
+
+	const handleOpenDeleteDialog = (id: string) => {
+		setDeleteId(id);
+		setOpenDeleteDialog(true);
+	};
+
+	const handleConfirmDelete = async () => {
+		if (!deleteId) return;
+		try {
+			await deleteUser(deleteId);
+			await fetchUsers();
 			toast.success("Đã xóa người dùng thành công");
-		} catch (error) {
-			console.error("Error deleting user:", error);
+		} catch (err) {
+			console.error("Delete error", err);
 			toast.error("Xóa người dùng thất bại");
+		} finally {
+			setDeleteId(null);
+			setOpenDeleteDialog(false);
 		}
 	};
 
@@ -188,6 +211,7 @@ export default function UserListPage() {
 				date_of_birth: "",
 				gender: undefined,
 			});
+			fetchUsers();
 			navigate("/dashboard-admin/users");
 		} catch (err) {
 			console.error("Error creating user:", err);
@@ -248,6 +272,7 @@ export default function UserListPage() {
 			setOpenUpdateRole(false);
 			setSelectedUserForUpdate(null);
 			setNewRole("");
+			fetchUsers();
 		} catch (error) {
 			console.error("Error updating role:", error);
 			toast.error("Cập nhật vai trò thất bại");
@@ -342,7 +367,11 @@ export default function UserListPage() {
 											<Select
 												value={roleFilter}
 												onValueChange={(
-													value: "all" | "Customer" | "Staff" | "Admin",
+													value:
+														| "all"
+														| "Customer"
+														| "Staff"
+														| "Staff Warehouse",
 												) => setRoleFilter(value)}
 											>
 												<SelectTrigger className="w-full h-12 bg-white border-gray-200 rounded-xl shadow-sm hover:border-gray-300 hover:shadow-md transition-all duration-200 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500">
@@ -352,7 +381,9 @@ export default function UserListPage() {
 													<SelectItem value="all">Tất cả</SelectItem>
 													<SelectItem value="Customer">Bệnh nhân</SelectItem>
 													<SelectItem value="Staff">Nhân viên y tế</SelectItem>
-													<SelectItem value="Admin">Quản trị viên</SelectItem>
+													<SelectItem value="Staff Warehouse">
+														Nhân viên kho máu
+													</SelectItem>
 												</SelectContent>
 											</Select>
 										</div>
@@ -433,233 +464,331 @@ export default function UserListPage() {
 														</DialogDescription>
 													</DialogHeader>
 													<div className="space-y-4 mt-4">
-														<Input
-															placeholder="Số CMND/CCCD"
-															className="rounded-xl"
-															value={newUser.citizen_id_number || ""}
-															onChange={(e) =>
-																setNewUser({
-																	...newUser,
-																	citizen_id_number: e.target.value,
-																})
-															}
-														/>
-														<Input
-															placeholder="Họ tên"
-															className="rounded-xl"
-															value={newUser.full_name || ""}
-															onChange={(e) =>
-																setNewUser({
-																	...newUser,
-																	full_name: e.target.value,
-																})
-															}
-														/>
-														<Input
-															placeholder="Email"
-															type="email"
-															className="rounded-xl"
-															value={newUser.email || ""}
-															onChange={(e) =>
-																setNewUser({
-																	...newUser,
-																	email: e.target.value,
-																})
-															}
-														/>
-														<Input
-															placeholder="Số điện thoại"
-															className="rounded-xl"
-															value={newUser.phone || ""}
-															onChange={(e) =>
-																setNewUser({
-																	...newUser,
-																	phone: e.target.value,
-																})
-															}
-														/>
-
-														{/* Password với icon mắt */}
-														<div className="relative">
+														<div>
+															<label className="block text-sm font-medium text-gray-700 mb-2">
+																Số CMND/CCCD{" "}
+																<span className="text-red-500">*</span>
+															</label>
 															<Input
-																type={showPassword ? "text" : "password"}
-																placeholder="Mật khẩu"
-																className="rounded-xl pr-12"
-																value={newUser.password || ""}
+																placeholder="Nhập số CMND/CCCD"
+																className="rounded-xl"
+																value={newUser.citizen_id_number || ""}
 																onChange={(e) =>
 																	setNewUser({
 																		...newUser,
-																		password: e.target.value,
+																		citizen_id_number: e.target.value,
 																	})
 																}
+																title="Vui lòng nhập số chứng minh nhân dân hoặc căn cước công dân"
 															/>
-															<button
-																type="button"
-																className="absolute inset-y-0 right-0 pr-3 flex items-center"
-																onClick={() => setShowPassword(!showPassword)}
-															>
-																{showPassword ? (
-																	<EyeOff className="h-4 w-4 text-gray-400" />
-																) : (
-																	<Eye className="h-4 w-4 text-gray-400" />
-																)}
-															</button>
+														</div>
+
+														<div>
+															<label className="block text-sm font-medium text-gray-700 mb-2">
+																Họ tên <span className="text-red-500">*</span>
+															</label>
+															<Input
+																placeholder="Nhập họ và tên đầy đủ"
+																className="rounded-xl"
+																value={newUser.full_name || ""}
+																onChange={(e) =>
+																	setNewUser({
+																		...newUser,
+																		full_name: e.target.value,
+																	})
+																}
+																title="Vui lòng nhập họ và tên đầy đủ"
+															/>
+														</div>
+
+														<div>
+															<label className="block text-sm font-medium text-gray-700 mb-2">
+																Email <span className="text-red-500">*</span>
+															</label>
+															<Input
+																placeholder="Nhập địa chỉ email"
+																type="email"
+																className="rounded-xl"
+																value={newUser.email || ""}
+																onChange={(e) =>
+																	setNewUser({
+																		...newUser,
+																		email: e.target.value,
+																	})
+																}
+																title="Vui lòng nhập địa chỉ email hợp lệ"
+															/>
+														</div>
+
+														<div>
+															<label className="block text-sm font-medium text-gray-700 mb-2">
+																Số điện thoại{" "}
+																<span className="text-red-500">*</span>
+															</label>
+															<Input
+																placeholder="Nhập số điện thoại"
+																className="rounded-xl"
+																value={newUser.phone || ""}
+																onChange={(e) =>
+																	setNewUser({
+																		...newUser,
+																		phone: e.target.value,
+																	})
+																}
+																title="Vui lòng nhập số điện thoại hợp lệ"
+															/>
+														</div>
+
+														{/* Password với icon mắt */}
+														<div>
+															<label className="block text-sm font-medium text-gray-700 mb-2">
+																Mật khẩu <span className="text-red-500">*</span>
+															</label>
+															<div className="relative">
+																<Input
+																	type={showPassword ? "text" : "password"}
+																	placeholder="Nhập mật khẩu"
+																	className="rounded-xl pr-12"
+																	value={newUser.password || ""}
+																	onChange={(e) =>
+																		setNewUser({
+																			...newUser,
+																			password: e.target.value,
+																		})
+																	}
+																	title="Mật khẩu phải có ít nhất 6 ký tự"
+																/>
+																<button
+																	type="button"
+																	className="absolute inset-y-0 right-0 pr-3 flex items-center"
+																	onClick={() => setShowPassword(!showPassword)}
+																>
+																	{showPassword ? (
+																		<EyeOff className="h-4 w-4 text-gray-400" />
+																	) : (
+																		<Eye className="h-4 w-4 text-gray-400" />
+																	)}
+																</button>
+															</div>
 														</div>
 
 														{/* Confirm Password với icon mắt */}
-														<div className="relative">
+														<div>
+															<label className="block text-sm font-medium text-gray-700 mb-2">
+																Xác nhận mật khẩu{" "}
+																<span className="text-red-500">*</span>
+															</label>
+															<div className="relative">
+																<Input
+																	type={
+																		showConfirmPassword ? "text" : "password"
+																	}
+																	placeholder="Nhập lại mật khẩu"
+																	className="rounded-xl pr-12"
+																	value={newUser.confirm_password || ""}
+																	onChange={(e) =>
+																		setNewUser({
+																			...newUser,
+																			confirm_password: e.target.value,
+																		})
+																	}
+																	title="Mật khẩu xác nhận phải giống với mật khẩu đã nhập"
+																/>
+																<button
+																	type="button"
+																	className="absolute inset-y-0 right-0 pr-3 flex items-center"
+																	onClick={() =>
+																		setShowConfirmPassword(!showConfirmPassword)
+																	}
+																>
+																	{showConfirmPassword ? (
+																		<EyeOff className="h-4 w-4 text-gray-400" />
+																	) : (
+																		<Eye className="h-4 w-4 text-gray-400" />
+																	)}
+																</button>
+															</div>
+														</div>
+
+														<div>
+															<label className="block text-sm font-medium text-gray-700 mb-2">
+																Ngày sinh{" "}
+																<span className="text-red-500">*</span>
+															</label>
 															<Input
-																type={showConfirmPassword ? "text" : "password"}
-																placeholder="Xác nhận mật khẩu"
-																className="rounded-xl pr-12"
-																value={newUser.confirm_password || ""}
+																type="date"
+																placeholder="Chọn ngày sinh"
+																className="rounded-xl"
+																max={new Date().toISOString().split("T")[0]} // Chỉ cho phép chọn ngày quá khứ
 																onChange={(e) =>
 																	setNewUser({
 																		...newUser,
-																		confirm_password: e.target.value,
+																		date_of_birth: new Date(
+																			e.target.value,
+																		).toISOString(),
 																	})
 																}
+																title="Vui lòng chọn ngày sinh (chỉ được chọn ngày trong quá khứ)"
 															/>
-															<button
-																type="button"
-																className="absolute inset-y-0 right-0 pr-3 flex items-center"
-																onClick={() =>
-																	setShowConfirmPassword(!showConfirmPassword)
-																}
-															>
-																{showConfirmPassword ? (
-																	<EyeOff className="h-4 w-4 text-gray-400" />
-																) : (
-																	<Eye className="h-4 w-4 text-gray-400" />
-																)}
-															</button>
 														</div>
 
-														<Input
-															type="date"
-															placeholder="Ngày sinh"
-															className="rounded-xl"
-															onChange={(e) =>
-																setNewUser({
-																	...newUser,
-																	date_of_birth: new Date(
-																		e.target.value,
-																	).toISOString(),
-																})
-															}
-														/>
-														<Select
-															value={newUser.gender ?? ""}
-															onValueChange={(val: UserGender) =>
-																setNewUser({ ...newUser, gender: val })
-															}
-														>
-															<SelectTrigger className="rounded-xl">
-																<SelectValue placeholder="Chọn giới tính" />
-															</SelectTrigger>
-															<SelectContent>
-																{Object.values(UserGender).map((g) => (
-																	<SelectItem key={g} value={g}>
-																		{genderVN(g)}
-																	</SelectItem>
-																))}
-															</SelectContent>
-														</Select>
+														<div>
+															<label className="block text-sm font-medium text-gray-700 mb-2">
+																Giới tính{" "}
+																<span className="text-red-500">*</span>
+															</label>
+															<Select
+																value={newUser.gender ?? ""}
+																onValueChange={(val: UserGender) =>
+																	setNewUser({ ...newUser, gender: val })
+																}
+															>
+																<SelectTrigger
+																	className="rounded-xl"
+																	title="Vui lòng chọn giới tính"
+																>
+																	<SelectValue placeholder="Chọn giới tính" />
+																</SelectTrigger>
+																<SelectContent>
+																	{Object.values(UserGender).map((g) => (
+																		<SelectItem key={g} value={g}>
+																			{genderVN(g)}
+																		</SelectItem>
+																	))}
+																</SelectContent>
+															</Select>
+														</div>
 
 														{/* Weight field với validation không âm */}
-														<Input
-															type="number"
-															placeholder="Cân nặng (kg)"
-															className="rounded-xl"
-															min="0"
-															step="0.1"
-															value={newUser.weight || ""}
-															onChange={(e) => {
-																const value = parseFloat(e.target.value);
-																setNewUser({
-																	...newUser,
-																	weight: value >= 0 ? value : 0,
-																});
-															}}
-														/>
+														<div>
+															<label className="block text-sm font-medium text-gray-700 mb-2">
+																Cân nặng (kg)
+															</label>
+															<Input
+																type="number"
+																placeholder="Nhập cân nặng"
+																className="rounded-xl"
+																min="0"
+																step="0.1"
+																value={newUser.weight || ""}
+																onChange={(e) => {
+																	const value = parseFloat(e.target.value);
+																	setNewUser({
+																		...newUser,
+																		weight: value >= 0 ? value : 0,
+																	});
+																}}
+																title="Nhập cân nặng tính bằng kg (số dương)"
+															/>
+														</div>
 
-														<Input
-															placeholder="Địa chỉ"
-															className="rounded-xl"
-															value={newUser.address || ""}
-															onChange={(e) =>
-																setNewUser({
-																	...newUser,
-																	address: e.target.value,
-																})
-															}
-														/>
+														<div>
+															<label className="block text-sm font-medium text-gray-700 mb-2">
+																Địa chỉ
+															</label>
+															<Input
+																placeholder="Nhập địa chỉ nơi ở"
+																className="rounded-xl"
+																value={newUser.address || ""}
+																onChange={(e) =>
+																	setNewUser({
+																		...newUser,
+																		address: e.target.value,
+																	})
+																}
+																title="Nhập địa chỉ nơi ở hiện tại"
+															/>
+														</div>
 
-														<Select
-															value={newUser.role ?? "Customer"}
-															onValueChange={(val: string) =>
-																setNewUser({ ...newUser, role: val })
-															}
-														>
-															<SelectTrigger className="rounded-xl">
-																<SelectValue placeholder="Chọn vai trò" />
-															</SelectTrigger>
-															<SelectContent>
-																<SelectItem value="Customer">
-																	Bệnh nhân
-																</SelectItem>
-																<SelectItem value="Staff">
-																	Nhân viên y tế
-																</SelectItem>
-																<SelectItem value="Admin">
-																	Quản trị viên
-																</SelectItem>
-															</SelectContent>
-														</Select>
+														<div>
+															<label className="block text-sm font-medium text-gray-700 mb-2">
+																Vai trò
+															</label>
+															<Select
+																value={newUser.role ?? "Customer"}
+																onValueChange={(val: string) =>
+																	setNewUser({ ...newUser, role: val })
+																}
+															>
+																<SelectTrigger
+																	className="rounded-xl"
+																	title="Chọn vai trò cho người dùng"
+																>
+																	<SelectValue placeholder="Chọn vai trò" />
+																</SelectTrigger>
+																<SelectContent>
+																	<SelectItem value="Customer">
+																		Bệnh nhân
+																	</SelectItem>
+																	<SelectItem value="Staff">
+																		Nhân viên y tế
+																	</SelectItem>
+																	<SelectItem value="Staff Warehouse">
+																		Nhân viên kho máu
+																	</SelectItem>
+																</SelectContent>
+															</Select>
+														</div>
 
 														{/* Blood Group selection với tên hiển thị */}
-														<Select
-															value={newUser.blood_group_id || "none"}
-															onValueChange={(val) =>
-																setNewUser({
-																	...newUser,
-																	blood_group_id: val === "none" ? "" : val,
-																})
-															}
-														>
-															<SelectTrigger className="rounded-xl">
-																<SelectValue placeholder="Chọn nhóm máu (tùy chọn)" />
-															</SelectTrigger>
-															<SelectContent>
-																<SelectItem value="none">Không chọn</SelectItem>
-																{bloodGroups && bloodGroups.length > 0 ? (
-																	bloodGroups.map((group) => (
-																		<SelectItem
-																			key={group._id}
-																			value={group._id}
-																		>
-																			{group.name}
-																		</SelectItem>
-																	))
-																) : (
-																	<SelectItem value="" disabled>
-																		Đang tải...
+														<div>
+															<label className="block text-sm font-medium text-gray-700 mb-2">
+																Nhóm máu
+															</label>
+															<Select
+																value={newUser.blood_group_id || "none"}
+																onValueChange={(val) =>
+																	setNewUser({
+																		...newUser,
+																		blood_group_id: val === "none" ? "" : val,
+																	})
+																}
+															>
+																<SelectTrigger
+																	className="rounded-xl"
+																	title="Chọn nhóm máu (không bắt buộc)"
+																>
+																	<SelectValue placeholder="Chọn nhóm máu (tùy chọn)" />
+																</SelectTrigger>
+																<SelectContent>
+																	<SelectItem value="none">
+																		Không chọn
 																	</SelectItem>
-																)}
-															</SelectContent>
-														</Select>
+																	{bloodGroups && bloodGroups.length > 0 ? (
+																		bloodGroups.map((group) => (
+																			<SelectItem
+																				key={group._id}
+																				value={group._id}
+																			>
+																				{group.name}
+																			</SelectItem>
+																		))
+																	) : (
+																		<SelectItem value="" disabled>
+																			Đang tải...
+																		</SelectItem>
+																	)}
+																</SelectContent>
+															</Select>
+														</div>
 
-														<Input
-															placeholder="URL ảnh đại diện (tùy chọn)"
-															className="rounded-xl"
-															value={newUser.avatar_url || ""}
-															onChange={(e) =>
-																setNewUser({
-																	...newUser,
-																	avatar_url: e.target.value,
-																})
-															}
-														/>
+														<div>
+															<label className="block text-sm font-medium text-gray-700 mb-2">
+																URL ảnh đại diện
+															</label>
+															<Input
+																placeholder="Nhập đường dẫn ảnh đại diện"
+																className="rounded-xl"
+																value={newUser.avatar_url || ""}
+																onChange={(e) =>
+																	setNewUser({
+																		...newUser,
+																		avatar_url: e.target.value,
+																	})
+																}
+																title="Nhập URL ảnh đại diện (không bắt buộc)"
+															/>
+														</div>
 
 														<Button
 															onClick={handleAddUser}
@@ -831,10 +960,7 @@ export default function UserListPage() {
 														variant="outline"
 														size="sm"
 														className="rounded-lg border-red-200 text-red-600 hover:bg-red-50"
-														onClick={(e) => {
-															e.stopPropagation();
-															handleDelete(u._id);
-														}}
+														onClick={() => handleOpenDeleteDialog(u._id)}
 													>
 														<AlignJustify size={16} />
 													</Button>
@@ -845,6 +971,30 @@ export default function UserListPage() {
 								</tbody>
 							</table>
 						</div>
+						{/* Dialog xác nhận xoá */}
+						<Dialog open={openDeleteDialog} onOpenChange={setOpenDeleteDialog}>
+							<DialogContent className="max-w-md rounded-xl">
+								<DialogHeader>
+									<DialogTitle>
+										Bạn có chắc chuyển trạng thái người dùng?
+									</DialogTitle>
+								</DialogHeader>
+								<div className="flex justify-end gap-4 mt-6">
+									<Button
+										variant="outline"
+										onClick={() => {
+											setDeleteId(null);
+											setOpenDeleteDialog(false);
+										}}
+									>
+										Hủy
+									</Button>
+									<Button variant="destructive" onClick={handleConfirmDelete}>
+										Xác nhận
+									</Button>
+								</div>
+							</DialogContent>
+						</Dialog>
 
 						{filtered.length === 0 && (
 							<div className="text-center py-8 text-gray-500">
@@ -1074,7 +1224,9 @@ export default function UserListPage() {
 								<SelectContent>
 									<SelectItem value="Customer">Bệnh nhân</SelectItem>
 									<SelectItem value="Staff">Nhân viên y tế</SelectItem>
-									<SelectItem value="Staff Warehouse">Nhân viên kho máu</SelectItem>
+									<SelectItem value="Staff Warehouse">
+										Nhân viên kho máu
+									</SelectItem>
 								</SelectContent>
 							</Select>
 
