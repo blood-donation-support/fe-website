@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Plus, Trash2, Eye, EyeOff } from "lucide-react";
+import { Plus, Trash2, Eye, EyeOff, AlignJustify } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -100,7 +100,7 @@ export default function UserListPage() {
 
 	// Filter states
 	const [roleFilter, setRoleFilter] = useState<
-		"all" | "Customer" | "Staff" | "Admin"
+		"all" | "Customer" | "Staff" | "Staff Warehouse"
 	>("all");
 	const [genderFilter, setGenderFilter] = useState<
 		"all" | "Male" | "Female" | "Other"
@@ -836,7 +836,7 @@ export default function UserListPage() {
 															handleDelete(u._id);
 														}}
 													>
-														<Trash2 size={16} />
+														<AlignJustify size={16} />
 													</Button>
 												</div>
 											</td>
@@ -1074,7 +1074,7 @@ export default function UserListPage() {
 								<SelectContent>
 									<SelectItem value="Customer">Bệnh nhân</SelectItem>
 									<SelectItem value="Staff">Nhân viên y tế</SelectItem>
-									<SelectItem value="Admin">Quản trị viên</SelectItem>
+									<SelectItem value="Staff Warehouse">Nhân viên kho máu</SelectItem>
 								</SelectContent>
 							</Select>
 
