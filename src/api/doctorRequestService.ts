@@ -88,7 +88,6 @@ export interface RequestProcessBloodPayLoad {
 
 
 
-
 // Tạo mới một doctor request
 export const createDoctorRequest = async (
   payload: DoctorRequestPayload

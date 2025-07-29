@@ -28,7 +28,7 @@ import {
 } from "@/components/ui/dialog";
 import { fetchInventory } from "@/api/inventoryService";
 import type { InventoryItem } from "@/api/inventoryService";
-import { fetchBloodGroups, fetchBloodComponents } from "@/api/bloodService";
+import { fetchBloodGroups, fetchBloodComponents, updateBloodUnitStatus } from "@/api/bloodService";
 import bloodComponentVN from "@/utils/translateBloodComponentVN";
 import { BloodStorageProcessPage } from "./BloodStorageProcessPage";
 import { BloodReleaseForm } from "./BloodReleaseForm";
@@ -226,8 +226,10 @@ export const BloodStoragePage: React.FC = () => {
 
 		setUpdatingStatus(true);
 		try {
-			// Simulate API call to update status
-			await new Promise((resolve) => setTimeout(resolve, 1000));
+			// Call the updateBloodUnitStatus API
+			await updateBloodUnitStatus(selectedItem._id, { 
+				status: BloodUnitStatus.Damaged 
+			});
 
 			// Update the item in the data array
 			setData((prevData) =>
@@ -247,6 +249,7 @@ export const BloodStoragePage: React.FC = () => {
 			toast.success("Cập nhật trạng thái thành công");
 		} catch (error) {
 			console.error("Failed to update status:", error);
+			toast.error("Cập nhật trạng thái thất bại. Vui lòng thử lại.");
 		} finally {
 			setUpdatingStatus(false);
 		}

@@ -45,6 +45,7 @@ import ProfileLayout from "./components/layout/ProfileLayout";
 import ProfileInfo from "./components/profileComponents/ProfileInfo";
 import ChangePasswordPage from "./components/profileComponents/ChangePasswordPage";
 import BloodSummaryTable from "./pages/warehouse-staff/BloodSummaryTable";
+import RequestRegistrationsPage from "./pages/RequestRegistrationsPage";
 
 type PrivateRouteProps = {
   role: string;
@@ -135,6 +136,10 @@ export default function App() {
                 <Route
                   path="donation-registers"
                   element={<DonationRegistrationsPage />}
+                />
+                <Route
+                  path="request-list"
+                  element={<RequestRegistrationsPage />}
                 />
                 <Route path="blogs" element={<BlogAdminPage />} />
                 <Route path="blogs/:id/edit" element={<BlogEditPage />} />
