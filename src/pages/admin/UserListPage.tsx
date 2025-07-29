@@ -923,21 +923,19 @@ export default function UserListPage() {
 												{selectedUser.citizen_id_number || "Chưa cập nhật"}
 											</p>
 										</div>
-									
 									</div>
-										{selectedUser.address && (
-									<div className="mt-4">
-									
-										<div className="bg-white rounded-xl p-4 shadow-sm">
-											<label className="text-sm font-medium text-gray-500">
-											Địa chỉ
-											</label>
-											<p className="text-lg text-gray-900">
-												{selectedUser.address || "Chưa cập nhật"}
-											</p>
+									{selectedUser.address && (
+										<div className="mt-4">
+											<div className="bg-white rounded-xl p-4 shadow-sm">
+												<label className="text-sm font-medium text-gray-500">
+													Địa chỉ
+												</label>
+												<p className="text-lg text-gray-900">
+													{selectedUser.address || "Chưa cập nhật"}
+												</p>
+											</div>
 										</div>
-									</div>
-								)}
+									)}
 								</div>
 
 								{/* Medical Info Section */}
@@ -962,7 +960,7 @@ export default function UserListPage() {
 												Số lần hiến máu
 											</label>
 											<p className="text-lg font-semibold text-green-600">
-												{selectedUser.number_of_donation || "Chưa cập nhật"}
+												{selectedUser.number_of_donations || "Chưa cập nhật"}
 											</p>
 										</div>
 										<div className="bg-white rounded-xl p-4 shadow-sm">
@@ -970,7 +968,7 @@ export default function UserListPage() {
 												Số lần yêu cầu
 											</label>
 											<p className="text-lg font-semibold text-blue-600">
-												{selectedUser.number_of_request || "Chưa cập nhật"}
+												{selectedUser.number_of_requests || "Chưa cập nhật"}
 											</p>
 										</div>
 									</div>
@@ -1040,9 +1038,6 @@ export default function UserListPage() {
 										</div>
 									</div>
 								</div>
-
-							
-							
 							</div>
 						)}
 					</DialogContent>
