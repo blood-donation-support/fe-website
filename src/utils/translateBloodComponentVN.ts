@@ -17,7 +17,7 @@ const bloodComponentVN = (en: string) => {
 		case "Platelets - Red Blood Cells":
 			return "Tiểu cầu + Hồng cầu";
 		default:
-			return en;
+			return "Chưa cập nhật";
 	}
 };
 export default bloodComponentVN;

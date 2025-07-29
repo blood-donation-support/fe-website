@@ -47,6 +47,7 @@ import {
 	validateBloodRequest,
 	type TransfusionScreeningInput,
 } from "@/utils/validateBloodRequest";
+import statusVN from "@/utils/statusVN";
 
 interface EditForm {
 	blood_group_id: string;
@@ -218,6 +219,31 @@ export const HealthCheckRequest: React.FC = () => {
 			setError("Lỗi khi cập nhật");
 		}
 	};
+	const onReject = async () => {
+		if (!healthCheck?._id) return;
+
+		try {
+			await updateHealthCheck(healthCheck._id, {
+				status: "Rejected",
+				blood_group_id: editForm.blood_group_id || "",
+				request_type: editForm.request_type || "",
+				donation_type: editForm.request_type || "",
+				weight: editForm.weight || 0,
+				temperature: editForm.temperature || 0,
+				heart_rate: editForm.heart_rate || 0,
+				systolic_blood_pressure: editForm.systolic_blood_pressure || 0,
+				diastolic_blood_pressure: editForm.diastolic_blood_pressure || 0,
+				hemoglobin: editForm.hemoglobin || 0,
+				underlying_health_conditions:
+					editForm.underlying_health_conditions || "",
+				description: editForm.description || "",
+			});
+			toast.success("Đã đánh dấu 'Không đạt yêu cầu'");
+			navigate(-1);
+		} catch {
+			setError("Lỗi khi cập nhật trạng thái từ chối");
+		}
+	};
 
 	if (loading)
 		return (
@@ -314,7 +340,7 @@ export const HealthCheckRequest: React.FC = () => {
 									<Activity /> Kết quả khám
 								</CardTitle>
 								<Badge className={getStatusColor(healthCheck.status)}>
-									{healthCheck.status}
+									{statusVN(healthCheck.status)}
 								</Badge>
 							</div>
 						</CardHeader>
@@ -433,6 +459,7 @@ export const HealthCheckRequest: React.FC = () => {
 										<Label>Huyết áp tâm thu</Label>
 										<Input
 											type="number"
+											min={0}
 											value={editForm.systolic_blood_pressure}
 											onChange={(e) =>
 												handleChange(
@@ -452,6 +479,7 @@ export const HealthCheckRequest: React.FC = () => {
 										<Label>Huyết áp tâm trương</Label>
 										<Input
 											type="number"
+											min={0}
 											value={editForm.diastolic_blood_pressure}
 											onChange={(e) =>
 												handleChange(
@@ -551,21 +579,31 @@ export const HealthCheckRequest: React.FC = () => {
 							<div className="flex justify-center pt-4">
 								{/* Chỉ hiển thị nút Lưu nếu chưa Approved */}
 								{healthCheck.status !== "Approved" && (
-									<Button
-										onClick={onSave}
-										className="px-8 py-3 bg-green-600 hover:bg-green-700 text-white"
-									>
-										<CheckCircle className="w-5 h-5 mr-2" /> Lưu kết quả
-									</Button>
+									<>
+										<Button
+											onClick={onSave}
+											className="px-8 py-3 bg-green-600 hover:bg-green-700 text-white"
+										>
+											<CheckCircle className="w-5 h-5 mr-2" /> Đạt yêu cầu
+										</Button>
+
+										<Button
+											onClick={onReject}
+											className="ml-4 px-8 py-3 bg-red-600 hover:bg-red-700 text-white"
+										>
+											<XCircle className="w-5 h-5 mr-2" /> Không đạt yêu cầu
+										</Button>
+									</>
 								)}
 
-								{/* Nút Hủy luôn hiển thị */}
+								{/* Nút Quay lại luôn hiển thị */}
 								<Button
 									onClick={() => navigate(-1)}
 									variant="outline"
 									className="ml-4"
 								>
-									<XCircle className="w-5 h-5 mr-2 text-gray-600" /> Hủy
+									<ArrowLeft className="w-5 h-5 mr-2 text-gray-600" />
+									Quay lại
 								</Button>
 							</div>
 						</CardContent>

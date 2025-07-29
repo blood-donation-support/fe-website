@@ -45,6 +45,7 @@ import ProfileLayout from "./components/layout/ProfileLayout";
 import ProfileInfo from "./components/profileComponents/ProfileInfo";
 import ChangePasswordPage from "./components/profileComponents/ChangePasswordPage";
 import BloodSummaryTable from "./pages/warehouse-staff/BloodSummaryTable";
+import NotFoundPage from "./pages/NotFoundPage";
 
 type PrivateRouteProps = {
   role: string;
@@ -193,6 +194,8 @@ export default function App() {
                   element={<BloodSeparationProcessPage />}
                 />
               </Route>
+                <Route path="*" element={<NotFoundPage />} />
+
             </Routes>
           </AnimatePresence>
         </BrowserRouter>

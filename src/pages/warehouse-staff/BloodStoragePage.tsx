@@ -428,6 +428,9 @@ export const BloodStoragePage: React.FC = () => {
 										<TableHeader className="bg-[#236afe] text-white">
 											<TableRow>
 												<TableHead className="text-white px-4 py-3">
+													STT
+												</TableHead>
+												<TableHead className="text-white px-4 py-3">
 													Nhóm máu
 												</TableHead>
 												<TableHead className="text-white px-4 py-3">
@@ -436,13 +439,19 @@ export const BloodStoragePage: React.FC = () => {
 												<TableHead className="text-white px-4 py-3">
 													Thể tích (ml)
 												</TableHead>
-												<TableHead className="text-white px-4 py-3 text-center">
+												<TableHead className="text-white px-4 py-3">
+													Ngày hết hạn
+												</TableHead>
+												<TableHead className="text-white px-4 py-3">
 													Trạng thái
 												</TableHead>
 												<TableHead className="text-white px-4 py-3">
 													Ngày tạo
 												</TableHead>
-												<TableHead className="text-white px-4 py-3 text-center">
+												<TableHead className="text-white px-4 py-3">
+													Cập nhật bởi
+												</TableHead>
+												<TableHead className="text-white px-4 py-3">
 													Thao tác
 												</TableHead>
 											</TableRow>
@@ -451,14 +460,14 @@ export const BloodStoragePage: React.FC = () => {
 											{filteredData.length === 0 ? (
 												<TableRow>
 													<TableCell
-														colSpan={6}
+														colSpan={9}
 														className="text-center py-8 text-gray-500"
 													>
 														Không tìm thấy dữ liệu phù hợp với bộ lọc
 													</TableCell>
 												</TableRow>
 											) : (
-												filteredData.map((item) => {
+												filteredData.map((item, index) => {
 													const isOpen = expandedId === item._id;
 													const bgName =
 														groups[item.blood_group_id] ?? item.blood_group_id;
@@ -479,17 +488,21 @@ export const BloodStoragePage: React.FC = () => {
 														<React.Fragment key={item._id}>
 															<TableRow className="hover:bg-gray-50 transition group">
 																<TableCell
-																	className="px-4 py-3 flex items-center gap-2 cursor-pointer"
+																	className="px-4 py-3"
 																	onClick={() =>
 																		setExpandedId(isOpen ? null : item._id)
 																	}
 																>
+																	{index + 1}
+
 																	<ChevronDown
 																		size={16}
 																		className={`transition-transform ${
 																			isOpen ? "rotate-180" : ""
 																		}`}
 																	/>
+																</TableCell>
+																<TableCell className="px-4 py-3 flex items-center gap-2 cursor-pointer">
 																	{bgName}
 																</TableCell>
 																<TableCell className="px-4 py-3">
@@ -497,6 +510,14 @@ export const BloodStoragePage: React.FC = () => {
 																</TableCell>
 																<TableCell className="px-4 py-3">
 																	{item.volume}
+																</TableCell>
+																<TableCell className="px-4 py-3">
+																	{item.expired_at
+																		? format(
+																				new Date(item.expired_at),
+																				"dd/MM/yyyy HH:mm",
+																		  )
+																		: "Chưa cập nhật"}
 																</TableCell>
 																<TableCell className="px-4 py-3 text-center">
 																	<span
@@ -511,6 +532,9 @@ export const BloodStoragePage: React.FC = () => {
 																		"dd/MM/yyyy HH:mm",
 																	)}
 																</TableCell>
+																<TableCell className="px-4 py-3 text-sm text-gray-700">
+																	{item.update_by || "Chưa cập nhật"}
+																</TableCell>
 																<TableCell className="px-4 py-3 text-center">
 																	<Button
 																		variant="outline"
@@ -520,7 +544,7 @@ export const BloodStoragePage: React.FC = () => {
 																			handleStatusUpdate(item);
 																		}}
 																		disabled={!canUpdateStatus}
-																		className={`border-[#236afe] text-[#236afe]  ${
+																		className={`border-[#236afe] text-[#236afe] ${
 																			canUpdateStatus
 																				? "hover:bg-[#236afe] hover:text-white"
 																				: "opacity-50 cursor-not-allowed"
@@ -539,23 +563,25 @@ export const BloodStoragePage: React.FC = () => {
 															{isOpen && (
 																<TableRow className="bg-gray-50">
 																	<TableCell
-																		colSpan={6}
+																		colSpan={9}
 																		className="px-6 py-4 text-sm text-gray-700"
 																	>
 																		<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 																			<div>
 																				<strong>Mã Chu Trình Lấy Máu:</strong>{" "}
-																				{item.donation_process_id}
+																				{item.donation_process_id ||
+																					"Chưa cập nhật"}
 																			</div>
 																			<div>
 																				<strong>
 																					Mã Chu Trình Xét Nghiệm:
 																				</strong>{" "}
-																				{item.request_process_id}
+																				{item.request_process_id ||
+																					"Chưa cập nhật"}
 																			</div>
 																			<div>
 																				<strong>Cập nhật bởi:</strong>{" "}
-																				{item.update_by}
+																				{item.update_by || "Chưa cập nhật"}
 																			</div>
 																			<div>
 																				<strong>Cập nhật ngày:</strong>{" "}

@@ -25,7 +25,7 @@ const statusVN = (en: string): string => {
       case "Checked In":
       return "Đã Checkin";
     default:
-      return en;
+      return "Chưa cập nhật";
   }
 };
 
