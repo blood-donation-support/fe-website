@@ -322,10 +322,11 @@ export const BloodRequestListPage: React.FC = () => {
 											<TableCell className="text-center">
 												<span className="font-medium text-blue-600">
 													{r.blood_group_name || "Chưa cập nhật"}
+
 												</span>
 											</TableCell>
 											<TableCell className="text-center">
-												{bloodComponentVN(r.request_type || "")}
+												{bloodComponentVN(r.request_type || "Chưa cập nhật")}
 											</TableCell>
 											<TableCell className="text-center">
 												{new Date(r.receive_date_request).toLocaleString(
@@ -355,7 +356,7 @@ export const BloodRequestListPage: React.FC = () => {
 															: "bg-red-100 text-red-800"
 													}`}
 												>
-													{statusVN(r.status)}
+													{statusVN(r.status|| "Chưa cập nhật")}
 												</span>
 											</TableCell>
 											<TableCell className="text-center">

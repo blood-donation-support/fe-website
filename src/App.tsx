@@ -46,6 +46,8 @@ import ProfileInfo from "./components/profileComponents/ProfileInfo";
 import ChangePasswordPage from "./components/profileComponents/ChangePasswordPage";
 import BloodSummaryTable from "./pages/warehouse-staff/BloodSummaryTable";
 import NotFoundPage from "./pages/NotFoundPage";
+import Register from "./Auth/Register";
+
 
 type PrivateRouteProps = {
   role: string;
@@ -67,7 +69,7 @@ export default function App() {
       {/* <PersistGate loading={null} persistor={persistor}> */}
       <div className="w-full max-w-[100vw] overflow-x-hidden">
         <BrowserRouter>
-          <ScrollToTop />
+          {/* <ScrollToTop /> */}
           <AnimatePresence mode="wait">
             <Routes>
               {/* Public Routes */}
@@ -75,16 +77,17 @@ export default function App() {
                 path="/"
                 element={
                   <motion.div
-                    initial={{ opacity: 0, y: -20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: 20 }}
-                    transition={{ duration: 0.5 }}
+                    // initial={{ opacity: 0, y: -20 }}
+                    // animate={{ opacity: 1, y: 0 }}
+                    // exit={{ opacity: 0, y: 20 }}
+                    // transition={{ duration: 0.5 }}
                   >
                     <HomePage />
                   </motion.div>
                 }
               />
               <Route path="/login" element={<Login />} />
+              <Route path="/register" element={<Register />} />
               <Route
                 path="/donateBlood"
                 element={

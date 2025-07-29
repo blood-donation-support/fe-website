@@ -83,7 +83,7 @@ export const ServiceSection = () => {
     <SectionMotionWrapper className="w-full h-screen flex flex-col items-center justify-start bg-blue-50 snap-start">
       {(inview) => (
         <>
-          <h2 className="text-2xl font-bold mt-4 mb-10 text-gray-800">Hỗ trợ - dịch vụ</h2>
+          <h2 className="text-2xl font-bold mt-4 mb-10 text-gray-800">Hỗ Trợ - Dịch Vụ</h2>
           <div className="grid grid-cols-4 grid-rows-2 gap-6 w-5/6 h-[90vh]">
             {serviceData.serviceCardData.map((card, idx) => (
               <ServiceCard key={idx} {...card} inview={inview} />

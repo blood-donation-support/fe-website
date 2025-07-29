@@ -390,9 +390,11 @@ export const BloodSeparationListPage: React.FC = () => {
 											</TableCell>
 											<TableCell className="text-center">
 												{bloodComponentVN(job.donation_type || "")}
+
 											</TableCell>
 											<TableCell className="text-center">
 												{job.volume_collected || "Chưa cập nhật"}
+
 											</TableCell>
 											<TableCell className="text-center">
 												{job.donation_date
@@ -402,6 +404,7 @@ export const BloodSeparationListPage: React.FC = () => {
 											<TableCell className="text-center">
 												<span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
 													{statusVN(job.status || "Chưa cập nhật")}
+
 												</span>
 											</TableCell>
 											<TableCell className="text-center">

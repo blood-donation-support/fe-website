@@ -39,7 +39,7 @@ export default function BlogCard({
         viewport={{ once: true, amount: 0.2 }}
         transition={{ duration: 0.6, ease: "easeOut" }}
         className="bg-white rounded-2xl shadow-lg overflow-hidden flex flex-col w-full h-full"
-        style={{ height: `${heightVH}vh` }}
+        style={{ height: `${heightVH}vh` } as React.CSSProperties}
       >
         <div style={{ height: `${imageHeight}vh`, minHeight: 100 }}>
           <img
@@ -55,10 +55,10 @@ export default function BlogCard({
           viewport={{ once: true, amount: 0.25 }}
           transition={{ duration: 0.7, ease: "easeOut", delay: 0.2 }}
           className="p-4 flex flex-col flex-1"
-          style={{ height: `${contentHeight}vh` }}
+          style={{ height: `${contentHeight}vh` } as React.CSSProperties}
         >
           <h2 className="font-semibold text-xl line-clamp-3 mb-2 text-black" style={{ minHeight: 30 }}>
-            {title}
+            {getPreviewText(title, 50)}
           </h2>
           <div
             className="prose max-w-none text-sm text-black"

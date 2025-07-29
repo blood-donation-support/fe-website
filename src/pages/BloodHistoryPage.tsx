@@ -132,7 +132,22 @@ export default function BloodHistoryPage() {
     return filtered.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
   }, [filtered, page, rowsPerPage]);
 
-  if (loading) return <CircularProgress />;
+  if (loading) return (
+    <Box
+      sx={{
+        position: "fixed",
+        inset: 0,
+        zIndex: 9999,
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        background: "rgba(255,255,255,0.6)",
+        minHeight: "100vh",
+      }}
+    >
+      <CircularProgress size={64} />
+    </Box>
+  );
   if (error) return <div>{error}</div>;
 
   const typeOptions = Object.values(DonationType);
