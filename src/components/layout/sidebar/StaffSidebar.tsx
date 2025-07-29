@@ -34,7 +34,11 @@ export default function StaffSidebar() {
 				</Link>
 				<div className="flex flex-col gap-2">
 					{artistNavItems.map((item) => (
-						<SidebarNavItem key={item.path} {...item} />
+						<SidebarNavItem
+							key={item.path}
+							{...item}
+							end={item.path === "/dashboard-staff/donation"}
+						/>
 					))}
 				</div>
 			</div>

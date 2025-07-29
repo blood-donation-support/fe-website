@@ -93,7 +93,7 @@ const Login: React.FC = () => {
 	const [loading, setLoading] = useState<boolean>(false);
 	const navigate = useNavigate();
 	const setAuth = useAuthStore((state) => state.setAuth);
-	
+
 	const validatePhone = (phone: string): boolean => {
 		const phoneRegex = /^(0|\+84)[0-9]{9}$/;
 		return phoneRegex.test(phone.trim());
@@ -128,20 +128,28 @@ const Login: React.FC = () => {
 				localStorage.setItem("refreshToken", response.refresh_token);
 				localStorage.setItem("user", JSON.stringify(response.user));
 
-				setAuth(
-					response.access_token,
-					response.refresh_token,
-					{
-						id: response.user.id,
-						role: response.user.role,
-						fullname:'' ,
-						email: '',
-					}
-				);
+				setAuth(response.access_token, response.refresh_token, {
+					id: response.user.id,
+					role: response.user.role,
+					fullname: "",
+					email: "",
+				});
 
 				toast.success("Đăng nhập thành công");
 
-				navigate("/");
+				switch (response.user.role) {
+					case "Admin":
+						navigate("/dashboard-admin");
+						break;
+					case "Staff":
+						navigate("/dashboard-staff");
+						break;
+					case "Staff Warehouse":
+						navigate("/dashboard-staff-warehouse");
+						break;
+					default:
+						navigate("/");
+				}
 			} else {
 				throw new Error(response?.errorMessage || "Đăng nhập thất bại");
 			}
@@ -172,12 +180,18 @@ const Login: React.FC = () => {
 
 				{/* Floating background elements */}
 				<div className="absolute inset-0 overflow-hidden pointer-events-none">
-					<div className="absolute -top-40 -left-40 w-80 h-80bg-[#236AFE]/20
- rounded-full mix-blend-multiply filter blur-2xl opacity-70 animate-blob"></div>
-					<div className="absolute -bottom-40 -right-40 w-80 h-80 bg-blue-200/30
- rounded-full mix-blend-multiply filter blur-2xl opacity-70 animate-blob animation-delay-2000"></div>
-					<div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-cyan-200/20
- rounded-full mix-blend-multiply filter blur-3xl opacity-50 animate-blob animation-delay-4000"></div>
+					<div
+						className="absolute -top-40 -left-40 w-80 h-80bg-[#236AFE]/20
+ rounded-full mix-blend-multiply filter blur-2xl opacity-70 animate-blob"
+					></div>
+					<div
+						className="absolute -bottom-40 -right-40 w-80 h-80 bg-blue-200/30
+ rounded-full mix-blend-multiply filter blur-2xl opacity-70 animate-blob animation-delay-2000"
+					></div>
+					<div
+						className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-cyan-200/20
+ rounded-full mix-blend-multiply filter blur-3xl opacity-50 animate-blob animation-delay-4000"
+					></div>
 				</div>
 
 				<motion.div
@@ -248,8 +262,6 @@ const Login: React.FC = () => {
 												className="w-full h-auto max-w-md mx-auto rounded-full ring-4 ring-[#236AFE]/50
  shadow-2xl transform transition-all duration-500 hover:scale-105 relative z-10"
 											/>
-
-
 										</motion.div>
 									</div>
 								</motion.div>
@@ -318,7 +330,9 @@ const Login: React.FC = () => {
 													endAdornment: (
 														<InputAdornment position="end">
 															<IconButton
-																onClick={() => setPasswordVisible(!passwordVisible)}
+																onClick={() =>
+																	setPasswordVisible(!passwordVisible)
+																}
 																edge="end"
 																sx={{ color: "#3B82F6" }}
 															>
@@ -345,9 +359,11 @@ const Login: React.FC = () => {
 												disabled={loading}
 												sx={{
 													height: 56,
-													background: "linear-gradient(135deg, #3B82F6 0%, #60A5FA 100%)",
+													background:
+														"linear-gradient(135deg, #3B82F6 0%, #60A5FA 100%)",
 													"&:hover": {
-														background: "linear-gradient(135deg, #2563EB 0%, #3B82F6 100%)",
+														background:
+															"linear-gradient(135deg, #2563EB 0%, #3B82F6 100%)",
 													},
 													"&:disabled": {
 														background: "#e5e7eb",
@@ -356,7 +372,11 @@ const Login: React.FC = () => {
 											>
 												{loading ? (
 													<div className="flex items-center justify-center">
-														<CircularProgress size={24} color="inherit" sx={{ mr: 2 }} />
+														<CircularProgress
+															size={24}
+															color="inherit"
+															sx={{ mr: 2 }}
+														/>
 														Đang xử lý...
 													</div>
 												) : (
@@ -395,14 +415,13 @@ const Login: React.FC = () => {
 													</span>
 												</div>
 											</div>
-{/* 
+											{/* 
 											<div className="mt-6 flex justify-center">
 												<GoogleLoginButton />
 											</div> */}
 										</motion.div>
 									</motion.div>
 								</div>
-
 							</div>
 						</CardContent>
 					</Card>
