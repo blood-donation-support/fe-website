@@ -140,7 +140,7 @@ function renderTable(
       <Table className="border rounded-xl overflow-hidden">
         <TableHeader className="bg-[#236afe] text-white">
           <TableRow>
-            <TableHead className="text-white">STT</TableHead>
+            <TableHead className="text-white text-center">STT</TableHead>
             <TableHead className="text-white">Tên</TableHead>
             <TableHead className="text-white">Ngày tạo</TableHead>
           </TableRow>
@@ -148,7 +148,7 @@ function renderTable(
         <TableBody>
           {list.map((item, index) => (
             <TableRow key={item._id} className="hover:bg-gray-50">
-              <TableCell className="text-center font-medium">
+              <TableCell className="text-center font-medium w-16">
                 {index + 1}
               </TableCell>
               <TableCell>

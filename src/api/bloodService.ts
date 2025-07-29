@@ -8,8 +8,8 @@
 const API_URL = "https://be-t8i8.onrender.com/api";
 
 import axios from 'axios';
-import {apiClient } from './apiClient';
-import type {ApiResponse } from './apiClient';
+import { apiClient } from './apiClient';
+import type { ApiResponse } from './apiClient';
 export interface BloodGroup {
   _id: string;
   name: string;
@@ -134,6 +134,11 @@ export const fetchBloodUnits = async (
   const res = await apiClient.get<ApiResponse<BloodUnit[]>>(
     `/blood-units/${bloodGroupId}/${bloodComponentId}`
   );
+  return res.data.result;
+};
+
+export const updateBloodUnitStatus = async (bloodGroupId: string, payload: { status: string }): Promise<BloodUnit> => {
+  const res = await apiClient.patch<ApiResponse<BloodUnit>>(`/blood-units/${bloodGroupId}/status`, payload);
   return res.data.result;
 };
 

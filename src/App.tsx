@@ -51,6 +51,7 @@ import ProfileLayout from "./components/layout/ProfileLayout";
 import ProfileInfo from "./components/profileComponents/ProfileInfo";
 import ChangePasswordPage from "./components/profileComponents/ChangePasswordPage";
 import BloodSummaryTable from "./pages/warehouse-staff/BloodSummaryTable";
+import RequestRegistrationsPage from "./pages/RequestRegistrationsPage";
 import NotFoundPage from "./pages/NotFoundPage";
 import { toast, Toaster } from "sonner";
 import Register from "./Auth/Register";
