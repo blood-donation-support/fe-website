@@ -402,10 +402,12 @@ export const HealthCheckRequest: React.FC = () => {
 										<Label>Cân nặng (kg)</Label>
 										<Input
 											type="number"
-											min={0}
-											value={editForm.weight}
+											placeholder="0"
+											min="0"
+											value={editForm.weight ||""}
 											onChange={(e) =>
-												handleChange("weight", Number(e.target.value))
+												handleChange("weight", 
+													Number(e.target.value)|| 0)
 											}
 										/>
 										{/* {errors.weight && (
@@ -418,10 +420,11 @@ export const HealthCheckRequest: React.FC = () => {
 										<Input
 											type="number"
 											step="0.1"
-											min={0}
-											value={editForm.temperature}
+											placeholder="0"
+											min="0"
+											value={editForm.temperature||""}
 											onChange={(e) =>
-												handleChange("temperature", Number(e.target.value))
+												handleChange("temperature", Number(e.target.value)|| 0)
 											}
 										/>
 										{errors.temperature && (
@@ -434,10 +437,11 @@ export const HealthCheckRequest: React.FC = () => {
 										<Label>Nhịp tim (bpm)</Label>
 										<Input
 											type="number"
-											min={0}
-											value={editForm.heart_rate}
+											placeholder="0"
+											min="0"
+											value={editForm.heart_rate||""}
 											onChange={(e) =>
-												handleChange("heart_rate", Number(e.target.value))
+												handleChange("heart_rate", Number(e.target.value)|| 0)
 											}
 										/>
 										{errors.heartRate && (
@@ -459,12 +463,13 @@ export const HealthCheckRequest: React.FC = () => {
 										<Label>Huyết áp tâm thu</Label>
 										<Input
 											type="number"
-											min={0}
-											value={editForm.systolic_blood_pressure}
+											placeholder="0"
+											min="0"
+											value={editForm.systolic_blood_pressure||""}
 											onChange={(e) =>
 												handleChange(
 													"systolic_blood_pressure",
-													Number(e.target.value),
+													Number(e.target.value)|| 0,
 												)
 											}
 										/>
@@ -479,12 +484,13 @@ export const HealthCheckRequest: React.FC = () => {
 										<Label>Huyết áp tâm trương</Label>
 										<Input
 											type="number"
-											min={0}
-											value={editForm.diastolic_blood_pressure}
+											placeholder="0"
+											min="0"
+											value={editForm.diastolic_blood_pressure||""}
 											onChange={(e) =>
 												handleChange(
 													"diastolic_blood_pressure",
-													Number(e.target.value),
+													Number(e.target.value)|| 0,
 												)
 											}
 										/>
@@ -500,10 +506,11 @@ export const HealthCheckRequest: React.FC = () => {
 										<Input
 											type="number"
 											step="0.1"
-											min={0}
-											value={editForm.hemoglobin}
+											placeholder="0"
+											min="0"
+											value={editForm.hemoglobin||""}
 											onChange={(e) =>
-												handleChange("hemoglobin", Number(e.target.value))
+												handleChange("hemoglobin", Number(e.target.value)|| 0)
 											}
 										/>
 										{errors.hemoglobin && (
