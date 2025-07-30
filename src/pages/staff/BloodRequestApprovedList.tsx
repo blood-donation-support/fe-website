@@ -120,7 +120,7 @@ export const BloodRequestApprovedList: React.FC = () => {
 
 	const filtered = requests.filter((r) => {
 		const matchesDate = selectedDate
-			? new Date(r.created_at).toDateString() === selectedDate.toDateString()
+			? new Date(r.receive_date_request).toDateString() === selectedDate.toDateString()
 			: true;
 
 		const mappedStatus = statusFilterMap[statusFilter];
