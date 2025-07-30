@@ -79,6 +79,7 @@ export const BloodRequestApprovedList: React.FC = () => {
 			// Fetch dữ liệu request hiện tại để lấy request_type
 			const currentRequest = await fetchDoctorRequestById(requestId);
 
+			console.log("currentRequest.request_type", currentRequest.request_type);
 			// Gọi API để approve request với request_type từ dữ liệu hiện tại
 			await approveDoctorRequest(requestId, {
 				status: "Approved",
@@ -118,6 +119,10 @@ export const BloodRequestApprovedList: React.FC = () => {
 	};
 
 	const filtered = requests.filter((r) => {
+		const matchesDate = selectedDate
+			? new Date(r.created_at).toDateString() === selectedDate.toDateString()
+			: true;
+
 		const mappedStatus = statusFilterMap[statusFilter];
 		const matchesStatus =
 			mappedStatus === undefined ? true : r.status === mappedStatus;
@@ -146,7 +151,8 @@ export const BloodRequestApprovedList: React.FC = () => {
 			matchesStatus &&
 			matchesUrgency &&
 			matchesSearch &&
-			matchesStatusHealthCare
+			matchesStatusHealthCare &&
+			matchesDate
 		);
 	});
 
@@ -327,7 +333,7 @@ export const BloodRequestApprovedList: React.FC = () => {
 									)}
 									{statusFilter !== "all" && (
 										<span className="inline-flex items-center gap-1 px-3 py-1 bg-gray-50 text-gray-700 text-sm rounded-full border border-gray-200">
-											{statusFilter}
+											{statusVN(statusFilter)}
 										</span>
 									)}
 									{statusHealthcareFilter !== "all" && (
@@ -391,7 +397,7 @@ export const BloodRequestApprovedList: React.FC = () => {
 									<TableHead className="text-white px-4 py-3 text-center">
 										Cập nhật bởi
 									</TableHead>
-									<TableHead className="text-white px-4 py-3 text-center">
+									<TableHead className="text-white px-4 py-3 text-center min-w-[120px]">
 										Thao tác
 									</TableHead>
 								</TableRow>
@@ -402,19 +408,21 @@ export const BloodRequestApprovedList: React.FC = () => {
 										<TableRow key={r._id} className="hover:bg-[#f3f4f6]">
 											<TableCell className="text-center">{i + 1}</TableCell>
 											<TableCell className="text-center">
-												{r.full_name ||"chưa cập nhật"}
+												{r.full_name || "chưa cập nhật"}
 											</TableCell>
-											<TableCell className="text-center">{r.phone ||"chưa cập nhật"}</TableCell>
 											<TableCell className="text-center">
-												{r.citizen_id_number||"chưa cập nhật"}
+												{r.phone || "chưa cập nhật"}
+											</TableCell>
+											<TableCell className="text-center">
+												{r.citizen_id_number || "chưa cập nhật"}
 											</TableCell>
 											<TableCell className="text-center">
 												<span className="font-medium text-blue-600">
-													{r.blood_group_name||"chưa cập nhật"}
+													{r.blood_group_name || "chưa cập nhật"}
 												</span>
 											</TableCell>
 											<TableCell className="text-center">
-												{bloodComponentVN(r.request_type ||"chưa cập nhật")}
+												{bloodComponentVN(r.request_type || "chưa cập nhật")}
 											</TableCell>
 											<TableCell className="text-center">
 												{new Date(r.receive_date_request).toLocaleString(
@@ -429,7 +437,9 @@ export const BloodRequestApprovedList: React.FC = () => {
 															: "bg-green-100 text-green-800 border border-green-200"
 													}`}
 												>
-													{r.is_emergency ? "Khẩn cấp" : "Bình thường" ||"chưa cập nhật"}
+													{r.is_emergency
+														? "Khẩn cấp"
+														: "Bình thường" || "chưa cập nhật"}
 												</span>
 											</TableCell>
 											<TableCell className="text-center">
@@ -444,7 +454,7 @@ export const BloodRequestApprovedList: React.FC = () => {
 															: "bg-red-100 text-red-800"
 													}`}
 												>
-													{statusVN(r.status)||"chưa cập nhật"}
+													{statusVN(r.status) || "chưa cập nhật"}
 												</span>
 											</TableCell>
 											<TableCell className="text-center">
@@ -459,19 +469,19 @@ export const BloodRequestApprovedList: React.FC = () => {
 															: "bg-red-100 text-red-800"
 													}`}
 												>
-													{statusVN(r.health_check_status)||"chưa cập nhật"}
+													{statusVN(r.health_check_status) || "chưa cập nhật"}
 												</span>
 											</TableCell>
 											<TableCell className="text-center">
 												{r.updated_by || "Chưa cập nhật"}
 											</TableCell>
 
-											<TableCell className="text-center">
-												{r.status === "Pending" ? (
-													<div className="flex gap-2">
+											<TableCell className="text-center px-4 py-3">
+												<div className="flex justify-center items-center min-h-[40px]">
+													{r.status === "Pending" ? (
 														<Button
 															size="sm"
-															className="bg-[#236afe] hover:bg-[#4338ca] text-white"
+															className="bg-[#236afe] hover:bg-[#4338ca] text-white px-4 py-2 h-8 text-xs font-medium min-w-[70px]"
 															onClick={() =>
 																handleApproveRequest(r._id, r.blood_group_id)
 															}
@@ -481,21 +491,21 @@ export const BloodRequestApprovedList: React.FC = () => {
 																? "Đang duyệt..."
 																: "Duyệt"}
 														</Button>
-													</div>
-												) : (
-													<Button
-														size="sm"
-														variant="outline"
-														className="border-[#236afe] text-[#236afe] hover:bg-[#236afe] hover:text-white"
-														onClick={() =>
-															navigate(
-																`/dashboard-staff/doctor-healthcheck-request-approved/${r._id}`,
-															)
-														}
-													>
-														Chi tiết
-													</Button>
-												)}
+													) : (
+														<Button
+															size="sm"
+															variant="outline"
+															className="border-[#236afe] text-[#236afe] hover:bg-[#236afe] hover:text-white px-4 py-2 h-8 text-xs font-medium min-w-[70px]"
+															onClick={() =>
+																navigate(
+																	`/dashboard-staff/doctor-healthcheck-request-approved/${r._id}`,
+																)
+															}
+														>
+															Chi tiết
+														</Button>
+													)}
+												</div>
 											</TableCell>
 										</TableRow>
 									))

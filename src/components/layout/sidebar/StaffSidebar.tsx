@@ -7,7 +7,7 @@ const artistNavItems = [
 	{
 		icon: "fa-calendar-check",
 		label: "Hiến máu",
-		path: "/dashboard-staff/donation",
+		path: "/dashboard-staff",
 	},
 	{
 		icon: "fa-hand-holding-medical",
@@ -34,7 +34,11 @@ export default function StaffSidebar() {
 				</Link>
 				<div className="flex flex-col gap-2">
 					{artistNavItems.map((item) => (
-						<SidebarNavItem key={item.path} {...item} />
+						<SidebarNavItem
+							key={item.path}
+							{...item}
+							end={item.path === "/dashboard-staff"}
+						/>
 					))}
 				</div>
 			</div>

@@ -6,28 +6,27 @@ import { FaUser } from "react-icons/fa";
 import { Link } from "react-router-dom";
 
 type Props = {
-  user: UserProfile | null;
-  onLogout: () => void;
+	user: UserProfile | null;
+	onLogout: () => void;
 };
 
 const UserDropdown: React.FC<Props> = ({ user, onLogout }) => {
-  const [open, setOpen] = useState(false);
-  const dropdownRef = useRef<HTMLDivElement>(null);
+	const [open, setOpen] = useState(false);
+	const dropdownRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    console.log(user);
-    const handleClickOutside = (event: MouseEvent) => {
-      if (
-        dropdownRef.current &&
-        !dropdownRef.current.contains(event.target as Node)
-      ) {
-        setOpen(false);
-      }
-    };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () =>
-      document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
+	useEffect(() => {
+		console.log(user);
+		const handleClickOutside = (event: MouseEvent) => {
+			if (
+				dropdownRef.current &&
+				!dropdownRef.current.contains(event.target as Node)
+			) {
+				setOpen(false);
+			}
+		};
+		document.addEventListener("mousedown", handleClickOutside);
+		return () => document.removeEventListener("mousedown", handleClickOutside);
+	}, []);
 
   if (!user) return null; 
   return (
@@ -132,17 +131,17 @@ const UserDropdown: React.FC<Props> = ({ user, onLogout }) => {
                 Lịch sử đơn đăng kí
               </Link>
             </li> */}
-          </ul>
-          <button
-            onClick={onLogout}
-            className="w-full mt-4 px-4 py-2 rounded-full bg-red-500 text-white font-semibold hover:bg-red-600 transition"
-          >
-            Đăng xuất
-          </button>
-        </div>
-      )}
-    </div>
-  );
+					</ul>
+					<button
+						onClick={onLogout}
+						className="w-full mt-4 px-4 py-2 rounded-full bg-red-500 text-white font-semibold hover:bg-red-600 transition"
+					>
+						Đăng xuất
+					</button>
+				</div>
+			)}
+		</div>
+	);
 };
 
 export default UserDropdown;

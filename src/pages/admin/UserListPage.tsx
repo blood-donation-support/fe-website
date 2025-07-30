@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Plus, Trash2, Eye, EyeOff } from "lucide-react";
+import { Plus, Trash2, Eye, EyeOff, AlignJustify } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -38,8 +38,8 @@ const roleVN = (role: string) => {
 			return "Bệnh nhân";
 		case "Staff":
 			return "Nhân viên y tế";
-		case "Admin":
-			return "Quản trị viên";
+		case "Staff Warehouse":
+			return "Nhân viên kho máu";
 		default:
 			return role;
 	}
@@ -47,6 +47,24 @@ const roleVN = (role: string) => {
 
 const formatDate = (dateString: string) => {
 	return new Date(dateString).toLocaleDateString("vi-VN");
+};
+
+// Hàm format datetime đầy đủ (giờ, ngày, tháng, năm)
+const formatDateTime = (dateString: string) => {
+	if (!dateString) return "Chưa cập nhật";
+
+	const date = new Date(dateString);
+	const options = {
+		year: "numeric",
+		month: "2-digit",
+		day: "2-digit",
+		hour: "2-digit",
+		// minute: '2-digit',
+		// second: '2-digit',
+		// hour12: false
+	};
+
+	return date.toLocaleString("vi-VN", options);
 };
 
 export default function UserListPage() {
@@ -70,7 +88,9 @@ export default function UserListPage() {
 	const [selectedUserForUpdate, setSelectedUserForUpdate] =
 		useState<User | null>(null);
 	const [newRole, setNewRole] = useState<string>("");
-
+	const [deleteId, setDeleteId] = useState<string | null>(null);
+	const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
+	const [loading, setLoading] = useState(false);
 	useEffect(() => {
 		fetchBloodGroups()
 			.then(setBloodGroups)
@@ -82,7 +102,7 @@ export default function UserListPage() {
 
 	// Filter states
 	const [roleFilter, setRoleFilter] = useState<
-		"all" | "Customer" | "Staff" | "Admin"
+		"all" | "Customer" | "Staff" | "Staff Warehouse"
 	>("all");
 	const [genderFilter, setGenderFilter] = useState<
 		"all" | "Male" | "Female" | "Other"
@@ -99,16 +119,37 @@ export default function UserListPage() {
 			);
 			setUsers(sorted);
 		});
-	}, []);
-
-	const handleDelete = async (id: string) => {
+	}, [fetchUserAll]);
+	const fetchUsers = async () => {
+		setLoading(true);
 		try {
-			await deleteUser(id);
-			setUsers((prev) => prev.filter((u) => u._id !== id));
+			const res = await fetchUserAll();
+			setUsers(res.reverse());
+		} catch (err) {
+			console.error("Fetch error", err);
+			toast.error("Không thể tải danh sách người dùng");
+		} finally {
+			setLoading(false);
+		}
+	};
+
+	const handleOpenDeleteDialog = (id: string) => {
+		setDeleteId(id);
+		setOpenDeleteDialog(true);
+	};
+
+	const handleConfirmDelete = async () => {
+		if (!deleteId) return;
+		try {
+			await deleteUser(deleteId);
+			await fetchUsers();
 			toast.success("Đã xóa người dùng thành công");
-		} catch (error) {
-			console.error("Error deleting user:", error);
+		} catch (err) {
+			console.error("Delete error", err);
 			toast.error("Xóa người dùng thất bại");
+		} finally {
+			setDeleteId(null);
+			setOpenDeleteDialog(false);
 		}
 	};
 
@@ -170,6 +211,7 @@ export default function UserListPage() {
 				date_of_birth: "",
 				gender: undefined,
 			});
+			fetchUsers();
 			navigate("/dashboard-admin/users");
 		} catch (err) {
 			console.error("Error creating user:", err);
@@ -230,6 +272,7 @@ export default function UserListPage() {
 			setOpenUpdateRole(false);
 			setSelectedUserForUpdate(null);
 			setNewRole("");
+			fetchUsers();
 		} catch (error) {
 			console.error("Error updating role:", error);
 			toast.error("Cập nhật vai trò thất bại");
@@ -324,7 +367,11 @@ export default function UserListPage() {
 											<Select
 												value={roleFilter}
 												onValueChange={(
-													value: "all" | "Customer" | "Staff" | "Admin",
+													value:
+														| "all"
+														| "Customer"
+														| "Staff"
+														| "Staff Warehouse",
 												) => setRoleFilter(value)}
 											>
 												<SelectTrigger className="w-full h-12 bg-white border-gray-200 rounded-xl shadow-sm hover:border-gray-300 hover:shadow-md transition-all duration-200 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500">
@@ -334,7 +381,9 @@ export default function UserListPage() {
 													<SelectItem value="all">Tất cả</SelectItem>
 													<SelectItem value="Customer">Bệnh nhân</SelectItem>
 													<SelectItem value="Staff">Nhân viên y tế</SelectItem>
-													<SelectItem value="Admin">Quản trị viên</SelectItem>
+													<SelectItem value="Staff Warehouse">
+														Nhân viên kho máu
+													</SelectItem>
 												</SelectContent>
 											</Select>
 										</div>
@@ -415,233 +464,315 @@ export default function UserListPage() {
 														</DialogDescription>
 													</DialogHeader>
 													<div className="space-y-4 mt-4">
-														<Input
-															placeholder="Số CMND/CCCD"
-															className="rounded-xl"
-															value={newUser.citizen_id_number || ""}
-															onChange={(e) =>
-																setNewUser({
-																	...newUser,
-																	citizen_id_number: e.target.value,
-																})
-															}
-														/>
-														<Input
-															placeholder="Họ tên"
-															className="rounded-xl"
-															value={newUser.full_name || ""}
-															onChange={(e) =>
-																setNewUser({
-																	...newUser,
-																	full_name: e.target.value,
-																})
-															}
-														/>
-														<Input
-															placeholder="Email"
-															type="email"
-															className="rounded-xl"
-															value={newUser.email || ""}
-															onChange={(e) =>
-																setNewUser({
-																	...newUser,
-																	email: e.target.value,
-																})
-															}
-														/>
-														<Input
-															placeholder="Số điện thoại"
-															className="rounded-xl"
-															value={newUser.phone || ""}
-															onChange={(e) =>
-																setNewUser({
-																	...newUser,
-																	phone: e.target.value,
-																})
-															}
-														/>
-
-														{/* Password với icon mắt */}
-														<div className="relative">
+														<div>
+															<label className="block text-sm font-medium text-gray-700 mb-2">
+																Số CMND/CCCD{" "}
+																<span className="text-red-500">*</span>
+															</label>
 															<Input
-																type={showPassword ? "text" : "password"}
-																placeholder="Mật khẩu"
-																className="rounded-xl pr-12"
-																value={newUser.password || ""}
+																placeholder="Nhập số CMND/CCCD"
+																className="rounded-xl"
+																value={newUser.citizen_id_number || ""}
 																onChange={(e) =>
 																	setNewUser({
 																		...newUser,
-																		password: e.target.value,
+																		citizen_id_number: e.target.value,
 																	})
 																}
+																title="Vui lòng nhập số chứng minh nhân dân hoặc căn cước công dân"
 															/>
-															<button
-																type="button"
-																className="absolute inset-y-0 right-0 pr-3 flex items-center"
-																onClick={() => setShowPassword(!showPassword)}
-															>
-																{showPassword ? (
-																	<EyeOff className="h-4 w-4 text-gray-400" />
-																) : (
-																	<Eye className="h-4 w-4 text-gray-400" />
-																)}
-															</button>
+														</div>
+
+														<div>
+															<label className="block text-sm font-medium text-gray-700 mb-2">
+																Họ tên <span className="text-red-500">*</span>
+															</label>
+															<Input
+																placeholder="Nhập họ và tên đầy đủ"
+																className="rounded-xl"
+																value={newUser.full_name || ""}
+																onChange={(e) =>
+																	setNewUser({
+																		...newUser,
+																		full_name: e.target.value,
+																	})
+																}
+																title="Vui lòng nhập họ và tên đầy đủ"
+															/>
+														</div>
+
+														<div>
+															<label className="block text-sm font-medium text-gray-700 mb-2">
+																Email <span className="text-red-500">*</span>
+															</label>
+															<Input
+																placeholder="Nhập địa chỉ email"
+																type="email"
+																className="rounded-xl"
+																value={newUser.email || ""}
+																onChange={(e) =>
+																	setNewUser({
+																		...newUser,
+																		email: e.target.value,
+																	})
+																}
+																title="Vui lòng nhập địa chỉ email hợp lệ"
+															/>
+														</div>
+
+														<div>
+															<label className="block text-sm font-medium text-gray-700 mb-2">
+																Số điện thoại{" "}
+																<span className="text-red-500">*</span>
+															</label>
+															<Input
+																placeholder="Nhập số điện thoại"
+																className="rounded-xl"
+																value={newUser.phone || ""}
+																onChange={(e) =>
+																	setNewUser({
+																		...newUser,
+																		phone: e.target.value,
+																	})
+																}
+																title="Vui lòng nhập số điện thoại hợp lệ"
+															/>
+														</div>
+
+														{/* Password với icon mắt */}
+														<div>
+															<label className="block text-sm font-medium text-gray-700 mb-2">
+																Mật khẩu <span className="text-red-500">*</span>
+															</label>
+															<div className="relative">
+																<Input
+																	type={showPassword ? "text" : "password"}
+																	placeholder="Nhập mật khẩu"
+																	className="rounded-xl pr-12"
+																	value={newUser.password || ""}
+																	onChange={(e) =>
+																		setNewUser({
+																			...newUser,
+																			password: e.target.value,
+																		})
+																	}
+																	title="Mật khẩu phải có ít nhất 6 ký tự"
+																/>
+																<button
+																	type="button"
+																	className="absolute inset-y-0 right-0 pr-3 flex items-center"
+																	onClick={() => setShowPassword(!showPassword)}
+																>
+																	{showPassword ? (
+																		<EyeOff className="h-4 w-4 text-gray-400" />
+																	) : (
+																		<Eye className="h-4 w-4 text-gray-400" />
+																	)}
+																</button>
+															</div>
 														</div>
 
 														{/* Confirm Password với icon mắt */}
-														<div className="relative">
+														<div>
+															<label className="block text-sm font-medium text-gray-700 mb-2">
+																Xác nhận mật khẩu{" "}
+																<span className="text-red-500">*</span>
+															</label>
+															<div className="relative">
+																<Input
+																	type={
+																		showConfirmPassword ? "text" : "password"
+																	}
+																	placeholder="Nhập lại mật khẩu"
+																	className="rounded-xl pr-12"
+																	value={newUser.confirm_password || ""}
+																	onChange={(e) =>
+																		setNewUser({
+																			...newUser,
+																			confirm_password: e.target.value,
+																		})
+																	}
+																	title="Mật khẩu xác nhận phải giống với mật khẩu đã nhập"
+																/>
+																<button
+																	type="button"
+																	className="absolute inset-y-0 right-0 pr-3 flex items-center"
+																	onClick={() =>
+																		setShowConfirmPassword(!showConfirmPassword)
+																	}
+																>
+																	{showConfirmPassword ? (
+																		<EyeOff className="h-4 w-4 text-gray-400" />
+																	) : (
+																		<Eye className="h-4 w-4 text-gray-400" />
+																	)}
+																</button>
+															</div>
+														</div>
+
+														<div>
+															<label className="block text-sm font-medium text-gray-700 mb-2">
+																Ngày sinh{" "}
+																<span className="text-red-500">*</span>
+															</label>
 															<Input
-																type={showConfirmPassword ? "text" : "password"}
-																placeholder="Xác nhận mật khẩu"
-																className="rounded-xl pr-12"
-																value={newUser.confirm_password || ""}
+																type="date"
+																placeholder="Chọn ngày sinh"
+																className="rounded-xl"
+																max={new Date().toISOString().split("T")[0]} // Chỉ cho phép chọn ngày quá khứ
 																onChange={(e) =>
 																	setNewUser({
 																		...newUser,
-																		confirm_password: e.target.value,
+																		date_of_birth: new Date(
+																			e.target.value,
+																		).toISOString(),
 																	})
 																}
+																title="Vui lòng chọn ngày sinh (chỉ được chọn ngày trong quá khứ)"
 															/>
-															<button
-																type="button"
-																className="absolute inset-y-0 right-0 pr-3 flex items-center"
-																onClick={() =>
-																	setShowConfirmPassword(!showConfirmPassword)
-																}
-															>
-																{showConfirmPassword ? (
-																	<EyeOff className="h-4 w-4 text-gray-400" />
-																) : (
-																	<Eye className="h-4 w-4 text-gray-400" />
-																)}
-															</button>
 														</div>
 
-														<Input
-															type="date"
-															placeholder="Ngày sinh"
-															className="rounded-xl"
-															onChange={(e) =>
-																setNewUser({
-																	...newUser,
-																	date_of_birth: new Date(
-																		e.target.value,
-																	).toISOString(),
-																})
-															}
-														/>
-														<Select
-															value={newUser.gender ?? ""}
-															onValueChange={(val: UserGender) =>
-																setNewUser({ ...newUser, gender: val })
-															}
-														>
-															<SelectTrigger className="rounded-xl">
-																<SelectValue placeholder="Chọn giới tính" />
-															</SelectTrigger>
-															<SelectContent>
-																{Object.values(UserGender).map((g) => (
-																	<SelectItem key={g} value={g}>
-																		{genderVN(g)}
-																	</SelectItem>
-																))}
-															</SelectContent>
-														</Select>
+														<div>
+															<label className="block text-sm font-medium text-gray-700 mb-2">
+																Giới tính{" "}
+																<span className="text-red-500">*</span>
+															</label>
+															<Select
+																value={newUser.gender ?? ""}
+																onValueChange={(val: UserGender) =>
+																	setNewUser({ ...newUser, gender: val })
+																}
+															>
+																<SelectTrigger
+																	className="rounded-xl"
+																	title="Vui lòng chọn giới tính"
+																>
+																	<SelectValue placeholder="Chọn giới tính" />
+																</SelectTrigger>
+																<SelectContent>
+																	{Object.values(UserGender).map((g) => (
+																		<SelectItem key={g} value={g}>
+																			{genderVN(g)}
+																		</SelectItem>
+																	))}
+																</SelectContent>
+															</Select>
+														</div>
 
 														{/* Weight field với validation không âm */}
-														<Input
-															type="number"
-															placeholder="Cân nặng (kg)"
-															className="rounded-xl"
-															min="0"
-															step="0.1"
-															value={newUser.weight || ""}
-															onChange={(e) => {
-																const value = parseFloat(e.target.value);
-																setNewUser({
-																	...newUser,
-																	weight: value >= 0 ? value : 0,
-																});
-															}}
-														/>
+														<div>
+															<label className="block text-sm font-medium text-gray-700 mb-2">
+																Cân nặng (kg)
+															</label>
+															<Input
+																type="number"
+																placeholder="Nhập cân nặng"
+																className="rounded-xl"
+																min="0"
+																step="0.1"
+																value={newUser.weight || ""}
+																onChange={(e) => {
+																	const value = parseFloat(e.target.value);
+																	setNewUser({
+																		...newUser,
+																		weight: value >= 0 ? value : 0,
+																	});
+																}}
+																title="Nhập cân nặng tính bằng kg (số dương)"
+															/>
+														</div>
 
-														<Input
-															placeholder="Địa chỉ"
-															className="rounded-xl"
-															value={newUser.address || ""}
-															onChange={(e) =>
-																setNewUser({
-																	...newUser,
-																	address: e.target.value,
-																})
-															}
-														/>
+														<div>
+															<label className="block text-sm font-medium text-gray-700 mb-2">
+																Địa chỉ
+															</label>
+															<Input
+																placeholder="Nhập địa chỉ nơi ở"
+																className="rounded-xl"
+																value={newUser.address || ""}
+																onChange={(e) =>
+																	setNewUser({
+																		...newUser,
+																		address: e.target.value,
+																	})
+																}
+																title="Nhập địa chỉ nơi ở hiện tại"
+															/>
+														</div>
 
-														<Select
-															value={newUser.role ?? "Customer"}
-															onValueChange={(val: string) =>
-																setNewUser({ ...newUser, role: val })
-															}
-														>
-															<SelectTrigger className="rounded-xl">
-																<SelectValue placeholder="Chọn vai trò" />
-															</SelectTrigger>
-															<SelectContent>
-																<SelectItem value="Customer">
-																	Bệnh nhân
-																</SelectItem>
-																<SelectItem value="Staff">
-																	Nhân viên y tế
-																</SelectItem>
-																<SelectItem value="Admin">
-																	Quản trị viên
-																</SelectItem>
-															</SelectContent>
-														</Select>
+														<div>
+															<label className="block text-sm font-medium text-gray-700 mb-2">
+																Vai trò
+															</label>
+															<Select
+																value={newUser.role ?? "Customer"}
+																onValueChange={(val: string) =>
+																	setNewUser({ ...newUser, role: val })
+																}
+															>
+																<SelectTrigger
+																	className="rounded-xl"
+																	title="Chọn vai trò cho người dùng"
+																>
+																	<SelectValue placeholder="Chọn vai trò" />
+																</SelectTrigger>
+																<SelectContent>
+																	<SelectItem value="Customer">
+																		Bệnh nhân
+																	</SelectItem>
+																	<SelectItem value="Staff">
+																		Nhân viên y tế
+																	</SelectItem>
+																	<SelectItem value="Staff Warehouse">
+																		Nhân viên kho máu
+																	</SelectItem>
+																</SelectContent>
+															</Select>
+														</div>
 
 														{/* Blood Group selection với tên hiển thị */}
-														<Select
-															value={newUser.blood_group_id || "none"}
-															onValueChange={(val) =>
-																setNewUser({
-																	...newUser,
-																	blood_group_id: val === "none" ? "" : val,
-																})
-															}
-														>
-															<SelectTrigger className="rounded-xl">
-																<SelectValue placeholder="Chọn nhóm máu (tùy chọn)" />
-															</SelectTrigger>
-															<SelectContent>
-																<SelectItem value="none">Không chọn</SelectItem>
-																{bloodGroups && bloodGroups.length > 0 ? (
-																	bloodGroups.map((group) => (
-																		<SelectItem
-																			key={group._id}
-																			value={group._id}
-																		>
-																			{group.name}
-																		</SelectItem>
-																	))
-																) : (
-																	<SelectItem value="" disabled>
-																		Đang tải...
+														<div>
+															<label className="block text-sm font-medium text-gray-700 mb-2">
+																Nhóm máu
+															</label>
+															<Select
+																value={newUser.blood_group_id || "none"}
+																onValueChange={(val) =>
+																	setNewUser({
+																		...newUser,
+																		blood_group_id: val === "none" ? "" : val,
+																	})
+																}
+															>
+																<SelectTrigger
+																	className="rounded-xl"
+																	title="Chọn nhóm máu (không bắt buộc)"
+																>
+																	<SelectValue placeholder="Chọn nhóm máu (tùy chọn)" />
+																</SelectTrigger>
+																<SelectContent>
+																	<SelectItem value="none">
+																		Không chọn
 																	</SelectItem>
-																)}
-															</SelectContent>
-														</Select>
+																	{bloodGroups && bloodGroups.length > 0 ? (
+																		bloodGroups.map((group) => (
+																			<SelectItem
+																				key={group._id}
+																				value={group._id}
+																			>
+																				{group.name}
+																			</SelectItem>
+																		))
+																	) : (
+																		<SelectItem value="" disabled>
+																			Đang tải...
+																		</SelectItem>
+																	)}
+																</SelectContent>
+															</Select>
+														</div>
 
-														<Input
-															placeholder="URL ảnh đại diện (tùy chọn)"
-															className="rounded-xl"
-															value={newUser.avatar_url || ""}
-															onChange={(e) =>
-																setNewUser({
-																	...newUser,
-																	avatar_url: e.target.value,
-																})
-															}
-														/>
+												
 
 														<Button
 															onClick={handleAddUser}
@@ -699,6 +830,9 @@ export default function UserListPage() {
 								<thead className="bg-gradient-to-r from-blue-600 to-purple-600">
 									<tr>
 										<th className="text-white font-semibold px-6 py-4 text-left">
+											STT
+										</th>
+										<th className="text-white font-semibold px-6 py-4 text-left">
 											Họ tên
 										</th>
 										<th className="text-white font-semibold px-6 py-4 text-left">
@@ -733,19 +867,22 @@ export default function UserListPage() {
 											}`}
 										>
 											<td className="px-6 py-4 font-medium text-gray-900">
-												{u.full_name || "chưa cập nhật"}
+												{index + 1 || "Chưa cập nhật"}
+											</td>
+											<td className="px-6 py-4 font-medium text-gray-900">
+												{u.full_name || "Chưa cập nhật"}
 											</td>
 											<td className="px-6 py-4 text-gray-600">
 												{u.citizen_id_number}
 											</td>
 											<td className="px-6 py-4 text-gray-600">
-												{genderVN(u.gender) || "chưa cập nhật"}
+												{genderVN(u.gender) || "Chưa cập nhật"}
 											</td>
 											{/* <td className="px-6 py-4 text-gray-600">
-												{u.email || "chưa cập nhật"}
+												{u.email || "Chưa cập nhật"}
 											</td> */}
 											<td className="px-6 py-4 text-gray-600">
-												{u.phone || "chưa cập nhật"}
+												{u.phone || "Chưa cập nhật"}
 											</td>
 											<td className="px-6 py-4">
 												<span
@@ -757,7 +894,7 @@ export default function UserListPage() {
 															: "bg-blue-100 text-blue-800"
 													}`}
 												>
-													{roleVN(u.role || "chưa cập nhật")}
+													{roleVN(u.role || "Chưa cập nhật")}
 												</span>
 											</td>
 											<td className="px-6 py-4">
@@ -807,12 +944,9 @@ export default function UserListPage() {
 														variant="outline"
 														size="sm"
 														className="rounded-lg border-red-200 text-red-600 hover:bg-red-50"
-														onClick={(e) => {
-															e.stopPropagation();
-															handleDelete(u._id);
-														}}
+														onClick={() => handleOpenDeleteDialog(u._id)}
 													>
-														<Trash2 size={16} />
+														<AlignJustify size={16} />
 													</Button>
 												</div>
 											</td>
@@ -821,6 +955,30 @@ export default function UserListPage() {
 								</tbody>
 							</table>
 						</div>
+						{/* Dialog xác nhận xoá */}
+						<Dialog open={openDeleteDialog} onOpenChange={setOpenDeleteDialog}>
+							<DialogContent className="max-w-md rounded-xl">
+								<DialogHeader>
+									<DialogTitle>
+										Bạn có chắc chuyển trạng thái người dùng?
+									</DialogTitle>
+								</DialogHeader>
+								<div className="flex justify-end gap-4 mt-6">
+									<Button
+										variant="outline"
+										onClick={() => {
+											setDeleteId(null);
+											setOpenDeleteDialog(false);
+										}}
+									>
+										Hủy
+									</Button>
+									<Button variant="destructive" onClick={handleConfirmDelete}>
+										Xác nhận
+									</Button>
+								</div>
+							</DialogContent>
+						</Dialog>
 
 						{filtered.length === 0 && (
 							<div className="text-center py-8 text-gray-500">
@@ -855,7 +1013,7 @@ export default function UserListPage() {
 												Họ tên
 											</label>
 											<p className="text-lg font-semibold text-gray-900">
-												{selectedUser.full_name || "chưa cập nhật"}
+												{selectedUser.full_name || "Chưa cập nhật"}
 											</p>
 										</div>
 										<div className="bg-white rounded-xl p-4 shadow-sm">
@@ -863,7 +1021,7 @@ export default function UserListPage() {
 												Email
 											</label>
 											<p className="text-lg text-gray-900">
-												{selectedUser.email || "chưa cập nhật"}
+												{selectedUser.email || "Chưa cập nhật"}
 											</p>
 										</div>
 										<div className="bg-white rounded-xl p-4 shadow-sm">
@@ -871,7 +1029,7 @@ export default function UserListPage() {
 												Số điện thoại
 											</label>
 											<p className="text-lg text-gray-900">
-												{selectedUser.phone || "chưa cập nhật"}
+												{selectedUser.phone || "Chưa cập nhật"}
 											</p>
 										</div>
 										<div className="bg-white rounded-xl p-4 shadow-sm">
@@ -879,7 +1037,7 @@ export default function UserListPage() {
 												Giới tính
 											</label>
 											<p className="text-lg text-gray-900">
-												{genderVN(selectedUser.gender) || "chưa cập nhật"}
+												{genderVN(selectedUser.gender) || "Chưa cập nhật"}
 											</p>
 										</div>
 										<div className="bg-white rounded-xl p-4 shadow-sm">
@@ -888,7 +1046,7 @@ export default function UserListPage() {
 											</label>
 											<p className="text-lg text-gray-900">
 												{formatDate(selectedUser.date_of_birth) ||
-													"chưa cập nhật"}
+													"Chưa cập nhật"}
 											</p>
 										</div>
 										<div className="bg-white rounded-xl p-4 shadow-sm">
@@ -896,10 +1054,22 @@ export default function UserListPage() {
 												CMND/CCCD
 											</label>
 											<p className="text-lg text-gray-900">
-												{selectedUser.citizen_id_number || "chưa cập nhật"}
+												{selectedUser.citizen_id_number || "Chưa cập nhật"}
 											</p>
 										</div>
 									</div>
+									{selectedUser.address && (
+										<div className="mt-4">
+											<div className="bg-white rounded-xl p-4 shadow-sm">
+												<label className="text-sm font-medium text-gray-500">
+													Địa chỉ
+												</label>
+												<p className="text-lg text-gray-900">
+													{selectedUser.address || "Chưa cập nhật"}
+												</p>
+											</div>
+										</div>
+									)}
 								</div>
 
 								{/* Medical Info Section */}
@@ -914,7 +1084,9 @@ export default function UserListPage() {
 												Cân nặng
 											</label>
 											<p className="text-lg font-semibold text-gray-900">
-												{selectedUser.weight || "chưa cập nhật"} kg
+												{selectedUser.weight
+													? `${selectedUser.weight} kg`
+													: "Chưa cập nhật"}
 											</p>
 										</div>
 										<div className="bg-white rounded-xl p-4 shadow-sm">
@@ -922,7 +1094,7 @@ export default function UserListPage() {
 												Số lần hiến máu
 											</label>
 											<p className="text-lg font-semibold text-green-600">
-												{selectedUser.number_of_donation || "chưa cập nhật"}
+												{selectedUser.number_of_donations || "Chưa cập nhật"}
 											</p>
 										</div>
 										<div className="bg-white rounded-xl p-4 shadow-sm">
@@ -930,7 +1102,7 @@ export default function UserListPage() {
 												Số lần yêu cầu
 											</label>
 											<p className="text-lg font-semibold text-blue-600">
-												{selectedUser.number_of_request || "chưa cập nhật"}
+												{selectedUser.number_of_requests || "Chưa cập nhật"}
 											</p>
 										</div>
 									</div>
@@ -947,75 +1119,59 @@ export default function UserListPage() {
 											<label className="text-sm font-medium text-gray-500">
 												Vai trò
 											</label>
-											<span
-												className={`inline-block px-3 py-1 rounded-full text-sm font-medium mt-2 ${
-													selectedUser.role === "Admin"
-														? "bg-red-100 text-red-800"
-														: selectedUser.role === "Donor"
-														? "bg-green-100 text-green-800"
-														: "bg-blue-100 text-blue-800"
-												}`}
-											>
-												{roleVN(selectedUser.role) || "chưa cập nhật"}
-											</span>
+											<p className="text-lg font-semibold text-gray-900">
+												<span
+													className={`inline-block px-3 py-1 rounded-full text-sm font-medium mt-2 ${
+														selectedUser.role === "Admin"
+															? "bg-red-100 text-red-800"
+															: selectedUser.role === "Donor"
+															? "bg-green-100 text-green-800"
+															: "bg-blue-100 text-blue-800"
+													}`}
+												>
+													{roleVN(selectedUser.role) || "Chưa cập nhật"}
+												</span>
+											</p>
 										</div>
 										<div className="bg-white rounded-xl p-4 shadow-sm">
 											<label className="text-sm font-medium text-gray-500">
 												Trạng thái
 											</label>
-											<span
-												className={`inline-block px-3 py-1 rounded-full text-sm font-medium mt-2 ${
-													selectedUser.is_active === true
-														? "bg-green-100 text-green-800"
-														: "bg-red-100 text-red-800"
-												}`}
-											>
-												{selectedUser.is_active === true
-													? "Đã kích hoạt"
-													: "Chưa kích hoạt"}
-											</span>
-										</div>
-										<div className="bg-white rounded-xl p-4 shadow-sm">
-											<label className="text-sm font-medium text-gray-500">
-												ID
-											</label>
-											<p className="text-sm text-gray-600 font-mono">
-												{selectedUser._id || "chưa cập nhật"}
+											<p className="text-lg font-semibold text-gray-900">
+												<span
+													className={`inline-block px-3 py-1 rounded-full text-sm font-medium mt-2 ${
+														selectedUser.is_active === true
+															? "bg-green-100 text-green-800"
+															: "bg-red-100 text-red-800"
+													}`}
+												>
+													{selectedUser.is_active === true
+														? "Đã kích hoạt"
+														: "Chưa kích hoạt"}
+												</span>
 											</p>
 										</div>
+
 										<div className="bg-white rounded-xl p-4 shadow-sm">
 											<label className="text-sm font-medium text-gray-500">
 												Ngày tạo
 											</label>
 											<p className="text-lg text-gray-900">
-												{formatDate(selectedUser.created_at) || "chưa cập nhật"}
+												{formatDateTime(selectedUser.created_at) ||
+													"Chưa cập nhật"}
 											</p>
 										</div>
 										<div className="bg-white rounded-xl p-4 shadow-sm">
 											<label className="text-sm font-medium text-gray-500">
-												Cập nhật cuối
+												Ngày cập nhật cuối
 											</label>
 											<p className="text-lg text-gray-900">
-												{formatDate(selectedUser.updated_at) || "chưa cập nhật"}
+												{formatDateTime(selectedUser.updated_at) ||
+													"Chưa cập nhật"}
 											</p>
 										</div>
 									</div>
 								</div>
-
-								{/* Address Section */}
-								{selectedUser.address && (
-									<div className="bg-gradient-to-r from-orange-50 to-red-50 rounded-2xl p-6">
-										<h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center">
-											<div className="w-2 h-6 bg-gradient-to-b from-orange-500 to-red-500 rounded-full mr-3"></div>
-											Địa chỉ
-										</h3>
-										<div className="bg-white rounded-xl p-4 shadow-sm">
-											<p className="text-lg text-gray-900">
-												{selectedUser.address || "chưa cập nhật"}
-											</p>
-										</div>
-									</div>
-								)}
 							</div>
 						)}
 					</DialogContent>
@@ -1052,7 +1208,9 @@ export default function UserListPage() {
 								<SelectContent>
 									<SelectItem value="Customer">Bệnh nhân</SelectItem>
 									<SelectItem value="Staff">Nhân viên y tế</SelectItem>
-									<SelectItem value="Admin">Quản trị viên</SelectItem>
+									<SelectItem value="Staff Warehouse">
+										Nhân viên kho máu
+									</SelectItem>
 								</SelectContent>
 							</Select>
 

@@ -1,58 +1,85 @@
 // src/api/userService.ts
-import { apiClient } from './apiClient';
-import type { ApiResponse } from './apiClient';
-import type { User, NewUserPayload, ChangePasswordPayload, UpdateProfilePayload } from '../types/user';
-import type { UserProfile } from '@/redux/slices/userSlice';
-
+import { apiClient } from "./apiClient";
+import type { ApiResponse } from "./apiClient";
+import type {
+	User,
+	NewUserPayload,
+	ChangePasswordPayload,
+	UpdateProfilePayload,
+} from "../types/user";
+import type { UserProfile } from "@/redux/slices/userSlice";
 
 export const fetchUserAll = async (): Promise<User[]> => {
-  const res = await apiClient.get<ApiResponse<User[]>>(`/users`);
-  return res.data.result;
+	const res = await apiClient.get<ApiResponse<User[]>>(`/users`);
+	return res.data.result;
 };
 export const fetchUser = async (): Promise<User> => {
-  const res = await apiClient.get<ApiResponse<User>>(`/users/me`);
-  return res.data.result;
+	const res = await apiClient.get<ApiResponse<User>>(`/users/me`);
+	if (res.data?.result) {
+		const user = {
+			id: res.data?.result?._id,
+			role: res.data?.result?.role,
+		};
+		console.log("dòng 38", user);
+		console.log("user role ở fetusser", user.role);
+
+		// localStorage.setItem("id", id);
+		localStorage.setItem("role", user.role);
+		localStorage.setItem("user", JSON.stringify(user));
+	}
+
+	return res.data.result;
 };
 
 export const deleteUser = async (id: string): Promise<User> => {
-  const res = await apiClient.patch<ApiResponse<User>>(`/users/is-active/${id}`);
-  return res.data.result;
+	const res = await apiClient.patch<ApiResponse<User>>(
+		`/users/is-active/${id}`,
+	);
+	return res.data.result;
 };
 
-
-export const updateRoleByAdmin = async (userId: string, payload: { role: string }): Promise<User> => {
-  const res = await apiClient.patch<ApiResponse<User>>(`/users/role-for-admin/${userId}`, payload);
-  return res.data.result;
-};
-
-export const createUser = async (
-  userData: NewUserPayload
+export const updateRoleByAdmin = async (
+	userId: string,
+	payload: { role: string },
 ): Promise<User> => {
-  const res = await apiClient.post<ApiResponse<User>>(
-    `/users/register-for-admin`,
-    userData
-  );
-  return res.data.result;
+	const res = await apiClient.patch<ApiResponse<User>>(
+		`/users/role-for-admin/${userId}`,
+		payload,
+	);
+	return res.data.result;
+};
+
+export const createUser = async (userData: NewUserPayload): Promise<User> => {
+	const res = await apiClient.post<ApiResponse<User>>(
+		`/users/register-for-admin`,
+		userData,
+	);
+	return res.data.result;
 };
 export const getProfile = async (): Promise<UserProfile> => {
-  const res = await apiClient.get<ApiResponse<UserProfile>>(`/users/me`);
-  return res.data.result;
-}
-export const changePassword = async (
-  data: ChangePasswordPayload
-): Promise<string> => {
-  const res = await apiClient.post<ApiResponse<null>>(`/users/change-password`, data);
-  return res.data.message; // "Change password success"
+	const res = await apiClient.get<ApiResponse<UserProfile>>(`/users/me`);
+	return res.data.result;
 };
-export const updateProfile = async (payload: UpdateProfilePayload): Promise<UserProfile> => {
-  const res = await apiClient.patch<ApiResponse<UserProfile>>('/users/update-me', payload);
-  return res.data.result;
+export const changePassword = async (
+	data: ChangePasswordPayload,
+): Promise<string> => {
+	const res = await apiClient.post<ApiResponse<null>>(
+		`/users/change-password`,
+		data,
+	);
+	return res.data.message; // "Change password success"
+};
+export const updateProfile = async (
+	payload: UpdateProfilePayload,
+): Promise<UserProfile> => {
+	const res = await apiClient.patch<ApiResponse<UserProfile>>(
+		"/users/update-me",
+		payload,
+	);
+	return res.data.result;
 };
 
 export const getCCCD = async (id: string): Promise<User> => {
-  const res = await apiClient.get<ApiResponse<User>>(
-    `users/${id}`
-
-  );
-  return res.data.result;
+	const res = await apiClient.get<ApiResponse<User>>(`users/${id}`);
+	return res.data.result;
 };

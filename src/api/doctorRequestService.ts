@@ -88,7 +88,6 @@ export interface RequestProcessBloodPayLoad {
 
 
 
-
 // Tạo mới một doctor request
 export const createDoctorRequest = async (
   payload: DoctorRequestPayload
@@ -126,6 +125,7 @@ export const approveDoctorRequest = async (
   payload: {
     status: 'Approved' | 'Rejected';
     assigned_blood_group: string;
+    request_type?: string;
   }
 ): Promise<DoctorRequest> => {
   const res = await apiClient.patch<ApiResponse<DoctorRequest>>(

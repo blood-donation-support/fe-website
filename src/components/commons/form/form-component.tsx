@@ -12,22 +12,22 @@ import { questionService } from "@/api/questionService";
 import { toast } from "react-toastify";
 
 interface Field {
-  key: string;
-  name: string;
-  placeholder: string;
-  required?: boolean;
+	key: string;
+	name: string;
+	placeholder: string;
+	required?: boolean;
 }
 
 interface FormComponentProps<T> {
-  fields: Field[];
-  heading: string;
-  buttonText: string;
-  formData: T;
-  setFormData: React.Dispatch<React.SetStateAction<T>>;
-  handleSubmit: (e: React.FormEvent<HTMLFormElement>) => void;
-  statusForm: string;
-  dateValue: Date | null;
-  setDateValue: (date: Date | null) => void;
+	fields: Field[];
+	heading: string;
+	buttonText: string;
+	formData: T;
+	setFormData: React.Dispatch<React.SetStateAction<T>>;
+	handleSubmit: (e: React.FormEvent<HTMLFormElement>) => void;
+	statusForm: string;
+	dateValue: Date | null;
+	setDateValue: (date: Date | null) => void;
 }
 
 function FormComponent<T extends Record<string, any>>({
@@ -119,28 +119,30 @@ function FormComponent<T extends Record<string, any>>({
           w-full relative p-6 py-10 lg:p-20 lg:pb-10 rounded-xl z-[25] overflow-visible
           -mt-[10em] form-wrapper-custom
         `}
-        style={{
-          backgroundColor: "rgb(37,99,235)", // blue-600
-          backgroundImage: `url("../../assets/black texturized hemocell blood bank.jpg")`,
-          backgroundPosition: "center",
-          backgroundSize: "cover",
-          backgroundRepeat: "no-repeat",
-        }}
-      >
-        <h3 className="not-italic text-center font-medium text-[16px] sm:text-[25px] leading-[34px] tracking-[0.1em] sm:tracking-[0.3em] uppercase text-white">
-          {heading}
-        </h3>
-        {statusForm === "Submited" ? (
-          <p className="text-center text-white text-sm sm:text-base mt-12">
-            Cảm ơn bạn đã tương tác với DonationBlood. <br />
-            Chúng tôi sẽ thông báo lịch cho bạn sớm nhất có thể.
-            <Link to="/profile/blood-history">
-              <span className="hover:text-blue-900 hover:underline">Xem lịch sử hiến máu của bạn</span>
-            </Link>
-          </p>
-        ) : (
-          <form
-            className="
+				style={{
+					backgroundColor: "rgb(37,99,235)", // blue-600
+					backgroundImage: `url("../../assets/black texturized hemocell blood bank.jpg")`,
+					backgroundPosition: "center",
+					backgroundSize: "cover",
+					backgroundRepeat: "no-repeat",
+				}}
+			>
+				<h3 className="not-italic text-center font-medium text-[16px] sm:text-[25px] leading-[34px] tracking-[0.1em] sm:tracking-[0.3em] uppercase text-white">
+					{heading}
+				</h3>
+				{statusForm === "Submited" ? (
+					<p className="text-center text-white text-sm sm:text-base mt-12">
+						Cảm ơn bạn đã tương tác với DonationBlood. <br />
+						Chúng tôi sẽ thông báo lịch cho bạn sớm nhất có thể.
+						<Link to="/profile/blood-history">
+							<span className="hover:text-blue-900 hover:underline">
+								Xem lịch sử hiến máu của bạn
+							</span>
+						</Link>
+					</p>
+				) : (
+					<form
+						className="
               grid grid-cols-1 md:grid-cols-3 gap-5 w-full relative py-8 sm:p-10 rounded-xl z-[25] overflow-visible
               contact-form
             "

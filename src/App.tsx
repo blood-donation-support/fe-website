@@ -1,6 +1,12 @@
-import React from "react";
+import React, { useEffect } from "react";
 // import type { ElementType } from "react";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import {
+	BrowserRouter,
+	Routes,
+	Route,
+	Navigate,
+	useLocation,
+} from "react-router-dom";
 import { Provider } from "react-redux";
 // import { PersistGate } from "redux-persist/integration/react";
 import { AnimatePresence, motion } from "framer-motion";
@@ -45,161 +51,202 @@ import ProfileLayout from "./components/layout/ProfileLayout";
 import ProfileInfo from "./components/profileComponents/ProfileInfo";
 import ChangePasswordPage from "./components/profileComponents/ChangePasswordPage";
 import BloodSummaryTable from "./pages/warehouse-staff/BloodSummaryTable";
+import RequestRegistrationsPage from "./pages/RequestRegistrationsPage";
+import NotFoundPage from "./pages/NotFoundPage";
+import { toast, Toaster } from "sonner";
 import Register from "./Auth/Register";
+import ProfileLayoutAdmin from "./components/layout/ProfileLayoutAdmin";
 
 type PrivateRouteProps = {
-  role: string;
-  children: React.ReactNode;
+	role: string;
+	children: React.ReactNode;
 };
 
-function PrivateRoute({ role, children }: PrivateRouteProps) {
-  const userData = localStorage.getItem("user");
-  const user = userData ? JSON.parse(userData) : null;
+export function PrivateRoute({ role, children }: PrivateRouteProps) {
+	const location = useLocation();
+	const userData = localStorage.getItem("user");
+	const user = userData ? JSON.parse(userData) : null;
 
-  if (!user) return <Navigate to="/login" />;
-  if (user.role !== role) return <Navigate to="/" />;
-  return <>{children}</>;
+	if (!user) {
+		return <Navigate to="/login" state={{ from: location }} replace />;
+	}
+
+	if (user.role !== role) {
+		sessionStorage.setItem("unauthorized", "1");
+		return <Navigate to="/" />;
+	}
+
+	return <>{children}</>;
+}
+
+function RouterWrapper() {
+	useEffect(() => {
+		const unauthorized = sessionStorage.getItem("unauthorized");
+		if (unauthorized === "1") {
+			toast.error("Bạn không có quyền truy cập trang này");
+			sessionStorage.removeItem("unauthorized");
+		}
+	}, []);
+
+	return (
+		<>
+			<ScrollToTop />
+			<AnimatePresence mode="wait">
+				<Routes>
+					{/* Public Routes */}
+					<Route
+						path="/"
+						element={
+							<motion.div
+								initial={{ opacity: 0, y: -20 }}
+								animate={{ opacity: 1, y: 0 }}
+								exit={{ opacity: 0, y: 20 }}
+								transition={{ duration: 0.5 }}
+							>
+								<HomePage />
+							</motion.div>
+						}
+					/>
+					<Route path="/login" element={<Login />} />
+					<Route path="/register" element={<Register />} />
+
+					<Route
+						path="/donateBlood"
+						element={
+							<motion.div
+								initial={{ x: 300, opacity: 0 }}
+								animate={{ x: 0, opacity: 1 }}
+								exit={{ x: -300, opacity: 0 }}
+								transition={{ duration: 0.5 }}
+							>
+								<DonateBloodPage />
+							</motion.div>
+						}
+					/>
+					<Route path="/policy" element={<PolicyPage />} />
+					<Route path="/support" element={<SupportPage />} />
+					<Route path="/blood-history" element={<BloodHistoryPage />} />
+					<Route path="/blogDetail/:id" element={<BlogDetailPage />} />
+					<Route
+						path="/dashboard-admin/blogs/:id/preview"
+						element={<BlogPreviewPage />}
+					/>
+					<Route path="/profile" element={<ProfileLayout />}>
+						<Route path="info" element={<ProfileInfo />} />
+						<Route path="blood-history" element={<BloodHistoryPage />} />
+						<Route
+							path="blood-history/:donationRegistrationId"
+							element={<BloodHistoryPage />}
+						/>
+						{/* <Route path="notifications" element={<NotificationList />} /> */}
+						<Route path="change-password" element={<ChangePasswordPage />} />
+						<Route index element={<ProfileInfo />} /> {/* default */}
+					</Route>
+
+					{/* Admin Routes */}
+					<Route
+						path="/dashboard-admin/*"
+						element={
+							<PrivateRoute role="Admin">
+								<AdminLayout />
+							</PrivateRoute>
+						}
+					>
+						<Route index element={<DashBoardAdminPage />} />
+
+						<Route path="users" element={<UserListPage />} />
+						<Route path="bloods" element={<BloodPage />} />
+						<Route
+							path="doctor-request-approved"
+							element={<BloodRequestApprovedList />}
+						/>
+
+						<Route
+							path="donation-registers"
+							element={<DonationRegistrationsPage />}
+						/>
+						<Route
+							path="request-registers"
+							element={<RequestRegistrationsPage />}
+						/>
+						<Route path="blogs" element={<BlogAdminPage />} />
+						<Route path="blogs/:id/edit" element={<BlogEditPage />} />
+						<Route path="profile-admin" element={<ProfileLayoutAdmin />}>
+							<Route path="info" element={<ProfileInfo />} />
+							{/* <Route path="notifications" element={<NotificationList />} /> */}
+							<Route path="change-password" element={<ChangePasswordPage />} />
+							<Route index element={<ProfileInfo />} /> {/* default */}
+						</Route>
+					</Route>
+
+					{/* Staff Routes */}
+					<Route
+						path="/dashboard-staff/*"
+						element={
+							<PrivateRoute role="Staff">
+								<StaffLayout />
+							</PrivateRoute>
+						}
+					>
+						<Route index element={<DonationRegisterPage />} />
+						<Route path="donation/:id" element={<DonationProcessPage />} />
+						<Route path="doctor-request" element={<DoctorRequestPage />} />
+						<Route
+							path="doctor-request-approved"
+							element={<BloodRequestApprovedList />}
+						/>
+						<Route
+							path="doctor-healthcheck-request-approved/:id"
+							element={<HealthCheckRequest />}
+						/>
+					</Route>
+
+					{/* Warehouse Staff Routes */}
+					<Route
+						path="/dashboard-staff-warehouse/*"
+						element={
+							<PrivateRoute role="Staff Warehouse">
+								<StaffWarehouseLayout />
+							</PrivateRoute>
+						}
+					>
+						<Route index element={<WarehouseDashboardPage />} />
+
+						<Route path="request-list" element={<BloodRequestListPage />} />
+						<Route
+							path="request-list/:id"
+							element={<BloodRequestApprovalPage />}
+						/>
+						<Route path="blood-storage" element={<BloodStoragePage />} />
+						<Route
+							path="blood-storage-summary"
+							element={<BloodSummaryTable />}
+						/>
+						<Route
+							path="blood-separation-list"
+							element={<BloodSeparationListPage />}
+						/>
+						<Route
+							path="blood-separation-process/:id"
+							element={<BloodSeparationProcessPage />}
+						/>
+					</Route>
+					<Route path="*" element={<NotFoundPage />} />
+				</Routes>
+			</AnimatePresence>
+		</>
+	);
 }
 
 export default function App() {
-  return (
-    <Provider store={store}>
-      {/* <PersistGate loading={null} persistor={persistor}> */}
-      <div className="w-full max-w-[100vw] overflow-x-hidden">
-        <BrowserRouter>
-          {/* <ScrollToTop /> */}
-          <AnimatePresence mode="wait">
-            <Routes>
-              {/* Public Routes */}
-              <Route
-                path="/"
-                element={
-                  <motion.div
-                    // initial={{ opacity: 0, y: -20 }}
-                    // animate={{ opacity: 1, y: 0 }}
-                    // exit={{ opacity: 0, y: 20 }}
-                    // transition={{ duration: 0.5 }}
-                  >
-                    <HomePage />
-                  </motion.div>
-                }
-              />
-              <Route path="/login" element={<Login />} />
-              <Route path="/register" element={<Register />} />
-              <Route
-                path="/donateBlood"
-                element={
-                  <motion.div
-                    initial={{ x: 300, opacity: 0 }}
-                    animate={{ x: 0, opacity: 1 }}
-                    exit={{ x: -300, opacity: 0 }}
-                    transition={{ duration: 0.5 }}
-                  >
-                    <DonateBloodPage />
-                  </motion.div>
-                }
-              />
-              <Route path="/policy" element={<PolicyPage />} />
-              <Route path="/support" element={<SupportPage />} />
-              <Route path="/blood-history" element={<BloodHistoryPage />} />
-              <Route path="/blogDetail/:id" element={<BlogDetailPage />} />
-              <Route
-                path="/dashboard-admin/blogs/:id/preview"
-                element={<BlogPreviewPage />}
-              />
-              <Route path="/profile" element={<ProfileLayout />}>
-                <Route path="info" element={<ProfileInfo />} />
-                <Route path="blood-history" element={<BloodHistoryPage />} />
-                <Route
-                  path="blood-history/:donationRegistrationId"
-                  element={<BloodHistoryPage />}
-                />
-                {/* <Route path="notifications" element={<NotificationList />} /> */}
-                <Route
-                  path="change-password"
-                  element={<ChangePasswordPage />}
-                />
-                <Route index element={<ProfileInfo />} /> {/* default */}
-              </Route>
-              {/* Admin Routes */}
-              <Route
-                path="/dashboard-admin/*"
-                element={
-                  <PrivateRoute role="Admin">
-                    <AdminLayout />
-                  </PrivateRoute>
-                }
-              >
-                <Route index element={<DashBoardAdminPage />} />
-
-                <Route path="users" element={<UserListPage />} />
-                <Route path="bloods" element={<BloodPage />} />
-                <Route
-                  path="donation-registers"
-                  element={<DonationRegistrationsPage />}
-                />
-                <Route path="blogs" element={<BlogAdminPage />} />
-                <Route path="blogs/:id/edit" element={<BlogEditPage />} />
-              </Route>
-
-              {/* Staff Routes */}
-              <Route
-                path="/dashboard-staff/*"
-                element={
-                  <PrivateRoute role="Admin">
-                    <StaffLayout />
-                  </PrivateRoute>
-                }
-              >
-
-                <Route path="donation" element={<DonationRegisterPage />} />
-                <Route path="donation/:id" element={<DonationProcessPage />} />
-                <Route path="doctor-request" element={<DoctorRequestPage />} />
-                <Route
-                  path="doctor-request-approved"
-                  element={<BloodRequestApprovedList />}
-                />
-                <Route
-                  path="doctor-healthcheck-request-approved/:id"
-                  element={<HealthCheckRequest />}
-                />
-              </Route>
-
-              {/* Warehouse Staff Routes */}
-              <Route
-                path="/dashboard-staff-warehouse/*"
-                element={
-                  <PrivateRoute role="Admin">
-                    <StaffWarehouseLayout />
-                  </PrivateRoute>
-                }
-              >
-                <Route index element={<WarehouseDashboardPage />} />
-
-                <Route path="request-list" element={<BloodRequestListPage />} />
-                <Route
-                  path="request-list/:id"
-                  element={<BloodRequestApprovalPage />}
-                />
-                <Route path="blood-storage" element={<BloodStoragePage />} />
-                <Route
-                  path="blood-storage-summary"
-                  element={<BloodSummaryTable />}
-                />
-                <Route
-                  path="blood-separation-list"
-                  element={<BloodSeparationListPage />}
-                />
-                <Route
-                  path="blood-separation-process/:id"
-                  element={<BloodSeparationProcessPage />}
-                />
-              </Route>
-            </Routes>
-          </AnimatePresence>
-        </BrowserRouter>
-      </div>
-      {/* </PersistGate> */}
-    </Provider>
-  );
+	return (
+		<Provider store={store}>
+			<BrowserRouter>
+				<div className="w-full max-w-[100vw] overflow-x-hidden">
+					<Toaster richColors position="top-center" />
+					<RouterWrapper />
+				</div>
+			</BrowserRouter>
+		</Provider>
+	);
 }

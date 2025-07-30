@@ -9,7 +9,7 @@ import logo from "@/assets/logo.png";
 import { useDispatch, useSelector } from "react-redux";
 import type { AppDispatch, RootState } from "@/redux/store";
 import { fetchUserProfile, resetUser } from "@/redux/slices/userSlice";
-import NotificationDropdown from "../NotificationDropdown";
+import NotificationDropdown from "../NotificationDropdownAdmin";
 type HeaderComponentProps = {
 	isHomepage?: boolean;
 };

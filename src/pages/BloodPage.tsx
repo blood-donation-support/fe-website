@@ -1,11 +1,5 @@
 import React, { useEffect, useState } from "react";
 import {
-  Tabs,
-  TabsList,
-  TabsTrigger,
-  TabsContent,
-} from "@/components/ui/tabs";
-import {
   fetchBloodGroups,
   fetchBloodComponents,
   createBloodGroups,
@@ -20,6 +14,7 @@ import {
   TableBody,
   TableCell,
 } from "@/components/ui/table";
+
 type BloodItem = {
   _id: string;
   name: string;
@@ -30,38 +25,35 @@ type BloodItem = {
 const PRIMARY_COLOR = "#236AFE";
 
 export default function BloodPage() {
-  const [tab, setTab] = useState<"group" | "component">("group");
   const [bloodGroups, setBloodGroups] = useState<BloodItem[]>([]);
   const [bloodComponents, setBloodComponents] = useState<BloodItem[]>([]);
   const [loading, setLoading] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
   const [editItem, setEditItem] = useState<BloodItem | null>(null);
+  const [modalType, setModalType] = useState<"group" | "component">("group");
 
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
       try {
-        if (tab === "group") {
-          const groups = await fetchBloodGroups();
-          setBloodGroups(groups);
-        } else {
-          const components = await fetchBloodComponents();
-          setBloodComponents(components);
-        }
+        const [groups, components] = await Promise.all([
+          fetchBloodGroups(),
+          fetchBloodComponents()
+        ]);
+        setBloodGroups(groups);
+        setBloodComponents(components);
       } catch (error) {
-        console.error(
-          `Error loading ${tab === "group" ? "blood groups" : "components"}`,
-          error
-        );
+        console.error("Error loading blood data", error);
       } finally {
         setLoading(false);
       }
     };
     fetchData();
-  }, [tab]);
+  }, []);
 
-  const handleOpenModal = (item?: BloodItem) => {
+  const handleOpenModal = (item?: BloodItem, type: "group" | "component" = "group") => {
     setEditItem(item ?? null);
+    setModalType(type);
     setModalOpen(true);
   };
 
@@ -76,7 +68,7 @@ export default function BloodPage() {
           updated_at: new Date().toISOString(),
         };
       } else {
-        if (tab === "group") {
+        if (modalType === "group") {
           savedItem = await createBloodGroups(data.name);
           setBloodGroups([...bloodGroups, savedItem]);
         } else {
@@ -91,52 +83,32 @@ export default function BloodPage() {
     }
   };
 
+  if (loading) {
+    return (
+      <div className="px-3 py-6">
+        <p className="text-gray-500 italic text-center">Đang tải...</p>
+      </div>
+    );
+  }
+
   return (
     <div className="px-3 py-6">
-      <Tabs
-        value={tab}
-        onValueChange={(v) => setTab(v as "group" | "component")}
-        className="space-y-4"
-      >
-        <TabsList className="flex justify-center flex-wrap gap-4 bg-transparent border-none p-0 mb-6">
-          <TabsTrigger
-            value="group"
-            className="px-6 py-2 rounded-xl text-lg transition-all border border-[#236afe]
-              data-[state=active]:bg-[#236afe] data-[state=active]:text-white
-              data-[state=inactive]:bg-white data-[state=inactive]:text-[#236afe]"
-          >
-            Nhóm máu
-          </TabsTrigger>
-          <TabsTrigger
-            value="component"
-            className="px-6 py-2 rounded-xl text-lg transition-all border border-[#236afe]
-              data-[state=active]:bg-[#236afe] data-[state=active]:text-white
-              data-[state=inactive]:bg-white data-[state=inactive]:text-[#236afe]"
-          >
-            Thành phần máu
-          </TabsTrigger>
-        </TabsList>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        {/* Danh sách nhóm máu - Bên trái */}
+        <div>
+          {renderTable(bloodGroups, "group", () => handleOpenModal(undefined, "group"))}
+        </div>
 
-        <TabsContent value="group">
-          {loading ? (
-            <p className="text-gray-500 italic">Đang tải...</p>
-          ) : (
-            renderTable(bloodGroups, "group", handleOpenModal)
-          )}
-        </TabsContent>
-
-        <TabsContent value="component">
-          {loading ? (
-            <p className="text-gray-500 italic">Đang tải...</p>
-          ) : (
-            renderTable(bloodComponents, "component", handleOpenModal)
-          )}
-        </TabsContent>
-      </Tabs>
+        {/* Danh sách thành phần máu - Bên phải */}
+        <div>
+          {renderTable(bloodComponents, "component", () => handleOpenModal(undefined, "component"))}
+        </div>
+      </div>
 
       {modalOpen && (
         <ModalForm
           defaultValue={editItem}
+          type={modalType}
           onClose={() => setModalOpen(false)}
           onSave={handleSave}
         />
@@ -164,49 +136,54 @@ function renderTable(
           + Thêm mới
         </button> */}
       </div>
-{/* <div className="overflow-x-auto rounded-md border border-gray-200"> */}
-<Table className="border rounded-xl overflow-hidden">
-    <TableHeader className="bg-[#236afe] text-white">
-      <TableRow>
-        <TableHead className="text-white">Tên</TableHead>
-        <TableHead className="text-white">Ngày tạo</TableHead>
-      </TableRow>
-    </TableHeader>
-    <TableBody>
-      {list.map((item) => (
-        <TableRow key={item._id} className="hover:bg-gray-50">
-          <TableCell>
-            <span className="inline-block bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium">
-              {type === "component"
-                ? bloodComponentVN(item.name)
-                : item.name}
-            </span>
-          </TableCell>
-          <TableCell className="text-gray-600">
-            {new Date(item.created_at).toLocaleDateString("vi-VN")}
-          </TableCell>
-        </TableRow>
-      ))}
-      {list.length === 0 && (
-        <TableRow>
-          <TableCell colSpan={2} className="text-center italic text-gray-500 py-4">
-            Không có dữ liệu
-          </TableCell>
-        </TableRow>
-      )}
-    </TableBody>
-  </Table>
-{/* </div> */}
+
+      <Table className="border rounded-xl overflow-hidden">
+        <TableHeader className="bg-[#236afe] text-white">
+          <TableRow>
+            <TableHead className="text-white text-center">STT</TableHead>
+            <TableHead className="text-white">Tên</TableHead>
+            <TableHead className="text-white">Ngày tạo</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {list.map((item, index) => (
+            <TableRow key={item._id} className="hover:bg-gray-50">
+              <TableCell className="text-center font-medium w-16">
+                {index + 1}
+              </TableCell>
+              <TableCell>
+                <span className="inline-block bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium">
+                  {type === "component"
+                    ? bloodComponentVN(item.name)
+                    : item.name}
+                </span>
+              </TableCell>
+              <TableCell className="text-gray-600">
+                {new Date(item.created_at).toLocaleDateString("vi-VN")}
+              </TableCell>
+            </TableRow>
+          ))}
+          {list.length === 0 && (
+            <TableRow>
+              <TableCell colSpan={3} className="text-center italic text-gray-500 py-4">
+                Không có dữ liệu
+              </TableCell>
+            </TableRow>
+          )}
+        </TableBody>
+      </Table>
     </>
   );
 }
 
 function ModalForm({
   defaultValue,
+  type,
   onClose,
   onSave,
 }: {
   defaultValue: BloodItem | null;
+  type: "group" | "component";
   onClose: () => void;
   onSave: (item: BloodItem) => void;
 }) {
@@ -216,7 +193,7 @@ function ModalForm({
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
       <div className="bg-white p-6 rounded-xl w-full max-w-md shadow-xl">
         <h3 className="text-xl font-semibold text-gray-800 mb-4">
-          {defaultValue ? "Cập nhật" : "Thêm mới"} {defaultValue ? "dữ liệu" : "danh mục"}
+          {defaultValue ? "Cập nhật" : "Thêm mới"} {type === "group" ? "nhóm máu" : "thành phần máu"}
         </h3>
 
         <input
