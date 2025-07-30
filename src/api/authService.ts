@@ -90,7 +90,7 @@ throw new Error("Invalid login response");
         confirm_password,
         gender,
         role: "Customer",
-        date_of_birth: "2000-01-01T00:00:00.000Z", // hoặc để người dùng chọn
+        date_of_birth: date_of_birth, // hoặc để người dùng chọn
       },
       {
         headers: {

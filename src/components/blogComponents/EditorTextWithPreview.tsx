@@ -4,6 +4,7 @@ import MdEditor from "react-markdown-editor-lite";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { marked } from "marked";
+import axios from "axios";
 
 // Style cho markdown preview (giữ như bạn)
 const markdownStyles = {
@@ -87,13 +88,43 @@ const markdownStyles = {
     marginTop: "10px",
     marginBottom: "10px",
   },
+  pre: {
+  backgroundColor: "#f4f4f4",
+  padding: "10px",
+  borderRadius: "6px",
+  margin: "10px 0",
+  fontFamily: "monospace",
+  fontSize: "0.95rem",
+},
+code: {
+  backgroundColor: "#f4f4f4",
+  padding: "2px 4px",
+  borderRadius: "4px",
+  fontFamily: "monospace",
+  fontSize: "0.95rem",
+},
 };
 
 type EditorTextWithPreviewProps = {
   value: string;
   onChange: (val: string) => void;
 };
+const handleImageUpload = async (file: File): Promise<string> => {
+  try {
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("upload_preset", "BloodDonation");
 
+    const resp = await axios.post("https://api.cloudinary.com/v1_1/dpf7yfupt/image/upload", formData);
+    const url = resp.data.secure_url;
+
+    if (!url) throw new Error("No URL returned");
+    return url; // ⬅️ Quan trọng!
+  } catch (err) {
+    console.error("Image upload failed", err);
+    return Promise.reject("Không thể upload ảnh");
+  }
+};
 export default function EditorTextWithPreview({
   value,
   onChange,
@@ -110,10 +141,11 @@ export default function EditorTextWithPreview({
       {/* Markdown Editor */}
       <div className="flex-1 min-w-0">
         <MdEditor
-          value={value}
+          value={value || ""}
           style={{ height: "52vh" }}
           renderHTML={(text) => marked.parse(text || "")}
           onChange={handleEditorChange}
+          onImageUpload={handleImageUpload}
           view={{ menu: true, md: true, html: false }}
           placeholder="Nhập nội dung blog, chèn ảnh trực tiếp nếu muốn"
         />
@@ -126,7 +158,6 @@ export default function EditorTextWithPreview({
       >
         <div className="prose max-w-none">
           <ReactMarkdown
-            remarkPlugins={[remarkGfm]}
             components={{
               h1: ({ children }) => <h1 style={markdownStyles.h1}>{children}</h1>,
               h2: ({ children }) => <h2 style={markdownStyles.h2}>{children}</h2>,
@@ -145,6 +176,8 @@ export default function EditorTextWithPreview({
               th: ({ children }) => <th style={markdownStyles.th}>{children}</th>,
               td: ({ children }) => <td style={markdownStyles.td}>{children}</td>,
               img: ({ src, alt }) => <img src={src ?? ""} alt={alt ?? ""} style={markdownStyles.img} />,
+              pre: ({ children }) => <pre style={markdownStyles.pre}>{children}</pre>,
+              code: ({ children }) => <code style={markdownStyles.code}>{children}</code>,
             }}
           >
             {previewContent}
