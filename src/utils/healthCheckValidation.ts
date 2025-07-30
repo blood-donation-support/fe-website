@@ -13,8 +13,8 @@ const MIN_SYSTOLIC = 90;          // mmHg
 const MAX_SYSTOLIC = 180;         // mmHg
 const MIN_DIASTOLIC = 50;         // mmHg
 const MAX_DIASTOLIC = 100;        // mmHg
-const MIN_VOLUME = 350;           // ml
-const MAX_VOLUME = 500;           // ml
+const MIN_VOLUME = 150;           // ml
+const MAX_VOLUME = 450;           // ml
 
 
 // Disqualifying conditions

@@ -55,6 +55,7 @@ import RequestRegistrationsPage from "./pages/RequestRegistrationsPage";
 import NotFoundPage from "./pages/NotFoundPage";
 import { toast, Toaster } from "sonner";
 import Register from "./Auth/Register";
+import QuestionListPage from "./pages/admin/QuestionListPage";
 
 type PrivateRouteProps = {
 	role: string;
@@ -163,10 +164,12 @@ function RouterWrapper() {
 							path="donation-registers"
 							element={<DonationRegistrationsPage />}
 						/>
-            	<Route
+						<Route
 							path="request-registers"
 							element={<RequestRegistrationsPage />}
 						/>
+						<Route path="questions" element={<QuestionListPage />} />
+
 						<Route path="blogs" element={<BlogAdminPage />} />
 						<Route path="blogs/:id/edit" element={<BlogEditPage />} />
 					</Route>
