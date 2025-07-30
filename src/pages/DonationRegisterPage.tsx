@@ -21,7 +21,6 @@ import {
 } from "@/components/ui/table";
 import type { DonationRegistration } from "../types/donation";
 import { fetchDonationRegistrations } from "../api/donationRegistrationService";
-import statusVN from "@/utils/statusVN";
 import bloodComponentVN from "@/utils/translateBloodComponentVN";
 
 export const DonationRegisterPage: React.FC = () => {
@@ -35,15 +34,29 @@ export const DonationRegisterPage: React.FC = () => {
 		[],
 	);
 
+	const statusVN = (status: string, donationProcessStatus?: string): string => {
+		if (status === "Approved") return "Chờ checkin";
+
+		if (status === "Checked In") {
+			if (donationProcessStatus === "Pending") return "Chờ khám";
+			if (donationProcessStatus === "Approved") return "Đã hoàn thành";
+			if (donationProcessStatus === "Rejected") return "Đã từ chối";
+		}
+
+		return "Không xác định";
+	};
+
 	useEffect(() => {
 		(async () => {
 			try {
 				const data = await fetchDonationRegistrations();
-        const sorted = data.sort(
+				const sorted = data.sort(
 					(a, b) =>
 						new Date(b.start_date_donation).getTime() -
 						new Date(a.start_date_donation).getTime(),
 				);
+				console.log("dataaaaaaaaaaaaaaaaaaaaaa", data);
+
 				setRegistrations(sorted);
 			} catch (err) {
 				console.error(err);
@@ -233,16 +246,21 @@ export const DonationRegisterPage: React.FC = () => {
 							<TableBody>
 								{filtered.length > 0 ? (
 									filtered.map((r, index) => {
+										if (r.status === "Rejected") return null; 
+
 										const actionText = (() => {
 											switch (r.status) {
 												case "Approved":
 													return "Check In";
 												case "Checked In":
-													return "Sàng lọc & Lấy máu";
-												case "Rejected":
-													return "Xem Chi tiết";
-												// case "Approved":
-												// 	return "Lấy máu";
+													switch (r.donation_process_status) {
+														case "Pending":
+															return "Sàng lọc & Lấy máu";
+														case "Approved":
+														case "Rejected":
+														default:
+															return "Xem chi tiết";
+													}
 												default:
 													return "Xem chi tiết";
 											}
@@ -263,25 +281,29 @@ export const DonationRegisterPage: React.FC = () => {
 												<TableCell className="text-center">
 													{bloodComponentVN(r.donation_type || "Không có")}
 												</TableCell>
-											
-                        <TableCell className="text-center">
-                                                {new Date(r.start_date_donation).toLocaleString(
-                                                  "vi-VN",
-                                                )}
-                                              </TableCell>
+												<TableCell className="text-center">
+													{new Date(r.start_date_donation).toLocaleString(
+														"vi-VN",
+													)}
+												</TableCell>
 												<TableCell className="text-center">
 													<span
 														className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
-															r.status === "Checked In"
-																? "bg-green-100 text-green-800 border border-green-200"
-																: r.status === "Pending"
+															r.status === "Approved"
 																? "bg-yellow-100 text-yellow-800 border border-yellow-200"
-																: r.status === "Collected"
+																: r.status === "Checked In" &&
+																  r.donation_process_status === "Pending"
+																? "bg-yellow-100 text-yellow-800 border border-yellow-200"
+																: r.status === "Checked In" &&
+																  r.donation_process_status === "Approved"
+																? "bg-green-100 text-green-800 border border-green-200"
+																: r.status === "Checked In" &&
+																  r.donation_process_status === "Rejected"
 																? "bg-blue-100 text-blue-800 border border-blue-200"
-																: "bg-blue-100 text-gray-800 border border-gray-200"
+																: "bg-gray-100 text-gray-800 border border-gray-200"
 														}`}
 													>
-														{statusVN(r.status)}
+														{statusVN(r.status, r.donation_process_status)}
 													</span>
 												</TableCell>
 												<TableCell className="text-center">

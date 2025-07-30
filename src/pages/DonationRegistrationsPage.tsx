@@ -56,7 +56,7 @@ export default function DonationRegistrationsPage() {
 	);
 	const [filtered, setFiltered] = useState<DonationRegistration[]>([]);
 	const [statusFilter, setStatusFilter] = useState<
-		"all" | "pending" | "approved" | "rejected"
+		"all" | "Pending" | "Approved" | "Rejected"
 	>("all");
 	const [donationTypeFilter, setDonationTypeFilter] = useState<string>("all");
 	const [bloodGroupFilter, setBloodGroupFilter] = useState<string>("all");

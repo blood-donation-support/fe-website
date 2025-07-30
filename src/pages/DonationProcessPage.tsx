@@ -51,6 +51,18 @@ import {
 import { toast } from "sonner";
 type ResultType = "Approved" | "Rejected";
 
+function getExactLocalDatetime() {
+	const now = new Date();
+
+	const year = now.getFullYear();
+	const month = String(now.getMonth() + 1).padStart(2, "0");
+	const date = String(now.getDate()).padStart(2, "0");
+	const hours = String(now.getHours()).padStart(2, "0");
+	const minutes = String(now.getMinutes()).padStart(2, "0");
+
+	return `${year}-${month}-${date}T${hours}:${minutes}`;
+}
+
 export const DonationProcessPage: React.FC = () => {
 	const { id } = useParams<{ id: string }>();
 	const navigate = useNavigate();
@@ -64,6 +76,7 @@ export const DonationProcessPage: React.FC = () => {
 
 	const [donationGroup, setDonationGroup] = useState<string>("");
 	const [donationType, setDonationType] = useState<string>("");
+	
 
 	// Step 2
 	const [weight, setWeight] = useState<string>("");
@@ -97,6 +110,8 @@ export const DonationProcessPage: React.FC = () => {
 	const [rejectedStep, setRejectedStep] = useState<number | undefined>(
 		undefined,
 	);
+	const [shouldSubmitScreening, setShouldSubmitScreening] = useState(false);
+	const [shouldSubmitDonation, setShouldSubmitDonation] = useState(false);
 
 	useEffect(() => {
 		const loadOptions = async () => {
@@ -112,6 +127,19 @@ export const DonationProcessPage: React.FC = () => {
 		loadOptions();
 	}, [currentStep]);
 
+	useEffect(() => {
+		if (currentStep === 3 && !donationDate) {
+			const localTime = getExactLocalDatetime();
+			console.log("⏰ Local datetime:", localTime);
+			console.log("⏰ new Date().toString()", new Date().toString());
+
+			setDonationDate(localTime);
+		}
+	}, [currentStep]);
+
+	useEffect(() => {
+		console.log("⏰ donationDate:", donationDate);
+	}, [currentStep]);
 	useEffect(() => {
 		if (!id) return;
 		(async () => {
@@ -130,6 +158,7 @@ export const DonationProcessPage: React.FC = () => {
 			if (reg.health_check_id) {
 				hc = await fetchHealthCheck(reg.health_check_id);
 				setHealth(hc);
+				setDonationGroup(hc.blood_group_id || "");
 			}
 			if (hc && hc.status === "Rejected") {
 				setRejectedStep(2);
@@ -165,16 +194,27 @@ export const DonationProcessPage: React.FC = () => {
 			setSystolicBP(health.systolic_blood_pressure?.toString() || "");
 			setHemoglobin(health.hemoglobin?.toString() || "");
 			setConditions(health.underlying_health_conditions || []);
-			setScreenResult(health.status);
+			if (!donationGroup && health.blood_group_id) {
+				setDonationGroup(health.blood_group_id);
+			}
+			if (!donationType && health.donation_type) {
+				setDonationType(health.donation_type);
+			}
+
+			if (health.status === "Approved" || health.status === "Rejected") {
+				setScreenResult(health.status);
+			}
 		}
 	}, [health]);
 
 	useEffect(() => {
 		if (process && currentStep === 3) {
-			setDonationDate(process.donation_date?.slice(0, 16) || "");
+			// setDonationDate(process.donation_date?.slice(0, 16) || "");
 			setVolumeCollected(process.volume_collected?.toString() || "");
 			setDescription(process.description || "");
-			setStatusDonation(process.status);
+			if (process.status === "Approved" || process.status === "Rejected") {
+				setStatusDonation(process.status);
+			}
 		}
 	}, [process]);
 	const handleCheckIn = async () => {
@@ -195,31 +235,54 @@ export const DonationProcessPage: React.FC = () => {
 		}
 	}, [screenResult, statusDonation, currentStep]);
 
-	const handleScreening = async () => {
-		if (!health) return;
-		await updateHealthCheckDonation(health._id, {
-			blood_group_id: donationGroup || health.blood_group_id,
-			weight: parseFloat(weight),
-			temperature: parseFloat(temperature),
-			heart_rate: parseFloat(heartRate),
-			diastolic_blood_pressure: parseFloat(diastolicBP),
-			systolic_blood_pressure: parseFloat(systolicBP),
-			hemoglobin: parseFloat(hemoglobin),
-			underlying_health_conditions: conditions,
-			description: health.description,
-			status: screenResult,
-			donation_type: donationType || health.donation_type,
-		});
-		const updatedHealth = await fetchHealthCheck(health._id);
-		setHealth(updatedHealth);
-		if (screenResult === "Rejected") {
-			setRejectedStep(currentStep);
-			setStatusDonation("Rejected");
-			setCurrentStep(4);
-		} else {
-			setCurrentStep(3);
+	useEffect(() => {
+		if (shouldSubmitScreening && health && currentStep === 2) {
+			(async () => {
+				try {
+					await updateHealthCheckDonation(health._id, {
+						blood_group_id: donationGroup || health.blood_group_id,
+						weight: parseFloat(weight),
+						temperature: parseFloat(temperature),
+						heart_rate: parseFloat(heartRate),
+						diastolic_blood_pressure: parseFloat(diastolicBP),
+						systolic_blood_pressure: parseFloat(systolicBP),
+						hemoglobin: parseFloat(hemoglobin),
+						underlying_health_conditions: conditions,
+						description: health.description,
+						status: screenResult,
+						donation_type: donationType || health.donation_type,
+					});
+
+					const updatedHealth = await fetchHealthCheck(health._id);
+					setHealth(updatedHealth);
+					if (updatedHealth.donation_process_id) {
+						try {
+							const dp = await fetchDonationProcess(
+								updatedHealth.donation_process_id,
+							);
+							setProcess(dp);
+						} catch (err) {
+							console.error("Fetch process sau sàng lọc thất bại:", err);
+						}
+					}
+
+					if (screenResult === "Rejected") {
+						setRejectedStep(currentStep);
+						setStatusDonation("Rejected");
+						setCurrentStep(4);
+					} else {
+						setCurrentStep(3);
+					}
+					toast.success("Sàng lọc sức khỏe thành công!");
+				} catch (err) {
+					console.error("Screening failed", err);
+					toast.error("Có lỗi xảy ra khi cập nhật thông tin sàng lọc!");
+				} finally {
+					setShouldSubmitScreening(false);
+				}
+			})();
 		}
-	};
+	}, [shouldSubmitScreening, health, currentStep]);
 
 	const onScreening = async () => {
 		const { valid, fieldErrors } = validateHealthScreeningFields({
@@ -239,44 +302,108 @@ export const DonationProcessPage: React.FC = () => {
 			Object.values(fieldErrors).forEach((msg) => toast.error(msg));
 			return;
 		}
-		await handleScreening();
+		setShouldSubmitScreening(true);
 	};
-
-	const handleDonation = async () => {
-		if (!process) return;
-		await updateDonationProcess(process._id, {
-			donation_date: donationDate + ":00Z",
-			volume_collected: parseFloat(volumeCollected),
-			description,
-			status: statusDonation,
-		});
-		const updatedProcess = await fetchDonationProcess(process._id);
-		setProcess(updatedProcess);
-		if (statusDonation === "Rejected") {
-			setRejectedStep(currentStep);
+	useEffect(() => {
+		// Khi vào bước 3, nếu chưa có process mà health.donation_process_id đã có
+		if (currentStep === 3 && !process && health?.donation_process_id) {
+			(async () => {
+				try {
+					const dp = await fetchDonationProcess(health.donation_process_id);
+					setProcess(dp);
+				} catch (err) {
+					console.error("Không lấy được DonationProcess:", err);
+				}
+			})();
 		}
-		setDonationDone(true);
-		setCurrentStep(4);
-	};
+	}, [currentStep, health, process]);
+
+	// useEffect(() => {
+	// 	if (shouldSubmitDonation && process && currentStep === 3) {
+	// 		(async () => {
+	// 			try {
+	// 				await updateDonationProcess(process._id, {
+	// 					donation_date: donationDate + ":00Z",
+	// 					volume_collected: parseFloat(volumeCollected),
+	// 					description,
+	// 					status: statusDonation,
+	// 				});
+	// 				const updatedProcess = await fetchDonationProcess(process._id);
+	// 				setProcess(updatedProcess);
+
+	// 				if (statusDonation === "Rejected") {
+	// 					setRejectedStep(currentStep);
+	// 					toast.error("Ca hiến máu bị từ chối");
+	// 				} else {
+	// 					toast.success("Lưu thông tin hiến máu thành công");
+	// 				}
+
+	// 				setCurrentStep(4);
+	// 			} catch (err) {
+	// 				console.error("Donation update failed", err);
+	// 				toast.error("Không thể cập nhật thông tin hiến máu");
+	// 			} finally {
+	// 				setShouldSubmitDonation(false);
+	// 			}
+	// 		})();
+	// 	}
+	// }, [shouldSubmitDonation, process, currentStep]);
+
+	// const onDonate = async () => {
+	// 	const { valid, errors } = validateDonationProcess({
+	// 		donationDate,
+	// 		volumeCollected: parseFloat(volumeCollected),
+	// 		statusDonation,
+	// 	});
+	// 	const fieldErrs: Record<string, string> = {};
+	// 	errors.forEach((err) => {
+	// 		if (err.includes("ngày")) fieldErrs.donationDate = err;
+	// 		else if (err.includes("Thể tích")) fieldErrs.volumeCollected = err;
+	// 		else fieldErrs.statusDonation = err;
+	// 	});
+	// 	setDonationErrors(fieldErrs);
+	// 	if (!valid) {
+	// 		errors.forEach((msg) => toast.error(msg));
+	// 		return;
+	// 	}
+	// 	setShouldSubmitDonation(true);
+	// };
 
 	const onDonate = async () => {
+		// 1. Validate
 		const { valid, errors } = validateDonationProcess({
 			donationDate,
 			volumeCollected: parseFloat(volumeCollected),
 			statusDonation,
 		});
-		const fieldErrs: Record<string, string> = {};
-		errors.forEach((err) => {
-			if (err.includes("ngày")) fieldErrs.donationDate = err;
-			else if (err.includes("Thể tích")) fieldErrs.volumeCollected = err;
-			else fieldErrs.statusDonation = err;
-		});
-		setDonationErrors(fieldErrs);
 		if (!valid) {
 			errors.forEach((msg) => toast.error(msg));
 			return;
 		}
-		await handleDonation();
+
+		// 2. Kiểm tra chắc có process
+		if (!process?._id) {
+			toast.error("Quá trình hiến máu chưa sẵn sàng, vui lòng thử lại sau.");
+			return;
+		}
+
+		// 3. Gọi API ngay lập tức
+		try {
+			await updateDonationProcess(process._id, {
+				donation_date: donationDate + ":00Z",
+				volume_collected: parseFloat(volumeCollected),
+				description,
+				status: statusDonation,
+			});
+			// 4. Cập nhật lại state và chuyển bước
+			const updated = await fetchDonationProcess(process._id);
+			setProcess(updated);
+			toast.success("Lưu thông tin hiến máu thành công");
+			setCurrentStep(4);
+		} catch (err) {
+			console.error("Donation update failed", err);
+			toast.error("Không thể cập nhật thông tin hiến máu");
+		}
 	};
 
 	const finish = () => navigate("/dashboard-staff");
@@ -522,7 +649,14 @@ export const DonationProcessPage: React.FC = () => {
 													onValueChange={(v) => setDonationGroup(v)}
 												>
 													<SelectTrigger>
-														<SelectValue placeholder="Chọn nhóm máu" />
+														<SelectValue
+															placeholder="Chọn nhóm máu"
+															defaultValue={donationGroup}
+														>
+															{bloodGroupOptions.find(
+																(g) => g.id === donationGroup,
+															)?.name || "Chọn nhóm máu"}
+														</SelectValue>
 													</SelectTrigger>
 													<SelectContent>
 														{bloodGroupOptions.map((g) => (
@@ -538,6 +672,7 @@ export const DonationProcessPage: React.FC = () => {
 													</p>
 												)}
 											</div>
+
 											{/* Loại hiến máu */}
 											<div>
 												<Label>Loại hiến máu</Label>
@@ -687,14 +822,11 @@ export const DonationProcessPage: React.FC = () => {
 									</CardHeader>
 									<CardContent>
 										<Select
-											onValueChange={(v) => {
-												if (v === "Approved" || v === "Rejected") {
-													setScreenResult(v as ResultType);
-												}
-											}}
+											defaultValue="Approved"
+											onValueChange={(v) => setScreenResult(v as ResultType)}
 										>
 											<SelectTrigger className="w-full text-sm font-semibold">
-												<SelectValue placeholder="Chọn kết quả sàng lọc" />
+												<SelectValue />
 											</SelectTrigger>
 											<SelectContent>
 												{Object.entries(SCREEN_RESULT_LABELS).map(
@@ -752,9 +884,15 @@ export const DonationProcessPage: React.FC = () => {
 												<Input
 													type="datetime-local"
 													value={donationDate}
-													onChange={(e) => setDonationDate(e.target.value)}
-													className="text-lg"
+													disabled
+													readOnly
+													className="text-lg bg-gray-100 text-gray-700 border-gray-300 cursor-not-allowed"
 												/>
+												<p className="text-sm text-gray-500 italic mt-1">
+													Thời gian ghi nhận được tự động xác định khi hiến máu
+													bắt đầu
+												</p>
+
 												{/* {donationErrors.donationDate && (
 													<p className="text-red-600 text-sm">
 														{donationErrors.donationDate}
@@ -773,6 +911,7 @@ export const DonationProcessPage: React.FC = () => {
 												</label>
 												<Input
 													type="number"
+													min={0}
 													value={volumeCollected}
 													onChange={(e) => setVolumeCollected(e.target.value)}
 													className="text-center text-lg font-semibold"
@@ -799,14 +938,13 @@ export const DonationProcessPage: React.FC = () => {
 													📊 Trạng thái hiến máu
 												</label>
 												<Select
-													onValueChange={(v) => {
-														if (v === "Approved" || v === "Rejected") {
-															setStatusDonation(v as ResultType);
-														}
-													}}
+													defaultValue="Approved"
+													onValueChange={(v) =>
+														setStatusDonation(v as ResultType)
+													}
 												>
 													<SelectTrigger className="text-sm">
-														<SelectValue placeholder="Chọn trạng thái" />
+														<SelectValue />
 													</SelectTrigger>
 													<SelectContent>
 														{Object.entries(DONATION_STATUS_LABELS).map(

@@ -7,8 +7,7 @@ import type { DonationRegistration } from '../types/donation';
 export const fetchDonationRegistrations = async (): Promise<DonationRegistration[]> => {
   console.log("call nè");
   const res = await apiClient.get<ApiResponse<DonationRegistration[]>>('/donations/donation-registrations');
-  console.log(res);
-  console.log(res.data.result);
+  console.log("res.data.result", res.data.result);
 return res.data.result;
 };
 

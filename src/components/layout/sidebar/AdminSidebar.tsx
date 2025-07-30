@@ -11,12 +11,17 @@ const adminNavItems = [
 	//   { icon: "fa-flask", label: "Quy trình", path: "/dashboard-admin/blood-process" },
 	{
 		icon: "fa-clipboard-list",
-		label: "Đơn Đăng Kí Hiến",
+		label: "Danh sách Câu Hỏi Hiến ",
+		path: "/dashboard-admin/questions",
+	},
+	{
+		icon: "fa-clipboard-list",
+		label: "Danh Sách Đăng Kí Hiến",
 		path: "/dashboard-admin/donation-registers",
 	},
 	{
 		icon: "fa-hand-holding-heart",
-		label: "Đơn Xin  Máu",
+		label: "Danh Sách Đơn Xin  Máu",
 		path: "/dashboard-admin/request-registers",
 	},
 	//   { icon: "fa-file-alt", label: "Reports", path: "/dashboard-admin/reports" },
