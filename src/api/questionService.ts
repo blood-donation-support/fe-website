@@ -16,3 +16,10 @@ export const deleteQuestion = async (id: string): Promise<Question> => {
   const response = await apiClient.delete<ApiResponse<Question>>(`/questions/${id}`);
   return response.data.result;
 };
+
+export const questionService = {
+  fetchQuestions: async (): Promise<Question[]> => {
+    const res = await apiClient.get<ApiResponse<Question[]>>(`/questions`);
+    return res.data.result;
+  },
+};

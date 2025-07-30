@@ -79,7 +79,7 @@ export const BloodRequestApprovedList: React.FC = () => {
 			// Fetch dữ liệu request hiện tại để lấy request_type
 			const currentRequest = await fetchDoctorRequestById(requestId);
 
-console.log("currentRequest.request_type", currentRequest.request_type);
+			console.log("currentRequest.request_type", currentRequest.request_type);
 			// Gọi API để approve request với request_type từ dữ liệu hiện tại
 			await approveDoctorRequest(requestId, {
 				status: "Approved",
@@ -119,6 +119,10 @@ console.log("currentRequest.request_type", currentRequest.request_type);
 	};
 
 	const filtered = requests.filter((r) => {
+		const matchesDate = selectedDate
+			? new Date(r.receive_date_request).toDateString() === selectedDate.toDateString()
+			: true;
+
 		const mappedStatus = statusFilterMap[statusFilter];
 		const matchesStatus =
 			mappedStatus === undefined ? true : r.status === mappedStatus;
@@ -147,7 +151,8 @@ console.log("currentRequest.request_type", currentRequest.request_type);
 			matchesStatus &&
 			matchesUrgency &&
 			matchesSearch &&
-			matchesStatusHealthCare
+			matchesStatusHealthCare &&
+			matchesDate
 		);
 	});
 
@@ -405,7 +410,9 @@ console.log("currentRequest.request_type", currentRequest.request_type);
 											<TableCell className="text-center">
 												{r.full_name || "chưa cập nhật"}
 											</TableCell>
-											<TableCell className="text-center">{r.phone || "chưa cập nhật"}</TableCell>
+											<TableCell className="text-center">
+												{r.phone || "chưa cập nhật"}
+											</TableCell>
 											<TableCell className="text-center">
 												{r.citizen_id_number || "chưa cập nhật"}
 											</TableCell>
@@ -430,7 +437,9 @@ console.log("currentRequest.request_type", currentRequest.request_type);
 															: "bg-green-100 text-green-800 border border-green-200"
 													}`}
 												>
-													{r.is_emergency ? "Khẩn cấp" : "Bình thường" || "chưa cập nhật"}
+													{r.is_emergency
+														? "Khẩn cấp"
+														: "Bình thường" || "chưa cập nhật"}
 												</span>
 											</TableCell>
 											<TableCell className="text-center">

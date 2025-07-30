@@ -33,6 +33,7 @@ const DonateBloodPage = () => {
 		blood_group_id: "",
 		donation_type: "",
 		start_date_donation: today.toISOString(),
+		answers: [] as { question_id: string; answer: boolean }[],
 	});
 	useEffect(() => {
 		if (!profile) dispatch(fetchUserProfile());

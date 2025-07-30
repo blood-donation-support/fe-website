@@ -28,7 +28,11 @@ import {
 } from "@/components/ui/dialog";
 import { fetchInventory } from "@/api/inventoryService";
 import type { InventoryItem } from "@/api/inventoryService";
-import { fetchBloodGroups, fetchBloodComponents, updateBloodUnitStatus } from "@/api/bloodService";
+import {
+	fetchBloodGroups,
+	fetchBloodComponents,
+	updateBloodUnitStatus,
+} from "@/api/bloodService";
 import bloodComponentVN from "@/utils/translateBloodComponentVN";
 import { BloodStorageProcessPage } from "./BloodStorageProcessPage";
 import { BloodReleaseForm } from "./BloodReleaseForm";
@@ -69,7 +73,7 @@ export const BloodStoragePage: React.FC = () => {
 
 	// Filter states
 	const [searchText, setSearchText] = useState("");
-	const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
+const [selectedDate, setSelectedDate] = useState<Date>(() => new Date());
 	const [bloodGroupFilter, setBloodGroupFilter] = useState("all");
 	const [bloodComponentFilter, setBloodComponentFilter] = useState("all");
 	const [statusFilter, setStatusFilter] = useState("all");
@@ -94,105 +98,53 @@ export const BloodStoragePage: React.FC = () => {
 	}, [tab]);
 
 	// Filtered data
+	
 	const filteredData = useMemo(() => {
-		return data.filter((item) => {
-			// Search text filter
-			if (searchText) {
-				const searchLower = searchText.toLowerCase();
-				const bgName = (
-					groups[item.blood_group_id] ?? item.blood_group_id
-				).toLowerCase();
-				const compName = (
-					comps[item.blood_component_id] ?? item.blood_component_id
-				).toLowerCase();
-				const searchMatch =
-					bgName.includes(searchLower) ||
-					compName.includes(searchLower) ||
-					item.donation_process_id?.toLowerCase().includes(searchLower) ||
-					item.request_process_id?.toLowerCase().includes(searchLower);
+	return data.filter((item) => {
+		const matchesDate = selectedDate
+			? new Date(item.expired_at).toDateString() === selectedDate.toDateString()
+			: true;
 
-				if (!searchMatch) return false;
-			}
+		const matchesGroup =
+			bloodGroupFilter === "all" || item.blood_group_id === bloodGroupFilter;
 
-			// Blood group filter
-			if (
-				bloodGroupFilter !== "all" &&
-				item.blood_group_id !== bloodGroupFilter
-			) {
-				return false;
-			}
+		const matchesComponent =
+			bloodComponentFilter === "all" ||
+			item.blood_component_id === bloodComponentFilter;
 
-			// Blood component filter
-			if (
-				bloodComponentFilter !== "all" &&
-				item.blood_component_id !== bloodComponentFilter
-			) {
-				return false;
-			}
+		const matchesStatus =
+			statusFilter === "all" || item.status === statusFilter;
 
-			// Status filter
-			if (statusFilter !== "all" && item.status !== statusFilter) {
-				return false;
-			}
+		const volume = Number(item.volume);
+		const minVolume = volumeMinFilter ? Number(volumeMinFilter) : undefined;
+		const maxVolume = volumeMaxFilter ? Number(volumeMaxFilter) : undefined;
+		const matchesVolume =
+			(minVolume === undefined || volume >= minVolume) &&
+			(maxVolume === undefined || volume <= maxVolume);
 
-			// Volume filter
-			if (volumeMinFilter && item.volume < parseInt(volumeMinFilter)) {
-				return false;
-			}
-			if (volumeMaxFilter && item.volume > parseInt(volumeMaxFilter)) {
-				return false;
-			}
+		return (
+			matchesDate &&
+			matchesGroup &&
+			matchesComponent &&
+			matchesStatus &&
+			matchesVolume
+		);
+	});
+}, [
+	data,
+	selectedDate,
+	bloodGroupFilter,
+	bloodComponentFilter,
+	statusFilter,
+	volumeMinFilter,
+	volumeMaxFilter,
+]);
 
-			// Date range filter
-			if (dateFromFilter || dateToFilter) {
-				const itemDate = new Date(item.created_at);
-				if (dateFromFilter && itemDate < dateFromFilter) {
-					return false;
-				}
-				if (dateToFilter && itemDate > dateToFilter) {
-					return false;
-				}
-			}
-
-			// Selected date filter (legacy)
-			if (selectedDate) {
-				const itemDate = new Date(item.created_at);
-				const selectedDateOnly = new Date(
-					selectedDate.getFullYear(),
-					selectedDate.getMonth(),
-					selectedDate.getDate(),
-				);
-				const itemDateOnly = new Date(
-					itemDate.getFullYear(),
-					itemDate.getMonth(),
-					itemDate.getDate(),
-				);
-				if (itemDateOnly.getTime() !== selectedDateOnly.getTime()) {
-					return false;
-				}
-			}
-
-			return true;
-		});
-	}, [
-		data,
-		searchText,
-		bloodGroupFilter,
-		bloodComponentFilter,
-		statusFilter,
-		volumeMinFilter,
-		volumeMaxFilter,
-		dateFromFilter,
-		dateToFilter,
-		selectedDate,
-		groups,
-		comps,
-	]);
 
 	// Clear all filters
 	const clearAllFilters = () => {
 		setSearchText("");
-		setSelectedDate(undefined);
+		setSelectedDate(new Date());
 		setBloodGroupFilter("all");
 		setBloodComponentFilter("all");
 		setStatusFilter("all");
@@ -227,8 +179,8 @@ export const BloodStoragePage: React.FC = () => {
 		setUpdatingStatus(true);
 		try {
 			// Call the updateBloodUnitStatus API
-			await updateBloodUnitStatus(selectedItem._id, { 
-				status: BloodUnitStatus.Damaged 
+			await updateBloodUnitStatus(selectedItem._id, {
+				status: BloodUnitStatus.Damaged,
 			});
 
 			// Update the item in the data array
@@ -400,6 +352,33 @@ export const BloodStoragePage: React.FC = () => {
 								</div>
 							</div>
 						</div>
+
+						{/* Active Filters */}
+						{(selectedDate || statusFilter !== "all" || searchText) && (
+							<div className="mt-6 pt-6 border-t border-gray-100">
+								<span className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
+									Bộ lọc đang áp dụng
+								</span>
+								<div className="flex flex-wrap gap-2 mt-2">
+									{selectedDate && (
+										<span className="inline-flex items-center gap-1 px-3 py-1 bg-blue-50 text-blue-700 text-sm rounded-full border border-blue-200">
+											{selectedDate.toLocaleDateString("vi-VN")}
+										</span>
+									)}
+									{statusFilter !== "all" && (
+										<span className="inline-flex items-center gap-1 px-3 py-1 bg-gray-50 text-gray-700 text-sm rounded-full border border-gray-200">
+											{statusVN(statusFilter)}
+										</span>
+									)}
+
+									{searchText && (
+										<span className="inline-flex items-center gap-1 px-3 py-1 bg-purple-50 text-purple-700 text-sm rounded-full border border-purple-200">
+											"{searchText}"
+										</span>
+									)}
+								</div>
+							</div>
+						)}
 					</CardContent>
 				</Card>
 

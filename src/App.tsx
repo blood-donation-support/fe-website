@@ -56,6 +56,7 @@ import NotFoundPage from "./pages/NotFoundPage";
 import { toast, Toaster } from "sonner";
 import Register from "./Auth/Register";
 import QuestionListPage from "./pages/admin/QuestionListPage";
+import ProfileLayoutAdmin from "./components/layout/ProfileLayoutAdmin";
 
 type PrivateRouteProps = {
 	role: string;
@@ -142,6 +143,7 @@ function RouterWrapper() {
 						<Route path="change-password" element={<ChangePasswordPage />} />
 						<Route index element={<ProfileInfo />} /> {/* default */}
 					</Route>
+
 					{/* Admin Routes */}
 					<Route
 						path="/dashboard-admin/*"
@@ -172,6 +174,12 @@ function RouterWrapper() {
 
 						<Route path="blogs" element={<BlogAdminPage />} />
 						<Route path="blogs/:id/edit" element={<BlogEditPage />} />
+						<Route path="profile-admin" element={<ProfileLayoutAdmin />}>
+							<Route path="info" element={<ProfileInfo />} />
+							{/* <Route path="notifications" element={<NotificationList />} /> */}
+							<Route path="change-password" element={<ChangePasswordPage />} />
+							<Route index element={<ProfileInfo />} /> {/* default */}
+						</Route>
 					</Route>
 
 					{/* Staff Routes */}

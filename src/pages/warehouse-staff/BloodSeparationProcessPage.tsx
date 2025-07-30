@@ -269,12 +269,17 @@ export const BloodSeparationProcessPage: React.FC = () => {
 											</Label>
 											<Input
 												type="number"
-												value={it.volume}
+												value={it.volume || ""}
 												onChange={(e) =>
-													handleChange(it._id, "volume", Number(e.target.value))
+													handleChange(
+														it._id,
+														"volume",
+														Number(e.target.value) || 0,
+													)
 												}
 												className="border-blue-200 focus:border-blue-500 focus:ring-blue-500/20 bg-white/80 backdrop-blur-sm"
 												placeholder="0"
+												min="0"
 											/>
 										</div>
 
@@ -295,16 +300,19 @@ export const BloodSeparationProcessPage: React.FC = () => {
 											</Label>
 											<Input
 												type="number"
-												value={it.storage_temperature}
+												value={it.storage_temperature || ""}
 												onChange={(e) =>
 													handleChange(
 														it._id,
 														"storage_temperature",
-														Number(e.target.value),
+														Number(e.target.value) >= 0
+															? Number(e.target.value)
+															: 0,
 													)
 												}
 												className="border-blue-200 focus:border-blue-500 focus:ring-blue-500/20 bg-white/80 backdrop-blur-sm"
 												placeholder="0"
+												min="0"
 											/>
 										</div>
 
@@ -323,7 +331,7 @@ export const BloodSeparationProcessPage: React.FC = () => {
 												</svg>
 												Trạng thái
 											</Label>
-											<Select
+											{/* <Select
 												value={it.status || ""}
 												onValueChange={(v) => handleChange(it._id, "status", v)}
 											>
@@ -351,6 +359,24 @@ export const BloodSeparationProcessPage: React.FC = () => {
 															</span>
 														</SelectItem>
 													))}
+												</SelectContent>
+											</Select> */}
+
+											<Select value={it.status || ""} disabled readOnly>
+												<SelectTrigger className="border-blue-200 bg-white/80 backdrop-blur-sm cursor-not-allowed">
+													<SelectValue placeholder="Chọn trạng thái" />
+												</SelectTrigger>
+												<SelectContent className="bg-white border-blue-200">
+													<SelectItem
+														key="Available"
+														value="Available"
+														className="focus:bg-blue-50 focus:text-blue-900"
+													>
+														<span className="flex items-center gap-2">
+															<div className="w-2 h-2 rounded-full bg-yellow-500" />
+															{statusVN("Available")}
+														</span>
+													</SelectItem>
 												</SelectContent>
 											</Select>
 										</div>
