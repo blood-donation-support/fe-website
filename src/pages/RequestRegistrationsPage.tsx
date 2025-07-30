@@ -57,15 +57,7 @@ const statusVN = (status: string) => {
 	return statusMap[status as keyof typeof statusMap] || status;
 };
 
-const requestTypeVN = (type: string) => {
-	const typeMap = {
-		Surgery: "Phẫu thuật",
-		Treatment: "Điều trị",
-		Emergency: "Cấp cứu",
-		Transfusion: "Truyền máu",
-	};
-	return typeMap[type as keyof typeof typeMap] || type;
-};
+
 
 export default function RequestRegistrationsPage() {
 	const [requests, setRequests] = useState<DoctorRequest[]>([]);
@@ -318,7 +310,7 @@ export default function RequestRegistrationsPage() {
 												<SelectItem value="all">Tất cả</SelectItem>
 												{requestTypes.map((type) => (
 													<SelectItem key={type} value={type}>
-														{requestTypeVN(type)}
+														{bloodComponentVN(type)}
 													</SelectItem>
 												))}
 											</SelectContent>
@@ -378,7 +370,7 @@ export default function RequestRegistrationsPage() {
 											)}
 											{requestTypeFilter !== "all" && (
 												<span className="inline-flex items-center gap-1 px-3 py-1 bg-pink-50 text-pink-700 text-sm rounded-full border border-pink-200">
-													Loại yêu cầu: {requestTypeVN(requestTypeFilter)}
+													Loại yêu cầu: {bloodComponentVN(requestTypeFilter)}
 												</span>
 											)}
 											{bloodGroupFilter !== "all" && (
@@ -419,7 +411,7 @@ export default function RequestRegistrationsPage() {
 										Loại yêu cầu
 									</th>
 									<th className="text-white font-semibold px-6 py-4 text-left">
-										Ngày cần
+										Ngày xin máu
 									</th>
 									<th className="text-white font-semibold px-6 py-4 text-left">
 										Tình trạng
@@ -456,7 +448,7 @@ export default function RequestRegistrationsPage() {
 												</span>
 											</td>
 											<td className="px-6 py-4 text-gray-600">
-												{requestTypeVN(r.request_type || "Chưa cập nhật")}
+												{bloodComponentVN(r.request_type || "Chưa cập nhật")}
 											</td>
 											<td className="px-6 py-4 text-gray-600">
 												{formatDateTime(r.receive_date_request)}
