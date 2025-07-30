@@ -772,23 +772,7 @@ export default function UserListPage() {
 															</Select>
 														</div>
 
-														<div>
-															<label className="block text-sm font-medium text-gray-700 mb-2">
-																URL ảnh đại diện
-															</label>
-															<Input
-																placeholder="Nhập đường dẫn ảnh đại diện"
-																className="rounded-xl"
-																value={newUser.avatar_url || ""}
-																onChange={(e) =>
-																	setNewUser({
-																		...newUser,
-																		avatar_url: e.target.value,
-																	})
-																}
-																title="Nhập URL ảnh đại diện (không bắt buộc)"
-															/>
-														</div>
+												
 
 														<Button
 															onClick={handleAddUser}
