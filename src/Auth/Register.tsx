@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { toast, ToastContainer } from "react-toastify";
-import { Eye, EyeOff, User, Lock, Sparkles, Mail, Phone, VenetianMask, CalendarDays, } from "lucide-react";
+import { Eye, EyeOff, User, Lock, Sparkles, Mail, Phone, VenetianMask, CalendarDays, IdCard, Droplet, } from "lucide-react";
 import Logo from "../assets/logo2.png";
 import authService from "@/api/authService";
 import GoogleLoginButton from "./GoogleAuth";
@@ -453,7 +453,7 @@ const Register: React.FC = () => {
                                                 InputProps={{
                                                     startAdornment: (
                                                         <InputAdornment position="start">
-                                                            <Phone className="text-blue-600 w-5 h-5" />
+                                                            <IdCard className="text-blue-600 w-5 h-5" />
                                                         </InputAdornment>
                                                     ),
                                                     style: { height: "56px" },
@@ -526,7 +526,7 @@ const Register: React.FC = () => {
                                                 InputProps={{
                                                     startAdornment: (
                                                         <InputAdornment position="start">
-                                                            <Phone className="text-blue-600 w-5 h-5" />
+                                                            <Droplet className="text-blue-600 w-5 h-5" />
                                                         </InputAdornment>
                                                     ),
                                                     style: { height: "56px" },

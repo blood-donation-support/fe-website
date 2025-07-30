@@ -423,7 +423,7 @@ const Login: React.FC = () => {
 											transition={{ delay: 0.9, duration: 0.6 }}
 											className="mt-8"
 										>
-											<div className="relative">
+											{/* <div className="relative">
 												<div className="absolute inset-0 flex items-center">
 													<div className="w-full border-t border-gray-200" />
 												</div>
@@ -432,7 +432,7 @@ const Login: React.FC = () => {
 														Hoặc tiếp tục với
 													</span>
 												</div>
-											</div>
+											</div> */}
 											{/* 
 											<div className="mt-6 flex justify-center">
 												<GoogleLoginButton />
