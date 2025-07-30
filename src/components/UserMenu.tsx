@@ -2,13 +2,13 @@ import { useState, useEffect } from "react";
 import { fetchUser } from "../api/userService";
 import type { User } from "@/types/user";
 import AdminDropdown from "./ui/AdminDropdown";
-import NotificationDropdown from "./NotificationDropdown";
 import { toast } from "react-toastify";
 import { useDispatch } from "react-redux";
 import { useAuthStore } from "@/store/authStore";
 import type { AppDispatch } from "@/redux/store";
 import { resetUser } from "@/redux/slices/userSlice";
 import { useNavigate } from "react-router-dom";
+import NotificationDropdownAdmin from "./NotificationDropdownAdmin";
 
 export default function UserMenu() {
 	const [userProfile, setUserProfile] = useState<User | null>(null);
@@ -81,7 +81,7 @@ export default function UserMenu() {
 	return (
 		<div className="flex items-center gap-4  p-3 ">
 			{/* Notification */}
-			<NotificationDropdown />
+			<NotificationDropdownAdmin />
 
 			{/* Admin dropdown */}
 			<AdminDropdown
