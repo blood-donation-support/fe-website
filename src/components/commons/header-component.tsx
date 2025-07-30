@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { FaBars, FaBell, FaPhone } from "react-icons/fa";
 import { motion } from "framer-motion";
 import { toast } from "react-toastify";
@@ -23,12 +23,13 @@ const HeaderComponent = ({ isHomepage }: HeaderComponentProps) => {
 	const [offset, setOffset] = useState(0);
 	const [blurActivation, setBlurActivation] = useState(false);
 	const logout = useAuthStore((state) => state.logout);
-
+	const navigate = useNavigate();
 	const handleLogout = async () => {
 		logout();
 		setTimeout(() => {
 			toast.success("Đăng xuất thành công!");
-		}, 200); // 200ms là đủ, không gây khó chịu
+		}, 200);
+		navigate("/");
 		dispatch(resetUser());
 	};
 
