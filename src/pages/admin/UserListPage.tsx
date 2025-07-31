@@ -31,7 +31,8 @@ import type { User, NewUserPayload } from "@/types/user";
 import genderVN from "@/utils/genderVN";
 import { UserGender } from "@/types/user";
 import { useNavigate } from "react-router-dom";
-
+import { debounce } from "lodash";
+import { searchLocationSuggestions } from "@/api/locationService";
 const roleVN = (role: string) => {
 	switch (role) {
 		case "Customer":
@@ -45,6 +46,10 @@ const roleVN = (role: string) => {
 	}
 };
 
+interface ExtendedNewUser extends Partial<NewUserPayload> {
+	latitude?: number | null;
+	longitude?: number | null;
+}
 const formatDate = (dateString: string) => {
 	return new Date(dateString).toLocaleDateString("vi-VN");
 };
@@ -81,6 +86,7 @@ export default function UserListPage() {
 		blood_group_id: "",
 		role: "Customer",
 	});
+
 	const [showPassword, setShowPassword] = useState(false);
 	const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 	const [bloodGroups, setBloodGroups] = useState<BloodGroup[]>([]);
@@ -131,6 +137,109 @@ export default function UserListPage() {
 		} finally {
 			setLoading(false);
 		}
+	};
+
+	const [addressSuggestions, setAddressSuggestions] = useState<any[]>([]);
+	const [showAddressList, setShowAddressList] = useState(false);
+	const [addressLoading, setAddressLoading] = useState(false);
+	const [selectedAddress, setSelectedAddress] = useState<any>(null);
+	const [addressCache, setAddressCache] = useState<{ [key: string]: any[] }>(
+		{},
+	);
+	const [requestCount, setRequestCount] = useState(0);
+	const [lastRequestTime, setLastRequestTime] = useState(0);
+
+	// Thêm vào functions trong UserListPage
+	const searchAddresses = async (query: string) => {
+		if (query.length < 3) {
+			setAddressSuggestions([]);
+			setShowAddressList(false);
+			return;
+		}
+
+		// Kiểm tra rate limiting
+		const now = Date.now();
+		if (now - lastRequestTime < 1000) {
+			return;
+		}
+
+		// Reset counter mỗi phút
+		if (now - lastRequestTime > 60000) {
+			setRequestCount(0);
+		}
+
+		// Giới hạn tối đa 10 request/phút
+		if (requestCount >= 10) {
+			console.warn("Rate limit reached, please wait...");
+			return;
+		}
+
+		if (addressCache[query]) {
+			setAddressSuggestions(addressCache[query]);
+			setShowAddressList(addressCache[query].length > 0);
+			return;
+		}
+		// if (newUser.address && newUser.address.trim() && !selectedAddress) {
+		// 	toast.error("Vui lòng chọn địa chỉ từ danh sách gợi ý");
+		// 	return;
+		// }
+
+		setAddressLoading(true);
+		setRequestCount((prev) => prev + 1);
+		setLastRequestTime(now);
+
+		try {
+			const suggestions = await searchLocationSuggestions(query, "vn");
+
+			setAddressCache((prev) => ({
+				...prev,
+				[query]: suggestions,
+			}));
+
+			setAddressSuggestions(suggestions);
+			setShowAddressList(suggestions.length > 0);
+		} catch (error) {
+			console.error("Error searching addresses:", error);
+			setAddressSuggestions([]);
+			setShowAddressList(false);
+		} finally {
+			setAddressLoading(false);
+		}
+	};
+
+	// Debounced search function
+	const debouncedSearch = debounce(searchAddresses, 2000);
+
+	// Handle address selection
+	const handleAddressSelect = (address: any) => {
+		setSelectedAddress(address);
+		setNewUser({
+			...newUser,
+			address: address.display_name,
+			latitude: address.lat,
+			longitude: address.lon,
+		});
+		setShowAddressList(false);
+		setAddressSuggestions([]);
+	};
+
+	// Handle address input change
+	const handleAddressInputChange = (text: string) => {
+		setNewUser({
+			...newUser,
+			address: text,
+		});
+		// Reset coordinates khi user thay đổi địa chỉ
+		if (text !== selectedAddress?.display_name) {
+			setSelectedAddress(null);
+			setNewUser({
+				...newUser,
+				address: text,
+				latitude: null,
+				longitude: null,
+			});
+		}
+		debouncedSearch(text);
 	};
 
 	const handleOpenDeleteDialog = (id: string) => {
@@ -681,23 +790,107 @@ export default function UserListPage() {
 																title="Nhập cân nặng tính bằng kg (số dương)"
 															/>
 														</div>
+														<div className="space-y-3 relative">
+															<div className="flex items-center gap-2">
+																<div className="w-2 h-2 bg-orange-500 rounded-full" />
+																<label className="text-sm font-semibold text-gray-700 tracking-wide">
+																	ĐỊA CHỈ
+																</label>
+															</div>
+															<div className="relative">
+																<div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+																	<svg
+																		className="h-5 w-5 text-gray-400"
+																		fill="none"
+																		stroke="currentColor"
+																		viewBox="0 0 24 24"
+																	>
+																		<path
+																			strokeLinecap="round"
+																			strokeLinejoin="round"
+																			strokeWidth={2}
+																			d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
+																		/>
+																		<path
+																			strokeLinecap="round"
+																			strokeLinejoin="round"
+																			strokeWidth={2}
+																			d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
+																		/>
+																	</svg>
+																</div>
+																<Input
+																	placeholder="Nhập địa chỉ để tìm kiếm..."
+																	value={newUser.address || ""}
+																	onChange={(e) =>
+																		handleAddressInputChange(e.target.value)
+																	}
+																	className="w-full h-12 pl-12 pr-4 bg-white border-gray-200 rounded-xl shadow-sm hover:border-gray-300 hover:shadow-md focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-200 placeholder:text-gray-400"
+																	onFocus={() => {
+																		if (addressSuggestions.length > 0) {
+																			setShowAddressList(true);
+																		}
+																	}}
+																/>
+																{addressLoading && (
+																	<div className="absolute inset-y-0 right-0 pr-4 flex items-center">
+																		<div className="animate-spin rounded-full h-5 w-5 border-b-2 border-blue-500"></div>
+																	</div>
+																)}
+																{selectedAddress && (
+																	<div className="absolute inset-y-0 right-0 pr-4 flex items-center">
+																		<svg
+																			className="h-5 w-5 text-green-500"
+																			fill="none"
+																			stroke="currentColor"
+																			viewBox="0 0 24 24"
+																		>
+																			<path
+																				strokeLinecap="round"
+																				strokeLinejoin="round"
+																				strokeWidth={2}
+																				d="M5 13l4 4L19 7"
+																			/>
+																		</svg>
+																	</div>
+																)}
+															</div>
 
-														<div>
-															<label className="block text-sm font-medium text-gray-700 mb-2">
-																Địa chỉ
-															</label>
-															<Input
-																placeholder="Nhập địa chỉ nơi ở"
-																className="rounded-xl"
-																value={newUser.address || ""}
-																onChange={(e) =>
-																	setNewUser({
-																		...newUser,
-																		address: e.target.value,
-																	})
-																}
-																title="Nhập địa chỉ nơi ở hiện tại"
-															/>
+															{/* Address Suggestions List */}
+															{showAddressList &&
+																addressSuggestions.length > 0 && (
+																	<div className="absolute z-50 w-full bg-white border border-gray-200 rounded-xl shadow-xl max-h-60 overflow-y-auto mt-1">
+																		{addressSuggestions.map(
+																			(address, index) => (
+																				<button
+																					key={address.place_id || index}
+																					type="button"
+																					className="w-full text-left px-4 py-3 hover:bg-blue-50 transition-colors border-b border-gray-100 last:border-b-0 flex items-start gap-3"
+																					onClick={() =>
+																						handleAddressSelect(address)
+																					}
+																				>
+																					<svg
+																						className="h-4 w-4 text-gray-400 mt-1 flex-shrink-0"
+																						fill="none"
+																						stroke="currentColor"
+																						viewBox="0 0 24 24"
+																					>
+																						<path
+																							strokeLinecap="round"
+																							strokeLinejoin="round"
+																							strokeWidth={2}
+																							d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
+																						/>
+																					</svg>
+																					<span className="text-sm text-gray-700 line-clamp-2">
+																						{address.display_name}
+																					</span>
+																				</button>
+																			),
+																		)}
+																	</div>
+																)}
 														</div>
 
 														<div>
@@ -771,8 +964,6 @@ export default function UserListPage() {
 																</SelectContent>
 															</Select>
 														</div>
-
-												
 
 														<Button
 															onClick={handleAddUser}
