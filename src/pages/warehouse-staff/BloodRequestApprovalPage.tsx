@@ -192,7 +192,7 @@ export const BloodRequestApprovalPage: React.FC = () => {
 
 	const handleApprove = async () => {
 		if (!request || selectedBloodUnits.length === 0) {
-			alert("Vui lòng chọn ít nhất một đơn vị máu");
+toast.error("Vui lòng chọn ít nhất một đơn vị máu");
 			return;
 		}
 		setLoading(true);
@@ -204,7 +204,7 @@ export const BloodRequestApprovalPage: React.FC = () => {
 			setStep(4);
 		} catch (err) {
 			console.error(err);
-			alert("Có lỗi khi duyệt đơn");
+			toast.error("Có lỗi khi duyệt đơn");
 		} finally {
 			setLoading(false);
 		}
@@ -213,7 +213,7 @@ export const BloodRequestApprovalPage: React.FC = () => {
 	const handleUpdateRequestProcessDetail = async () => {
 		if (!requestProcessId) {
 			console.error("ID is undefined");
-			alert("Không tìm thấy ID yêu cầu.");
+			toast.error("Không tìm thấy ID yêu cầu.");
 			return;
 		}
 		console.log("update", id);
@@ -224,7 +224,7 @@ export const BloodRequestApprovalPage: React.FC = () => {
 			setStep(3);
 		} catch (err) {
 			console.error(err);
-			alert("Có lỗi khi cập nhật đơn");
+			toast.error("Có lỗi khi cập nhật đơn");
 		} finally {
 			setLoading(false);
 		}
@@ -274,7 +274,7 @@ export const BloodRequestApprovalPage: React.FC = () => {
 	const handleUpdateRequestProcessBlood = async () => {
 		if (!requestProcessId) {
 			console.error("ID is undefined");
-			alert("Không tìm thấy ID yêu cầu.");
+			toast.error("Không tìm thấy ID yêu cầu.");
 			return;
 		}
 		console.log("update", id);
@@ -289,7 +289,7 @@ export const BloodRequestApprovalPage: React.FC = () => {
 			setStep(4);
 		} catch (err) {
 			console.error(err);
-			alert("Có lỗi khi cập nhật đơn");
+		toast.error("Có lỗi khi cập nhật đơn");
 		} finally {
 			setLoading(false);
 		}
@@ -298,7 +298,7 @@ export const BloodRequestApprovalPage: React.FC = () => {
 	const handleConfirmRequestProcessBlood = async () => {
 		if (!requestProcessId) {
 			console.error("ID is undefined");
-			alert("Không tìm thấy ID yêu cầu.");
+			toast.error("Không tìm thấy ID yêu cầu.");
 			return;
 		}
 		console.log("update", id);
@@ -312,7 +312,7 @@ export const BloodRequestApprovalPage: React.FC = () => {
 			navigate("/dashboard-staff-warehouse/request-list");
 		} catch (err) {
 			console.error(err);
-			alert("Có lỗi khi cập nhật đơn");
+			toast.error("Có lỗi khi cập nhật đơn");
 		} finally {
 			setLoading(false);
 		}
@@ -1243,7 +1243,7 @@ export const BloodRequestApprovalPage: React.FC = () => {
 							<Input
 								id="radius"
 								type="number"
-								min={6}
+								min={5}
 								value={radiusKm}
 								onChange={(e) => setRadiusKm(Number(e.target.value))}
 								placeholder="Nhập bán kính (> 5km)"

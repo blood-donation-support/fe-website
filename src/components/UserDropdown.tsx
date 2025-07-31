@@ -81,7 +81,7 @@ const UserDropdown: React.FC<Props> = ({ user, onLogout }) => {
             {user.role === "Customer" && (
               <li>
                 <Link
-                  to="/profile/customer-history"
+                  to="/profile/blood-history"
                   className="block px-2 py-2 hover:bg-blue-50 rounded-md text-gray-700 font-medium"
                   onClick={() => setOpen(false)}
                 >

@@ -217,15 +217,17 @@ export const DonationProcessPage: React.FC = () => {
 			}
 		}
 	}, [process]);
-	const handleCheckIn = async () => {
-		if (!registration) return;
-		await checkInDonationRegistration(
-			id!,
-			"Checked In",
-			donationType || undefined,
-		);
-		setCurrentStep(2);
-	};
+const handleCheckIn = async () => {
+  if (!registration) return;
+  const updatedReg = await checkInDonationRegistration(id!, "Checked In", donationType || undefined);
+  if (updatedReg.health_check_id) {
+    const hc = await fetchHealthCheck(updatedReg.health_check_id);
+    setHealth(hc);
+    setDonationGroup(hc.blood_group_id || "");
+  }
+  setCurrentStep(2);
+};
+
 	useEffect(() => {
 		if (screenResult !== "Rejected" && currentStep === 2) {
 			setRejectedStep(undefined);
@@ -318,93 +320,57 @@ export const DonationProcessPage: React.FC = () => {
 		}
 	}, [currentStep, health, process]);
 
-	// useEffect(() => {
-	// 	if (shouldSubmitDonation && process && currentStep === 3) {
-	// 		(async () => {
-	// 			try {
-	// 				await updateDonationProcess(process._id, {
-	// 					donation_date: donationDate + ":00Z",
-	// 					volume_collected: parseFloat(volumeCollected),
-	// 					description,
-	// 					status: statusDonation,
-	// 				});
-	// 				const updatedProcess = await fetchDonationProcess(process._id);
-	// 				setProcess(updatedProcess);
 
-	// 				if (statusDonation === "Rejected") {
-	// 					setRejectedStep(currentStep);
-	// 					toast.error("Ca hiến máu bị từ chối");
-	// 				} else {
-	// 					toast.success("Lưu thông tin hiến máu thành công");
-	// 				}
+const onDonate = async () => {
+  // 1. Validate
+  const { valid, errors } = validateDonationProcess({
+    donationDate,
+    volumeCollected: parseFloat(volumeCollected),
+    statusDonation,
+  });
+  if (!valid) {
+    errors.forEach((msg) => toast.error(msg));
+    return;
+  }
 
-	// 				setCurrentStep(4);
-	// 			} catch (err) {
-	// 				console.error("Donation update failed", err);
-	// 				toast.error("Không thể cập nhật thông tin hiến máu");
-	// 			} finally {
-	// 				setShouldSubmitDonation(false);
-	// 			}
-	// 		})();
-	// 	}
-	// }, [shouldSubmitDonation, process, currentStep]);
+  // 2. Kiểm tra chắc có process
+  if (!process?._id) {
+    toast.error("Quá trình hiến máu chưa sẵn sàng, vui lòng thử lại sau.");
+    return;
+  }
 
-	// const onDonate = async () => {
-	// 	const { valid, errors } = validateDonationProcess({
-	// 		donationDate,
-	// 		volumeCollected: parseFloat(volumeCollected),
-	// 		statusDonation,
-	// 	});
-	// 	const fieldErrs: Record<string, string> = {};
-	// 	errors.forEach((err) => {
-	// 		if (err.includes("ngày")) fieldErrs.donationDate = err;
-	// 		else if (err.includes("Thể tích")) fieldErrs.volumeCollected = err;
-	// 		else fieldErrs.statusDonation = err;
-	// 	});
-	// 	setDonationErrors(fieldErrs);
-	// 	if (!valid) {
-	// 		errors.forEach((msg) => toast.error(msg));
-	// 		return;
-	// 	}
-	// 	setShouldSubmitDonation(true);
-	// };
+  // 3. Gọi API ngay lập tức
+  try {
+    await updateDonationProcess(process._id, {
+      donation_date: donationDate + ":00Z",
+      volume_collected: parseFloat(volumeCollected),
+      description,
+      status: statusDonation,
+    });
+    // 4. Cập nhật lại state và chuyển bước
+    const updated = await fetchDonationProcess(process._id);
+    setProcess(updated);
+    toast.success("Lưu thông tin hiến máu thành công");
+    setCurrentStep(4);
 
-	const onDonate = async () => {
-		// 1. Validate
-		const { valid, errors } = validateDonationProcess({
-			donationDate,
-			volumeCollected: parseFloat(volumeCollected),
-			statusDonation,
-		});
-		if (!valid) {
-			errors.forEach((msg) => toast.error(msg));
-			return;
-		}
+  } catch (err: any) {
+    console.error("Donation update failed", err);
 
-		// 2. Kiểm tra chắc có process
-		if (!process?._id) {
-			toast.error("Quá trình hiến máu chưa sẵn sàng, vui lòng thử lại sau.");
-			return;
-		}
+    const status = err.response?.status;
+    const data = err.response?.data;
+    const message: string = data?.message;
+    const codePrefix: string = data?.errorInfo?.codePrefix;
 
-		// 3. Gọi API ngay lập tức
-		try {
-			await updateDonationProcess(process._id, {
-				donation_date: donationDate + ":00Z",
-				volume_collected: parseFloat(volumeCollected),
-				description,
-				status: statusDonation,
-			});
-			// 4. Cập nhật lại state và chuyển bước
-			const updated = await fetchDonationProcess(process._id);
-			setProcess(updated);
-			toast.success("Lưu thông tin hiến máu thành công");
-			setCurrentStep(4);
-		} catch (err) {
-			console.error("Donation update failed", err);
-			toast.error("Không thể cập nhật thông tin hiến máu");
-		}
-	};
+    // Nếu là lỗi Firebase credential invalid_grant thì không toast
+    if (status === 500
+        && (message?.includes("invalid_grant")
+            || codePrefix === "app")) {
+      return;
+    }
+
+    toast.error("Không thể cập nhật thông tin hiến máu");
+  }
+};
 
 	const finish = () => navigate("/dashboard-staff");
 
@@ -1010,6 +976,13 @@ export const DonationProcessPage: React.FC = () => {
 												Quá trình hiến máu không thể hoàn tất do không đáp ứng
 												các tiêu chí sàng lọc.
 											</p>
+											<Button
+												onClick={finish}
+												size="lg"
+												className="px-12 py-3 bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white font-semibold rounded-xl shadow-lg transform transition hover:scale-105"
+											>
+												🏠 Quay về Dashboard
+											</Button>
 										</div>
 									</div>
 								) : (

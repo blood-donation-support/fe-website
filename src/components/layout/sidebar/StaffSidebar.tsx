@@ -24,7 +24,7 @@ const artistNavItems = [
 
 export default function StaffSidebar() {
 	return (
-		<aside className="w-64 bg-white border-r p-4 hidden md:flex flex-col justify-between">
+<aside className="w-64 bg-white border-r p-4 hidden md:flex flex-col justify-between h-screen overflow-hidden">
 			<div>
 				<Link
 					to="/"

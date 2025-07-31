@@ -73,7 +73,6 @@ export const BloodSeparationProcessPage: React.FC = () => {
 			prev.map((it) => (it._id === id ? { ...it, [field]: value } : it)),
 		);
 	};
-
 	const handleSave = async () => {
 		setSaving(true);
 		try {
@@ -99,9 +98,10 @@ export const BloodSeparationProcessPage: React.FC = () => {
 			);
 			toast.success("Cập nhật thành công");
 			navigate("/dashboard-staff-warehouse/blood-separation-list");
-		} catch {
-			setError("Lưu thay đổi thất bại.");
-			toast.error("Cập nhật thất bại");
+		} catch (err: any) {
+			const msg =
+				err.response?.data?.message || "Cập nhật thất bại, vui lòng thử lại";
+			toast.error(msg);
 		} finally {
 			setSaving(false);
 		}
@@ -129,7 +129,7 @@ export const BloodSeparationProcessPage: React.FC = () => {
 		);
 	}
 
-	if (error) return <div className="p-6 text-center text-red-500">{error}</div>;
+	// if (error) return <div className="p-6 text-center text-red-500">{error}</div>;
 
 	if (!items.length)
 		return <div className="p-6 text-center">Không có dữ liệu.</div>;

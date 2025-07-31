@@ -174,11 +174,11 @@ export const DonationRegisterPage: React.FC = () => {
 									</SelectTrigger>
 									<SelectContent className="rounded-xl border-gray-200 shadow-xl">
 										<SelectItem value="all">Tất cả</SelectItem>
-										<SelectItem value="Pending">Chưa đến</SelectItem>
+										<SelectItem value="Approved">Chưa đến</SelectItem>
 										<SelectItem value="Checked In">Đã đến</SelectItem>
-										<SelectItem value="Approved">Đã duyệt</SelectItem>
+										{/* <SelectItem value="Approved">Đã duyệt</SelectItem>
 										<SelectItem value="Completed">Hoàn tất</SelectItem>
-										<SelectItem value="Rejected">Từ chối</SelectItem>
+										<SelectItem value="Rejected">Từ chối</SelectItem> */}
 									</SelectContent>
 								</Select>
 							</div>
